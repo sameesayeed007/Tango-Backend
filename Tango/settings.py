@@ -17,7 +17,7 @@ SECRET_KEY = 'c&jpfh4s@-&e%n)debl_rly9w82riyrtuktuf*#1cz3$m&tk^e'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['tango99.herokuapp.com','127.0.0.1']
 AUTH_USER_MODEL = 'Intense.User'
 
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
