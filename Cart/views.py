@@ -1373,13 +1373,6 @@ def cancel_cart(request):
 
 
 
-    
-
-
-
-
-
-
 '''
 @api_view(['POST',])
 def show_address(request,userid):
@@ -1441,7 +1434,7 @@ def create_address(request):
 			billing_address_serializer.save()
 
 		#addresses = [address_serializer.data,billing_address_serializer.data]
-		return JsonResponse(address_serializer.data,safe=False,status=status.HTTP_201_CREATED)
+		return JsonResponse(billing_address_serializer.data,safe=False,status=status.HTTP_201_CREATED)
 
 
 #This shows the address of the user in the form

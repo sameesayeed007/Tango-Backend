@@ -1,5 +1,5 @@
 from rest_framework import serializers , exceptions
-from Intense.models import User , Profile , Address , user_relation , DeactivateUser,user_balance,Guest_user
+from Intense.models import User , Profile, user_relation,user_balance,Guest_user
 from django.contrib import auth 
 from rest_framework.exceptions import AuthenticationFailed
 from drf_extra_fields.fields import Base64ImageField
@@ -150,53 +150,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 
-class CustomRegisterSerializer(RegisterSerializer):
-    first_name = serializers.CharField(required=True, write_only=True)
-    last_name = serializers.CharField(required=True, write_only=True)
-    phone_number =  serializers.CharField(required=True, write_only=True , 
-                                    validators = [UniqueValidator(
-                                        queryset = Profile.objects.all(),
-                                        message = _("A user is already registered with this phone number."))])
-
-    def get_cleaned_data_profile(self):
-        return {
-            'first_name': self.validated_data.get('first_name', ''),
-            'last_name': self.validated_data.get('last_name', ''),
-            'phone_number': self.validated_data.get('phone_number', '')
-        }
-
-    def create_profile(self, user, validated_data):
-        user.first_name = self.validated_data.get('first_name')
-        user.last_name = self.validated_data.get('last_name')
-        user.save()
-
-        user.profile.phone_number = self.validated_data.get('phone_number')
-        user.profile.save()
-
-    def custom_signup(self, request, user):
-        self.create_profile(user, self.get_cleaned_data_profile()) 
-
-
-
-class UserMiniSerializer(serializers.ModelSerializer):
-    profile_picture = serializers.ImageField(source='profile.profile_picture')
-    gender = serializers.CharField(source='profile.gender')
-    phone_number = serializers.CharField(source='profile.phone_number')
-
-    class Meta:
-        model = User()
-        fields = "__all__"
-
-class AddressSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Address
-        fields = "__all__"
-
-class CreateAddressSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Address
-        exclude = ['primary', 'user']
-
 
 
 class UserRelationSerializer(serializers.ModelSerializer):
@@ -206,29 +159,29 @@ class UserRelationSerializer(serializers.ModelSerializer):
         fields = ('id','verified_user_id','non_verified_user_id')
 
 
-class DeactivateUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DeactivateUser
-        exclude = ["deactive", "user"]
+# class DeactivateUserSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = DeactivateUser
+#         exclude = ["deactive", "user"]
 
 
 
-class PermissionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Permission
-        fields = ['email', 'codename', 'content_type']
+# class PermissionSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Permission
+#         fields = ['email', 'codename', 'content_type']
 
 
-class UserPermissionretriveSerializer(serializers.ModelSerializer):
-    user_permissions = PermissionSerializer(many=True, read_only=True)
-    class Meta:
-        model = User
-        fields = ('user_permissions',)
+# class UserPermissionretriveSerializer(serializers.ModelSerializer):
+#     user_permissions = PermissionSerializer(many=True, read_only=True)
+#     class Meta:
+#         model = User
+#         fields = ('user_permissions',)
 
-class UserPermissionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('user_permissions',)
+# class UserPermissionSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ('user_permissions',)
 
 class UserBalanceSerializer(serializers.ModelSerializer):
    

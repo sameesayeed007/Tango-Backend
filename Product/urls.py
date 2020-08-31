@@ -9,19 +9,20 @@ app_name = 'Product'
 
 urlpatterns = [
 
-    path("serpy/product/", views.SerpyListProductAPIView.as_view()),
-    path("category/", views.CategoryListAPIView.as_view()),
-    path("category/<int:pk>/", views.CategoryAPIView.as_view()),
-    path("list/product/", views.ListProductAPIView.as_view()),
-    path("serpy/product/", views.SerpyListProductAPIView.as_view()),
-    path("list-product/user/", views.ListUserProductAPIView.as_view()),
-    path("create/product/", views.CreateProductAPIView.as_view()),
-    path("product/<int:pk>/delete/", views.DestroyProductAPIView.as_view()),
-    path("product/<str:uuid>/", views.ProductDetailView.as_view()),
-    path("product/views/", views.ProductViewsAPIView.as_view()),
-    #path('inventory/<int:pk>', views.VariationListView.as_view(), name='product_inventory'),
-    path("create/category/", views.CreateCategoryAPIView.as_view()),
-    path("group_product/",views.group_product),
+    path("create/", views.insert_specific_product_value),
+    path('delete/<int:product_id>/', views.delete_product_value),
+    path('edit/<int:product_id>/', views.get_update_product_value),
+    path('products_detail/', views.get_all_product),
+    path('category_detail/', views.get_all_product_category),
+    path('category/create/', views.insert_specific_category_value),
+    path('category/edit/<int:category_id>', views.get_update_category_value),
+    path('category/delete/<int:category_id>', views.get_update_category_value),
+    path('group/detail/', views.get_all_group_product),
+    path('group/create/', views.insert_specific_group_product_value),
+    path('group/edit/<int:gp_id>', views.get_update_group_product_value),
+    path('group/delete/<int:gp_id>', views.delete_group_product_value),
+    path('list/' , views.ListProductView.as_view()),
+    
     #Product comments and reviews
     path('comments_product/<int:product_id>/', views.comments_product),
     #path('comments/<int:product_ids>/', views.comm),

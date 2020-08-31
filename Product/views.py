@@ -1,4 +1,3 @@
-import logging
 import json
 import requests
 from rest_framework.decorators import api_view
@@ -27,333 +26,208 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 
 
-from Intense.models import Category, Product, ProductViews, GroupProduct , Variation
+from Intense.models import Category, Product, GroupProduct , Variation
 # from user_profile.models import User
+
 from .serializers import (
-    CategoryListSerializer,
-    ProductSerializer,
-    SerpyProductSerializer,
-    CreateProductSerializer,
-    ProductViewsSerializer,
-    ProductDetailSerializer,
-    GroupProductSerializer,
-)
-from .permissions import IsOwnerAuth, ModelViewSetsPermission
+		CategorySerializer, 
+		ProductSerializer,
+        VariationSerializer,
+        GroupProductSerialyzer,
+        CreateProductSerializer
+		)
+
 from .decorators import time_calculator
-from django.contrib.auth.models import User
-from Intense.models import Comment,CommentReply,Reviews,Order,OrderDetails
+from Intense.models import Comment,CommentReply,Reviews,Order,OrderDetails,User,GroupProduct, Product, Variation, Category 
 from .serializers import CommentSerializer, CommentReplySerializer,ReviewsSerializer ,ProductReviewSerializer
 from django.http.response import JsonResponse
 from django.contrib.auth import get_user_model
+import django_filters.rest_framework
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
+from rest_framework.generics import ListAPIView 
+from User_details.serializers import UserSerializer
 
-
-class SerpyListProductAPIView(ListAPIView):
-    queryset = Product.objects.all()
-    serializer_class = SerpyProductSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['category', 'in_stock']
+# -------------------- Product -----------------------
 
 
 class ListProductView(ListAPIView):
-    permission_classes = (ModelViewSetsPermission,)
-    serializer_class = CreateProductSerializer
-    filter_backends = [DjangoFilterBackend]
-    search_fields = ("title",)
-    ordering_fields = ("created",)
-    filter_fields = ("title",)
     queryset = Product.objects.all()
-
-    def update(self, request, *args, **kwargs):
-
-        if User.objects.get(username="username") != self.get_object().seller:
-            raise NotAcceptable(_("you don't own product"))
-        return super(ListProductView, self).update(request, *args, **kwargs)
-
-
-
-class CategoryListAPIView(ListAPIView):
-    # permission_classes = [permissions.IsAuthenticated]
-    serializer_class = CategoryListSerializer
-    filter_backends = [DjangoFilterBackend]
-    search_fields = ("title",)
-    ordering_fields = ("created",)
-    filter_fields = ("created",)
-    # queryset = Category.objects.all()
-
-    @time_calculator
-    def time(self):
-        return 0
-
-    def get_queryset(self):
-        queryset = Category.objects.all()
-        self.time()
-        return queryset
-
-
-class CategoryAPIView(RetrieveAPIView):
-    # permission_classes = [permissions.IsAuthenticated]
-    serializer_class = CategoryListSerializer
-    queryset = Category.objects.all()
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        data = {}
-        # for k, v in serializer.data.items():
-        #     data[k] = translator.translate(str(v), dest="ar").text
-
-        return Response(data)
-
-class CreateCategoryAPIView(CreateAPIView):
-    #permission_classes = [auth.authenticate]
-    serializer_class = CategoryListSerializer
-
-    def create(self, request, *args, **kwargs):
-        #user = request.user
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-class DestroyCategoryAPIView(DestroyAPIView):
-    #permission_classes = [auth.authenticate]
-    serializer_class = CategoryListSerializer
-    queryset = Product.objects.all()
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.is_deleted = True
-        instance.save()
-        return Response({"detail": "Category deleted"})
-
-
-
-class ListProductAPIView(ListAPIView):
     serializer_class = ProductSerializer
-    filter_backends = [DjangoFilterBackend]
-    search_fields = ("title",)
-    ordering_fields = ("created",)
-    filter_fields = ("title",)
-    queryset = Product.objects.all()
-
-    @time_calculator
-    def time(self):
-        return 0
-
-    # Cache requested url for each user for 2 hours
-    @method_decorator(cache_page(60 * 60 * 2))
-    @method_decorator(vary_on_cookie)
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        self.time()
-        return Response(serializer.data)
-
-
-class ListUserProductAPIView(ListAPIView):
-    serializer_class = ProductSerializer
-    filter_backends = [DjangoFilterBackend]
-    search_fields = (
-        "title",
-        "user__username",
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
     )
-    ordering_fields = ("created",)
-    filter_fields = ("title",)
-
-    def get_queryset(self):
-        user = self.request.user
-        queryset = Product.objects.filter(user=user)
-        return queryset
+    search_fields = ("title",'brand')
+    filterset_fields = ['title', 'brand']
+    
 
 
-class CreateProductAPIView(CreateAPIView):
-    #permission_classes = [permissions.IsAuthenticated]
-    serializer_class = CreateProductSerializer
+@api_view (["GET","post"])
+def get_all_product(request):
 
-    def create(self, request, *args, **kwargs):
-        user = request.user
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(seller=user)
-        #push_notifications(user, request.data["title"], "you have add a new product")
-        # if user.profile.phone_number:
-        #     send_message(user.profile.phone_number, "Congratulations, you Created New Product")
-        logger.info(
-            "product ( "
-            + str(serializer.data.get("title"))
-            + " ) created"
-            + " by ( "
-            + str(user.username)
-            + " )"
-        )
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+ #"This api is for view all Product informations"
+    if (request.method == "GET"):
+        queryset = Product.objects.all()
+        product_serializers = ProductSerializer(queryset , many = True)
+        return Response (product_serializers.data)
 
+@api_view (["GET" , "POST"])
+#"This api is for view create  product.  "
+def insert_specific_product_value(request):
+    if(request.method == "POST"):
+        product_serializers=ProductSerializer(data=request.data)
+        if(product_serializers.is_valid()):
+            product_serializers.save()
+            return Response (product_serializers.data, status=status.HTTP_201_CREATED)
+        return JsonResponse(product_serializers.errors)
 
-class DestroyProductAPIView(DestroyAPIView):
-    #permission_classes = [IsOwnerAuth]
-    serializer_class = ProductDetailSerializer
-    queryset = Product.objects.all()
+@api_view(["GET","POST"])
+def get_update_product_value(request , product_id):
 
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.is_deleted = True
-        instance.save()
-        return Response({"detail": "Product deleted"})
+	try:
+		product = Product.objects.get(id=product_id)
+		if request.method == 'POST':
+			serializers = ProductSerializer(product , data=request.data )
+			if serializers.is_valid():
+				serializers.save()
+				return JsonResponse(serializers.data)
+			return JsonResponse(serializers.errors)
 
-
-class ProductViewsAPIView(ListAPIView):
-    # permission_classes = [IsOwnerAuth]
-    serializer_class = ProductViewsSerializer
-    queryset = ProductViews.objects.all()
+	except Product.DoesNotExist:
+		return JsonResponse({'message': 'This product does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
 
-class ProductDetailView(APIView):
-    def get(self, request, uuid):
-        product = Product.objects.get(uuid=uuid)
-        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(",")[0]
-        else:
-            ip = request.META.get("REMOTE_ADDR")
-
-        if not ProductViews.objects.filter(product=product, ip=ip).exists():
-            ProductViews.objects.create(product=product, ip=ip)
-
-            product.views += 1
-            product.save()
-        serializer = ProductDetailSerializer(product, context={"request": request})
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def put(self, request, pk):
-        user = request.user
-        product = get_object_or_404(Product, pk=pk)
-        if product.user != user:
-            raise PermissionDenied("this product don't belong to you.")
-
-        serializer = ProductDetailSerializer(
-            product, data=request.data, context={"request": request}
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
 
 
-# class VariationListView(ListAPIView):
-# 	model = Variation
-# 	queryset = Variation.objects.all()
 
-# 	def get_context_data(self, *args, **kwargs):
-# 		context = super(VariationListView, self).get_context_data(*args, **kwargs)
-# 		context["formset"] = VariationInventoryFormSet(queryset=self.get_queryset())
-# 		return context
+@api_view(['POST','GET'])
+def delete_product_value(request ,product_id):
+    '''
+  This is for delete a specific Product
+    ''' 
+    try:
+        product = Product.objects.filter(id =product_id)
+    except:
+        product = None
 
-# 	def get_queryset(self, *args, **kwargs):
-# 		product_pk = self.kwargs.get("pk")
-# 		if product_pk:
-# 			product = get_object_or_404(Product, pk=product_pk)
-# 			queryset = Variation.objects.filter(product=product)
-# 		return queryset
-
-# 	def post(self, request, *args, **kwargs):
-# 		formset = VariationInventoryFormSet(request.POST, request.FILES)
-# 		if formset.is_valid():
-# 			formset.save(commit=False)
-# 			for form in formset:
-# 				new_item = form.save(commit=False)
-# 				#if new_item.title:
-# 				product_pk = self.kwargs.get("pk")
-# 				product = get_object_or_404(Product, pk=product_pk)
-# 				new_item.product = product
-# 				new_item.save()
-				
-# 			messages.success(request, "Your inventory and pricing has been updated.")
-# 			return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-@api_view (["GET","POST"])
-def group_product(request):
-    #permission_classes = [permissions.IsAuthenticated]
-    values = {'product_id' : '1', 'title': 'Group product Title','products_ids': ['1,2,3,4']}
-    serializer_class = GroupProductSerializer
-    product = GroupProduct.objects.filter(product_id = values['product_id']).last()
-    if product is None:
-        group_serializer = GroupProductSerializer (data= values)
-        if(group_serializer.is_valid()):
-            group_serializer.save()
-            return Response (group_serializer.data, status=status.HTTP_201_CREATED)
-        return Response (group_serializer.errors)
-
+    if product is not None:
+        product.delete()
+        return JsonResponse({'message': 'Product was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
     else:
-        product.products_ids.append(values['products_id'])
-        product_val = product.__dict__
-        serializer_value = GroupProductSerializer (product,data= product_val)
-        if(serializer_value.is_valid()):
-            serializer_value.save()
-            return Response (serializer_value.data, status=status.HTTP_201_CREATED)
-        return Response (serializer_value.errors)
+        return JsonResponse({'message': 'Product was deleted successfully!'})
 
 
 
-class DestroyGroupProductAPIView(DestroyAPIView):
-    #permission_classes = [IsOwnerAuth]
-    serializer_class = GroupProductSerializer
-    queryset = GroupProduct.objects.all()
+@api_view (["GET","post"])
+def get_all_product_category(request):
 
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.is_deleted = True
-        instance.save()
-        return Response({"detail": "GroupProduct deleted"})
+    if (request.method == "GET"):
+        queryset = Category.objects.all()
+        serializers = CategorySerializer(queryset , many = True)
+        return Response (serializers.data)
+
+@api_view (["GET" , "POST"])
+def insert_specific_category_value(request):
+    if(request.method == "POST"):
+        serializers=CategorySerializer(data=request.data)
+        if(serializers.is_valid()):
+            serializers.save()
+            return Response (serializers.data, status=status.HTTP_201_CREATED)
+        return JsonResponse(serializers.errors)
 
 
-class GroupProductViewsAPIView(ListAPIView):
-    # permission_classes = [IsOwnerAuth]
-    serializer_class = GroupProductSerializer
-    queryset = GroupProduct.objects.all()
+@api_view(["GET","POST"])
+def get_update_category_value(request, category_id):
 
+	try:
+		product = Category.objects.get(id=category_id)
+		if request.method == 'POST':
+			serializers = CategorySerializer(product , data=request.data )
+			if serializers.is_valid():
+				serializers.save()
+				return JsonResponse(serializers.data)
+			return JsonResponse(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class GroupProductDetailView(APIView):
-    def get(self, request, uuid):
-        group_product = GroupProduct.objects.get(uuid=uuid)
-        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(",")[0]
-        else:
-            ip = request.META.get("REMOTE_ADDR")
+	except Product.DoesNotExist:
+		return JsonResponse({'message': 'This Category does not exist'}, status=status.HTTP_404_NOT_FOUND)
+@api_view(['POST','GET'])
+def delete_category_value(request , category_id):
 
-        if not GroupProduct.objects.filter(group_product=group_product, ip=ip).exists():
-            GroupProduct.objects.create(group_product=group_product, ip=ip)
+    try:
+        category = Category.objects.filter(id =category_id)
+    except:
+        category = None
 
-            group_product.views += 1
-            group_product.save()
-        serializer = GroupProductSerializer(group_product, context={"request": request})
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def put(self, request, pk):
-        user = request.user
-        product = get_object_or_404(Product, pk=pk)
-        if product.user != user:
-            raise PermissionDenied("this product don't belong to you.")
-
-        serializer = GroupProductSerializer(
-            product, data=request.data, context={"request": request}
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
+    if category is not None:
+        category.delete()
+        return JsonResponse({'message': 'Category was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+    else:
+        return JsonResponse({'message': 'Category was not deleted successfully!'})
 
 
 
-#------------Product comments and reviews
+@api_view (["GET","post"])
+def get_all_group_product(request):
+ 
+    if (request.method == "GET"):
+        queryset = GroupProduct.objects.all()
+        serializers = GroupProductSerialyzer(queryset , many = True)
+        return Response (serializers.data)
+
+@api_view (["GET" , "POST"])
+def insert_specific_group_product_value(request):
+    if(request.method == "GET"):
+        return Response({''})
+
+    if(request.method == "POST"):
+        serializers=GroupProductSerialyzer(data=request.data)
+        if(serializers.is_valid()):
+            serializers.save()
+            return Response (serializers.data, status=status.HTTP_201_CREATED)
+        return Response(serializers.errors)
+
+@api_view(["GET","POST"])
+def get_update_group_product_value(request , gp_id):
+
+    try:
+        product = GroupProduct.objects.get(id=gp_id)
+    except Product.DoesNotExist:
+        return JsonResponse({'message': 'This Group does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        
+    if request.method == 'GET':
+        serializers = GroupProductSerialyzer(product , many = False)
+        return Response (serializers.data)
+    if request.method == 'POST':
+        serializers = GroupProductSerialyzer(product , data=request.data )
+        if serializers.is_valid():
+            serializers.save()
+            return JsonResponse(serializers.data)
+        return JsonResponse(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+
+	
+
+
+@api_view(['POST','GET'])
+def delete_group_product_value(request, gp_id):
+    '''
+   
+    ''' 
+    try:
+        product = GroupProduct.objects.filter(id=gp_id)
+    except:
+        product = None
+
+    if product is not None:
+        product.delete()
+        return JsonResponse({'message': 'Your Group Product was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+    else:
+        return JsonResponse({'message': 'Group Product was deleted successfully!'})
+
+
+
+#------------Product comments and reviews----------------------------
 
 #Display the comments and replies of a specific product of a specific product
 @api_view(['GET',])
@@ -508,7 +382,7 @@ def edit_reply(request,reply_id):
             if replyserializer.is_valid():
                 replyserializer.save()
                 return JsonResponse(replyserializer.data)
-            return sonResponse(replyserializer.errors)
+            return JsonResponse(replyserializer.errors)
 
                 
     except CommentReply.DoesNotExist:
@@ -666,12 +540,6 @@ def create_review(request):
 
 
         
-
-
-
-
-
-
 
         
 #This edits an existing review

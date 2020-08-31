@@ -24,8 +24,140 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from User_details.decorators import unauthenticated_user, allowed_users, admin_only
 from django.contrib.auth.models import Group
 
+#------------------------------------- User_details--------------------------------
+
+def user_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/users/<username>/<filename>
+    return 'users/{0}/{1}'.format(instance.user.username, filename)
 
 
+class UserManager(BaseUserManager):
+    
+
+    def create_user(self, email, password=None):
+        # if username is None:
+        #     raise TypeError('Users should have a username')
+        if email is None:
+            raise TypeError('Users should have a Email')
+
+        user = self.model(email=self.normalize_email(email))
+        user.set_password(password)
+        user.save()
+        return user
+
+    def create_superuser(self, email, password=None):
+        if password is None:
+            raise TypeError('Password should not be none')
+
+        user = self.create_user(email, password)
+        user.is_superuser = True
+        user.is_staff = True
+        user.save()
+        return user
+
+    def create_supelier(self, email, password=None):
+        if password is None:
+            raise TypeError('Password should not be none')
+
+        user = self.create_user(email, password)
+        user.is_suplier = True
+        user.save()
+        return user
+
+ 
+
+ 
+
+class User(AbstractBaseUser, PermissionsMixin):
+    username = models.CharField(max_length=255, db_index=True)
+    email = models.EmailField(max_length=255,unique=True, db_index=True)
+    is_verified = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_suplier  = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    phone_number = models.CharField(max_length= 64)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    objects = UserManager()
+
+    def __str__(self):
+        return self.email
+
+    def tokens(self):
+        refresh = RefreshToken.for_user(self)
+        return {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token)
+        }
+
+
+# class GuestUser(models.Model):
+  
+#   ip = models.CharField(max_length=220)
+#   date = models.DateTimeField(auto_now=True)
+
+# def guest_ip_address(request):
+
+#     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+
+#     if x_forwarded_for:
+#         ip = x_forwarded_for.split(',')[0]
+#     else:
+#         ip = request.META.get('REMOTE_ADDR')
+#     return ip
+
+# @receiver(post_save, sender=GuestUser)
+# def create_user_profile(sender, instance, created, *args, **kwargs):
+#     if created:
+#         Profile.objects.create(guestuser=instance)
+
+
+class Profile(models.Model):
+    GENDER_MALE = 'm'
+    GENDER_FEMALE = 'f'
+    OTHER = 'o'
+
+    GENDER_CHOICES = (
+        (GENDER_MALE, 'Male'),
+        (GENDER_FEMALE, 'Female'),
+        (OTHER,'Other'),
+    )
+
+    name = models.CharField(max_length = 264, null = True, blank = True)
+    email = models.CharField(max_length = 64, null= True, blank = True)
+    profile_picture = models.ImageField(upload_to='Profile_Img', blank=True)
+    phone_number = models.CharField(max_length=100 ,  null=True)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)
+    city = models.CharField(max_length=100, blank= True, null= True)
+    district = models.CharField(max_length=100, blank= True, null= True)
+    road_number = models.CharField(max_length = 264,blank=True, null=True)
+    building_number = models.CharField(max_length = 264,blank=True, null=True)
+    apartment_number = models.CharField(max_length = 264,blank=True, null=True)
+    user_id = models.IntegerField(blank = True, null = True)
+
+
+class user_relation (models.Model):
+    verified_user_id = models.IntegerField (blank = True, null = True)
+    non_verified_user_id = models.IntegerField (blank = True, null = True)
+
+# class DeactivateUser(TimeStampedModel):
+#     user = models.OneToOneField(User, related_name='deactivate', on_delete=models.CASCADE)
+#     deactive = models.BooleanField(default=True)
+
+class user_balance(models.Model):
+    wallet = models.FloatField(blank = False, null = True, default=0)
+    point = models.FloatField(blank = False, null = True, default = 0)
+    dates = models.DateTimeField (auto_now_add=True)
+    user_id = models.IntegerField(blank=False, null=True)
+    ip_id = models.IntegerField(blank=False, null=True)
+
+class Guest_user(models.Model):
+    ip_address = models.CharField(max_length = 64, blank = False, null = True)
+    Date = models.DateField (blank = False, null = True)
 # ------------------------- Advertisement ---------------------
 
 class Advertisement(models.Model):
@@ -248,13 +380,9 @@ class Order(models.Model):
     ordered_date = models.DateTimeField(auto_now_add=True,blank=True,null=True)
     non_verified_user_id = models.IntegerField(blank=True,null=True)
 
- 
 
     def __str__(self):
         return str(self.id)
-
-
-
 
 
 
@@ -270,9 +398,6 @@ class OrderDetails(models.Model):
     unit_point = models.IntegerField(default=0,blank=True,null=True)
     total_point = models.IntegerField(default=0,blank=True,null=True)
     product_name = models.CharField(max_length=255,blank=True,null=True)
-
-
-
 
     def __str__(self):
         return f'{self.order_id} X {self.product_id}'
@@ -317,108 +442,41 @@ class ProductSpecification(models.Model):
     def __str__(self):
         return str(self.product_id)
 
+
+
+
     #--------------------------- Product --------------------------------
-
-def category_image_path(instance, filename):
-    return "category/icons/{}/{}".format(instance.name, filename)
-
 
 def product_image_path(instance, filename):
     return "product/images/{}/{}".format(instance.title, filename)
-
-class ProductQuerySet(models.query.QuerySet):
-	def active(self):
-		return self.filter(active=True)
-
-
-class ProductManager(models.Manager):
-	def get_queryset(self):
-		return ProductQuerySet(self.model, using=self._db)
-
-	def all(self, *args, **kwargs):
-		return self.get_queryset().active()
-
-	def get_related(self, instance):
-		products_one = self.get_queryset().filter(categories__in=instance.categories.all())
-		products_two = self.get_queryset().filter(default=instance.default)
-		qs = (products_one | products_two).exclude(id=instance.id).distinct()
-		return qs
-
-
-
-
-class Category(MPTTModel):
-	title = models.CharField(max_length=120, unique=True)
-	slug = models.SlugField(null = True, blank = True)
-	parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
-	active = models.BooleanField(default=True)
-	created = models.DateTimeField(auto_now_add=True)
-	modified = models.DateTimeField(auto_now=True)
-
-	class Meta:
-		unique_together =('slug', 'parent')
-		verbose_name_plural = 'categories'
-
-	def __str__(self):
-		full_path = [self.title]
-
-		k = self.parent
-		while k is not None:
-			full_path.append(k.title)
-			k = k.parent
-
-		return '->'.join(full_path[::-1])
-
-
-
-class Product(models.Model):
-    seller_id = models.IntegerField()
-    #category =TreeForeignKey(Category, related_name="product_category", on_delete=models.CASCADE)
-    title = models.CharField(max_length=120)
-    description = models.TextField(blank=True, null=True)
-    #image = ArrayField(models.ImageField(upload_to=product_image_path, blank=True, null = True),blank=True,default=list)
-    brand=models.CharField(max_length=100, null = True, blank = True)
-    #price = models.FloatField()
-    quantity=models.IntegerField()
-    active = models.BooleanField(default=True)
-    key_feature= ArrayField(models.TextField(), blank=True,default=list)
-
-
-
-    objects = ProductManager()
-
-    class Meta:
-        ordering = ["-title"]
-
-    # def __unicode__(self): #def __str__(self):
-    #   return self.title 
-
-    # def get_absolute_url(self):
-    #   return reverse("product_detail", kwargs={"pk": self.pk})
-
-    # def get_cat_list(self):
-    #   k = self.category
-    #   breadcrump = ['dummy']
-    #   while k is not None:
-    #       breadcrump.append(k.slug)
-    #       k = k.parent
-
-    #   for i in range(len(breadcrump)-1):
-    #       breadcrump[i] = '/'.join(breadcrump[-1:i-1:-1])
-    #   return breadcrump[-1:0:'-1']
-
 
 class ProductImage(models.Model):
     product_id = models.IntegerField(default= 0)
     image= models.ImageField(upload_to=product_image_path, blank=True, null = True)
     title= models.CharField(max_length=255,blank=True,null=True)
+    
+class Product(models.Model):
+	seller = models.ForeignKey(User, on_delete=models.CASCADE , null=True)
+	category_id = models.IntegerField( blank=True , null=True)
+	title = models.CharField(max_length=250 ,blank=True)
+	brand = models.CharField(max_length=120 , blank=True )
+	date=models.DateTimeField(auto_now_add=True)
+	image = ArrayField(models.ImageField(upload_to=product_image_path, blank=True),null=True , blank=True)
+	description = models.TextField(null=True, blank=True)
+	key_features=ArrayField(models.TextField(null=True , blank=True), null=True ,blank=True)
+	quantity = models.IntegerField(default=1)
+	is_deleted = models.BooleanField(default=False)
+	properties= models.BooleanField(default=True)
+	slug = models.SlugField(unique=True,null=True , blank=True)
+
+
+
 
 
 class Variation(models.Model):
-	product=models.ForeignKey(Product,on_delete=models.CASCADE)
+	product_id = models.IntegerField()
 	title = models.CharField(max_length=120)
-	price = models.FloatField()
-	sale_price = models.FloatField()
+	sale_price = models.FloatField(null=True, blank=True)
 	active = models.BooleanField(default=True)
 	inventory = models.IntegerField(null=True, blank=True) #refer none == unlimited amount
 
@@ -430,6 +488,13 @@ class Variation(models.Model):
 			return self.sale_price
 		else:
 			return self.price
+
+	# def get_html_price(self):
+	# 	if self.sale_price is not None:
+	# 		html_text = "<span class='sale-price'>%s</span> <span class='og-price'>%s</span>" %(self.sale_price, self.price)
+	# 	else:
+	# 		html_text = "<span class='price'>%s</span>" %(self.price)
+	# 	return mark_safe(html_text)
 
 	def get_absolute_url(self):
 		return self.product.get_absolute_url()
@@ -447,59 +512,46 @@ class Variation(models.Model):
 
 def product_post_saved_receiver(sender, instance, created, *args, **kwargs):
 	product = instance
-	variations = product.variation_set.all()
-	if variations.count() == 0:
-		new_var = Variation()
-		new_var.product = product
-		new_var.title = "Default"
-		new_var.price = product.price
-		new_var.save()
+	# variations = product.variation_set.all()
+	# if variations.count() == 0:
+	# 	new_var = Variation()
+	# 	new_var.product = product
+	# 	new_var.title = "Default"
+	# 	new_var.price = product.price
+	# 	new_var.save()
 
 
 post_save.connect(product_post_saved_receiver, sender=Product)
 
 
-class GroupProduct(models.Model):
-	products_ids = ArrayField(models.IntegerField())
+
+class Category(models.Model):
 	title = models.CharField(max_length=120, unique=True)
-	slug = models.SlugField(unique=True , blank=True)
-	startdate=models.DateTimeField()
-	enddate=models.DateTimeField()
-	count=models.IntegerField()
-	flashsellname=models.name = models.CharField(max_length=120, blank = True)
-	active = models.BooleanField(default=False)
+	slug = models.SlugField(unique=True)
+	active = models.BooleanField(default=True)
 	timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
-	product_id = models.IntegerField()
-
-
 
 	def __unicode__(self):
 		return self.title
 
 
-class TimeStampedModel(models.Model):
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        abstract = True
+	def get_absolute_url(self):
+		return reverse("category_detail", kwargs={"slug": self.slug })
 
 
-class Extensions(models.Model):
-    """ Best practice for lookup field url instead pk or slug """
+class GroupProduct(models.Model):
+	products_ids = ArrayField(models.IntegerField( null=True , blank=True),null=True , blank=True)
+	title = models.CharField(max_length=120, unique=True)
+	slug = models.SlugField(unique=True , blank=True)
+	startdate=models.DateTimeField(null=True , blank=True)
+	enddate=models.DateTimeField(null=True , blank=True)
+	flashsellname=models.name = models.CharField(max_length=120, blank = True , null=True)
+	active = models.BooleanField(default=True)
+	timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
+	product_id = models.IntegerField(null = True, blank = True)
 
-    uuid = models.UUIDField(db_index=True, default=uuid.uuid4, editable=False)
-    created = models.DateTimeField(auto_now_add=True, db_index=True)
-    modified = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        abstract = True
-
-class ProductViews(TimeStampedModel):
-    ip = models.CharField(max_length=250)
-    product = models.ForeignKey(
-        Product, related_name="product_views", on_delete=models.CASCADE
-    )
+	def __unicode__(self):
+		return self.title
 
 #------------------------------------- Product_Comments--------------------------------
 class Comment(models.Model):
@@ -556,152 +608,6 @@ class Reviews(models.Model):
 
     class Meta:
         ordering = ["-date_created"]
-
-
-
-        
-#------------------------------------- User_details--------------------------------
-
-def user_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/users/<username>/<filename>
-    return 'users/{0}/{1}'.format(instance.user.username, filename)
-
-
-class UserManager(BaseUserManager):
-    
-
-    def create_user(self, email, password=None):
-        # if username is None:
-        #     raise TypeError('Users should have a username')
-        if email is None:
-            raise TypeError('Users should have a Email')
-
-        user = self.model(email=self.normalize_email(email))
-        user.set_password(password)
-        user.save()
-        return user
-
-    def create_superuser(self, email, password=None):
-        if password is None:
-            raise TypeError('Password should not be none')
-
-        user = self.create_user(email, password)
-        user.is_superuser = True
-        user.is_staff = True
-        user.save()
-        return user
-
-    def create_supelier(self, email, password=None):
-        if password is None:
-            raise TypeError('Password should not be none')
-
-        user = self.create_user(email, password)
-        user.is_suplier = True
-        user.save()
-        return user
-
- 
-
- 
-
-class User(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=255, db_index=True)
-    email = models.EmailField(max_length=255,unique=True, db_index=True)
-    is_verified = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    is_suplier  = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    phone_number = models.CharField(max_length= 64)
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
-
-    objects = UserManager()
-
-    def __str__(self):
-        return self.email
-
-    def tokens(self):
-        refresh = RefreshToken.for_user(self)
-        return {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token)
-        }
-
-
-class GuestUser(models.Model):
-  
-  ip = models.CharField(max_length=220)
-  date = models.DateTimeField(auto_now=True)
-
-def guest_ip_address(request):
-
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
-
-@receiver(post_save, sender=GuestUser)
-def create_user_profile(sender, instance, created, *args, **kwargs):
-    if created:
-        Profile.objects.create(guestuser=instance)
-
-
-class Address(TimeStampedModel):
-    user_id = models.IntegerField()
-    phone_number = models.CharField(max_length=100 ,  null=True)
-    
-    district = models.CharField(max_length=100, blank=False, null=False)
-    building_number = models.IntegerField(blank=True, null=True,validators=[MinValueValidator(1)])
-    apartment_number = models.IntegerField(blank=True, null=True,validators=[MinValueValidator(1)])
-
-class Profile(models.Model):
-    GENDER_MALE = 'm'
-    GENDER_FEMALE = 'f'
-    OTHER = 'o'
-
-    GENDER_CHOICES = (
-        (GENDER_MALE, 'Male'),
-        (GENDER_FEMALE, 'Female'),
-        (OTHER,'Other'),
-    )
-
-    name = models.CharField(max_length = 264, null = True, blank = True)
-    email = models.CharField(max_length = 64, null= True, blank = True)
-    profile_picture = models.ImageField(upload_to='Profile_Img', blank=True)
-    phone_number = models.CharField(max_length=100 ,  null=True)
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)
-    city = models.CharField(max_length=100, blank= True, null= True)
-    district = models.CharField(max_length=100, blank= True, null= True)
-    road_number = models.CharField(max_length = 264,blank=True, null=True)
-    building_number = models.CharField(max_length = 264,blank=True, null=True)
-    apartment_number = models.CharField(max_length = 264,blank=True, null=True)
-    user_id = models.IntegerField(blank = True, null = True)
-
-
-class user_relation (models.Model):
-    verified_user_id = models.IntegerField (blank = True, null = True)
-    non_verified_user_id = models.IntegerField (blank = True, null = True)
-
-class DeactivateUser(TimeStampedModel):
-    user = models.OneToOneField(User, related_name='deactivate', on_delete=models.CASCADE)
-    deactive = models.BooleanField(default=True)
-
-class user_balance(models.Model):
-    wallet = models.FloatField(blank = False, null = True, default=0)
-    point = models.FloatField(blank = False, null = True, default = 0)
-    dates = models.DateTimeField (auto_now_add=True)
-    user_id = models.IntegerField(blank=False, null=True)
-    ip_id = models.IntegerField(blank=False, null=True)
-
-class Guest_user(models.Model):
-    ip_address = models.CharField(max_length = 64, blank = False, null = True)
-    Date = models.DateField (blank = False, null = True)
 
 # -------------------------- Product Code ------------------------------------
 

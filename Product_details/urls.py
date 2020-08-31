@@ -23,5 +23,10 @@ urlpatterns = [
     path('all_cupon/', views.get_all_cupons),
     path('update_cupon/<int:cupon_id>/', views.update_specific_cupons),
     path('delete_cupon/<int:cupon_id>/', views.delete_specific_cupons),
+
+    path('all_discount/', views.get_all_discount_value), 
+    path('specific_value/<int:product_id>/', views.get_update_specific_value),
+    path('insert_specific/', views.insert_specific_discount_value),
+    path('discount_delete/<int:product_id>/', views.delete_discount_value),
   
 ]

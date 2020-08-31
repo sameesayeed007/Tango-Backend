@@ -186,8 +186,13 @@ class CupponSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+# --------------------- Product Discount ---------------------
 
-
+class ProductDiscountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = discount_product
+        fields = "__all__"
+        #fields=("name", "email")
 
 
 

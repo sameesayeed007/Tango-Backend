@@ -43,16 +43,21 @@ def email_message(request):
         'sender' : 'fuhadfaizullah@gmail.com',
         'receiver': ['faizullahfuhad@gmail.com']
     }
+    backend = EmailBackend(host='smtp.gmail.com', port=587, username='fuhadfaizullah@gmail.com', 
+                       password='faizullah1234567', use_tls=True, fail_silently=False)
+
+    # email = EmailMessage(subject='subj', body='body', from_email=from_email, to=to, 
+    #          connection=backend)
 
     template = render_to_string (values['template'],{'name': values['name'], 'user_email': values['email'] })
     text_content = strip_tags(template)
     email = EmailMultiAlternatives(
-        values['subject'],
-        text_content,
-        values['sender'],
-        values['receiver'],
+        subject= values['subject'],
+        body=text_content,
+        from_email=values['sender'],
+        to=values['receiver'],
+        connection=backend
         )
-    email.fail_silently=False 
     email.attach_alternative(template, "text/html")
     email.send()
 

@@ -2,36 +2,85 @@ import json
 import serpy
 from rest_framework import serializers
 #from user_profile.models import User
-from Intense.models import Category, Product, ProductViews , Variation ,GroupProduct,Comment,CommentReply,Reviews,User
+from Intense.models import Category, Product , Variation ,GroupProduct,Comment,CommentReply,Reviews,User,Category, Product, Variation , GroupProduct
 from drf_extra_fields.fields import Base64ImageField
 from django.db.models import Avg
-from django.contrib.auth.models import User
-from django.contrib.auth import get_user_model
-
-#from django.contrib.auth.models import User
-
-#from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
-# from .documents import ProductDocument
-# from ecommerce.serializers import LightSerializer, LightDictSerializer
 
 
-class CategoryListSerializer(serializers.ModelSerializer):
-    # lft = serializers.SlugRelatedField(slug_field='lft', read_only=True)
-    class Meta:
-        model = Category
-        fields = '__all__'
+from rest_framework import serializers
+from rest_framework import fields
+
+
+#------------------------ product---------------------------
+
+class VariationSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Variation
+		fields = [
+			"id",
+			"title",
+			"price",
+		]
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    #seller = serializers.SlugRelatedField(slug_field="username", queryset=User.objects)
-    category = serializers.SerializerMethodField()
+    seller=serializers.SerializerMethodField(method_name='get_seller')
 
-    def get_category(self, obj):
-        return obj.category.title
+
 
     class Meta:
         model = Product
-        fields = '__all__'
+        fields=[
+            'id',
+            'seller',
+            'category_id',
+            'title',
+            'brand',
+            'image',
+            'description',
+            'quantity',
+            'properties',
+            'is_deleted',
+            "key_features" ,
+            "slug",
+        ]
+ 
+    def get_seller(self, obj):
+        return obj.seller
+
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields= [
+            "id",
+            "title",
+            "slug",
+            'active',
+            'timestamp'
+
+            ]
+
+class GroupProductSerialyzer(serializers.ModelSerializer):
+    #count =serializers.SerializerMethodField(method_name='get_Products_ids')
+    class Meta:
+        model= GroupProduct
+        fields = [
+            'id',
+            "products_ids",
+            'title',
+            'slug',
+            'startdate',
+            'enddate',
+            'flashsellname',
+            'active',
+            'timestamp',
+            'product_id'
+        ]
+ 
+    # def get_Products_ids(self, obj):
+    #     return len(obj.products_ids)
 
 
 class SerpyProductSerializer(serpy.Serializer):
@@ -44,75 +93,13 @@ class SerpyProductSerializer(serpy.Serializer):
     quantity = serpy.IntField()
     views = serpy.IntField()
 
-
-class ProductMiniSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = ["title"]
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        data = serializers.ModelSerializer.to_representation(self, instance)
-        return data
-
-
 class CreateProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = '__all__'
         # read_only_fields = ('id', 'seller', 'category', 'title', 'price', 'image', 'description', 'quantity', 'views',)
 
-
-class ProductDetailSerializer(serializers.ModelSerializer):
-    #seller = serializers.SlugRelatedField(slug_field="username", queryset=User.objects)
-    category = serializers.SerializerMethodField()
-    image = Base64ImageField()
-
-    def get_category(self, obj):
-        return obj.category.name
-
-    class Meta:
-        model = Product
-        fields ='__all__'
-
-
-class ProductViewsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductViews
-        fields = '__all__'
-
-
-
-class VariationSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = Variation
-		fields = '__all__'
-
-
-
-class GroupProductSerializer(serializers.ModelSerializer):
-	product_set = ProductSerializer(many=True)
-	class Meta:
-		model = GroupProduct
-		fields = '__all__'
-
-
-
-# class ProductDocumentSerializer(DocumentSerializer):
-#     seller = serializers.SlugRelatedField(slug_field="username", queryset=User.objects)
-#     category = serializers.SerializerMethodField()
-
-#     def get_category(self, obj):
-#         return obj.category.name
-
-#     class Meta(object):
-#         # model = Product
-#         document = ProductDocument
-#         exclude = "modified"
-
-
 #------------Comment Serializers---------------
-User = get_user_model()
 class CommentSerializer(serializers.ModelSerializer):
     replies = serializers.SerializerMethodField(method_name='get_replies')
     comment_name = serializers.SerializerMethodField(method_name='get_name')

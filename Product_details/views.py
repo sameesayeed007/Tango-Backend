@@ -5,8 +5,8 @@ from rest_framework.parsers import JSONParser
 from rest_framework import status
 import datetime
  
-from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,ProductSpecification,user_relation,Cupons,Comment,CommentReply,Reviews
-from Product_details.serializers import ProductPriceSerializer,ProductPointSerializer,ProductSpecificationSerializer,ProductDetailSerializer,CupponSerializer
+from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,ProductSpecification,user_relation,Cupons,Comment,CommentReply,Reviews,discount_product
+from Product_details.serializers import ProductPriceSerializer,ProductPointSerializer,ProductSpecificationSerializer,ProductDetailSerializer,CupponSerializer,ProductDiscountSerializer
 from rest_framework.decorators import api_view 
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
@@ -397,3 +397,113 @@ def delete_specific_cupons(request,cupon_id):
         return Response({'Cupon has been deleted successfully'})
 
 	
+	# --------------------------- Product Discount -----------------------
+
+@api_view (["GET","POST"])
+def get_all_discount_value(request):
+    '''
+    This api is for getting all the discount related information. Calling http://127.0.0.1:8000/discount/all_discount/ will invoke
+    this API. This API just have get response.
+    
+    GET Response:
+        discount_type (This will be a Chartype data. This will return the type of discount like Flat, Flash, Wholesale etc.)
+        amount (This will return the amount which will be apply where discount is applicable.)
+        start_date (This is the discount start date. From this date discount will be started.)
+        end_date  (This is discount end date. On this date, discount will be end.)
+        max_amount (Sometimes, admin can restrict the highest level of amount for discount. This value represents that highest amount value.) 
+    '''
+   
+    if(request.method == "GET"):
+        queryset = discount_product.objects.all()
+        discount_serializers = ProductDiscountSerializer (queryset,many = True)
+        return Response (discount_serializers.data)
+
+@api_view (["GET","POST"])
+def insert_specific_discount_value(request):
+    '''
+    This Api is for just inserting the particular discount value corresponding to a product. It has just Post response. Calling 
+    http://127.0.0.1:8000/discount/insert_specific/ cause to invoke this api.
+
+    POST Response:
+        Following values field this api expects while performing post response.
+        Discount (It will be type of discount, simply a name.)
+        amount (This will be a float value. This amount value will be used to calculate the discount value)
+        start_date ( This is the date from when the discount will be started.)
+        end_date (On this date, the discount will end)
+        max_amount (Admin can set the highest amount of discount. Something like 30% discount upto 50 taka. Here, max amount 50 taka.)
+        product_id or group_product_id ( product_id or group_product_id, on which the discount will be performed must need to provide.)
+    '''
+    if(request.method == "POST"):
+        discount_serializers = ProductDiscountSerializer (data= request.data)
+        if(discount_serializers.is_valid()):
+            discount_serializers.save()
+            return Response (discount_serializers.data, status=status.HTTP_201_CREATED)
+        return Response (discount_serializers.errors)
+
+
+@api_view (["GET","POST"])
+def get_update_specific_value(request,product_id):
+    '''
+    This Api is for getting a particular discount value. This will need to update a particular information. Admin may change the end date of discount or 
+    may increase the amount value. Calling http://127.0.0.1:8000/discount/specific_value/3/ will cause to invoke this API. This Api has both 
+    Post and Get response.
+	prams : Product_id
+    Get Response:
+        discount_type (This will be a Chartype data. This will return the type of discount like Flat, Flash, Wholesale etc.)
+        amount (This will return the amount which will be apply where discount is applicable.)
+        start_date (This is the discount start date. From this date discount will be started.)
+        end_date  (This is discount end date. On this date, discount will be end.)
+        max_amount (Sometimes, admin can restrict the highest level of amount for discount. This value represents that highest amount value.) 
+    
+    POST Response:
+        Following values field this api expects while performing post response.
+        Discount (It will be type of discount, simply a name.)
+        amount (This will be a float value. This amount value will be used to calculate the discount value)
+        start_date ( This is the date from when the discount will be started.)
+        end_date (On this date, the discount will end)
+        max_amount (Admin can set the highest amount of discount. Something like 30% discount upto 50 taka. Here, max amount 50 taka.)
+        product_id or group_product_id ( product_id or group_product_id, on which the discount will be performed must need to provide.)
+
+
+    '''
+    # Demo Values
+    try: 
+        specific_values = discount_product.objects.get(product_id = product_id) 
+    except :
+        return Response({'message': 'This value does not exist'})
+
+    if(request.method == "GET"):
+        discount_serializer_value = ProductDiscountSerializer(specific_values, many=False)
+        return Response (discount_serializer_value.data)
+
+    elif(request.method == "POST"):
+        try:
+            discount_serializer_value = ProductDiscountSerializer (specific_values,data= request.data)
+            if(discount_serializer_value.is_valid()):
+                discount_serializer_value.save()
+                return Response (discount_serializer_value.data, status=status.HTTP_201_CREATED)
+            return Response (discount_serializer_value.errors)
+        except:
+            return Response({'message': 'Discount value could not be updated'})
+
+@api_view(['POST','GET'])
+def delete_discount_value(request,product_id):
+    '''
+    This Api is for deleting a particular discount value. Based on the provided product_id or group_product_id this will delet the discount value.
+    Calling http://127.0.0.1:8000/discount/discount_delete/4 will cause to invoke this api. After deleting the value, in response this api will 
+    send a successful message. If it can not delete then it will provide an error message.
+
+	prams : product_id
+    ''' 
+    
+    try: 
+        specific_values = discount_product.objects.get(product_id = product_id) 
+    except :
+        return Response({'message': 'There is no value to delete'})
+	
+    if request.method == 'POST':
+        specific_values.delete()
+        return Response({'message': ' Value is successfully  deleted'}, status=status.HTTP_204_NO_CONTENT)
+
+
+

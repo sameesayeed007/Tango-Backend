@@ -25,7 +25,6 @@ urlpatterns = [
     path('Api_delete/<int:Api_id>', views.delete_Api), # this url is for deleting Api
     path('settings/', views.site_all_settings), # this url is for setting table
     path('update_setting/<int:setting_id>', views.settings_update), # this url is for setting update
-
     path('insert_faq/', views.Faq_insertion),
     path('show_faq/', views.show_all_Faq),
     path('specific_faq/<int:faq_id>/', views.specific_faq),
