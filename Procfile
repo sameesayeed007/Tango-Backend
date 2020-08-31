@@ -1,0 +1,1 @@
+web: gunicorn Tango.wsgi --log-file -
