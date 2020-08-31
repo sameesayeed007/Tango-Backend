@@ -181,7 +181,7 @@ class Advertisement(models.Model):
 
 class ProductImpression (models.Model):
 
-    Users = ArrayField(models.IntegerField(), blank=True, null=True,default=list)
+    users = ArrayField(models.IntegerField(), blank=True, null=True,default=list)
     product_id = models.IntegerField (null = False)
     view_count = models.IntegerField (blank = True, null = True, default = 0)
     click_count = models.IntegerField (blank = True, null = True,default = 0)
