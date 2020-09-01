@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from Intense.models import CompanyInfo,Banner,RolesPermissions,Banner_Image,Currency,Settings,APIs,Theme,FAQ
+from Intense.models import CompanyInfo,Banner,RolesPermissions,Banner_Image,Currency,Settings,APIs,Theme,FAQ,ContactUs
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.contrib.sites.shortcuts import get_current_site
@@ -157,4 +157,11 @@ class APIsSerializer (serializers.ModelSerializer):
 class FaqSerializer (serializers.ModelSerializer):
     class Meta:
         model = FAQ
+        fields = "__all__"
+
+
+
+class ContactUsSerializer (serializers.ModelSerializer):
+    class Meta:
+        model = ContactUs
         fields = "__all__"

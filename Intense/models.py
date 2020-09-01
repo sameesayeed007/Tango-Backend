@@ -245,6 +245,13 @@ class Currency (models.Model):
     dates = models.DateTimeField (auto_now_add=True)
     role_id = models.IntegerField (blank= True, null = True)
 
+class ContactUs (models.Model):
+    sender_name = models.CharField (max_length = 100, blank = True, null = True)
+    sender_email = models.EmailField(blank = True, null = True)
+    subject = models.CharField(max_length = 264, blank = True, null = True)
+    message = models.CharField (max_length = 10000, blank = True, null = True)
+    is_attended = models.BooleanField(blank = True, null = True, default = False)
+
 #---------------------------------------------------------------------------------------------------------
 
 class Settings(models.Model):

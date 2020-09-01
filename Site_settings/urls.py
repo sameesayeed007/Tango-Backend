@@ -29,6 +29,12 @@ urlpatterns = [
     path('show_faq/', views.show_all_Faq),
     path('specific_faq/<int:faq_id>/', views.specific_faq),
     path('delete_faq/<int:faq_id>/', views.delete_specific_faq),
+    path('contact/', views.insert_contact),
+    path('all_contact/', views.get_all_contact),
+    path('delete_contact/<int:contact_id>/', views.delete_specific_contactUs),
+    path('unattend_contact/', views.get_all_unattended_contact),
+    path('attended_contact/<int:contact_id>/', views.admin_attend_contact),
+    
     
 
 ]

@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view
-from Intense.models import CompanyInfo,Banner,RolesPermissions,Banner_Image,Currency,Settings,Theme,APIs,FAQ
+from Intense.models import CompanyInfo,Banner,RolesPermissions,Banner_Image,Currency,Settings,Theme,APIs,FAQ,ContactUs
 from .serializers import CompanyInfoSerializer,BannerSerializer,RolesPermissionsSerializer,BannerImageSerializer,CurrencySerializer,SettingsSerializer
-from .serializers import ThemeSerializer,APIsSerializer,FaqSerializer
+from .serializers import ThemeSerializer,APIsSerializer,FaqSerializer,ContactUsSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from Intense.utils import get_image,get_roles_id
@@ -911,3 +911,126 @@ def delete_specific_faq (request,faq_id):
     if request.method == 'POST':
         faq_value.delete()
         return Response({'message': 'The value has been deleted successfully'})
+
+
+
+@api_view (["GET","POST"])
+def insert_contact (request):
+    
+    if request.method == 'POST':
+        try:
+            contact_value = ContactUsSerializer (data= request.data)
+            if(contact_value.is_valid()):
+                contact_value.save()
+                return Response ({
+                    'success': True,
+                    'message': 'Data has been inserted successfully',
+                    'data':contact_value.data
+                    }, status=status.HTTP_201_CREATED)
+            return Response ({
+                'success': False,
+                'message': 'Data could not record',
+                'error':contact_value.errors
+                })
+        except:
+            return Response({
+                'success': False,
+                'message': 'It occurs some problem to insert values',
+                'data': ''
+                })
+
+
+@api_view (["GET","POST"])
+def get_all_contact (request):
+    
+    try:
+        contact_value= ContactUs.objects.all()
+    except:
+        return Response({
+            'success':False,
+            'message': 'Some internal problem occurs',
+            'data': ''
+            })
+
+    if request.method == 'GET':
+        contact_serializer_value = ContactUsSerializer(contact_value, many = True)
+        return Response ({
+            'success': True,
+            'message':'Value has been retrieved successfully',
+            'data':contact_serializer_value.data
+            })
+
+
+
+@api_view (["GET","POST"])
+def delete_specific_contactUs (request,contact_id):
+
+    try:
+        contact_value= ContactUs.objects.get(pk=contact_id)
+    except:
+        return Response({
+            'success': False,
+            'message': 'It occurs some problem',
+            'data': ''
+            })
+
+    if request.method == 'POST':
+        contact_value.delete()
+        return Response({
+            'success': True,
+            'message': 'The value has been deleted successfully'
+            })
+
+
+@api_view (["GET","POST"])
+def get_all_unattended_contact (request):
+    
+    try:
+        contact_value= ContactUs.objects.filter(is_attended = False)
+    except:
+        return Response({
+            'success':False,
+            'message': 'It occurs some problem',
+            'data': ''
+            })
+
+    if request.method == 'GET':
+        contact_serializer_value = ContactUsSerializer(contact_value, many = True)
+        return Response (
+            {
+                'success': True,
+                'message': 'Value has been retrived successfully.',
+                'data':contact_serializer_value.data
+            })
+
+@api_view (["GET","POST"])
+def admin_attend_contact (request,contact_id):
+    
+    try:
+        contact_value= ContactUs.objects.get(pk=contact_id)
+    except:
+        return Response({'message': 'It occurs some problem'})
+
+    if request.method == 'GET':
+        contact_serializer_value = ContactUsSerializer (contact_value, many = False)
+        return Response (contact_serializer_value.data)
+
+    if request.method == 'POST':
+        try:
+            if not contact_value.is_attended:
+                contact_value.is_attended = True
+                contact_value.save()
+                return Response({
+                    'success': True,
+                    'message': 'Thank you for attending'
+                    })
+            else:
+                return Response({
+                    'success': False,
+                    'message': 'You have already attended this.'
+                })
+        except:
+            return Response({
+                'success': False,
+                'message': 'Some problems while attending'
+                })
