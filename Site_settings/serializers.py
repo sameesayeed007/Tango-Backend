@@ -29,7 +29,7 @@ class CompanyInfoSerializer(serializers.ModelSerializer):
             slogan: CharField,max_length=264,
             cookies: CharField,max_length=100000
     '''
-    logo_url = serializers.SerializerMethodField(method_name='get_logo')
+    logo_url = serializers.SerializerMethodField(method_name='get_logo_url')
     icon_url = serializers.SerializerMethodField(method_name='get_icon')
     class Meta:
         model = CompanyInfo
@@ -64,6 +64,16 @@ class CompanyInfoSerializer(serializers.ModelSerializer):
 
         else:
             return " "
+        
+        
+    def get_logo_url(self,instance):
+        
+        request = self.context.get('request')
+        photo_url = instance.logo.url
+        return request.build_absolute_uri(photo_url)
+
+        
+       
 
 
 class BannerSerializer(serializers.ModelSerializer):
