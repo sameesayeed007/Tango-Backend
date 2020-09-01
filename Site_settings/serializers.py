@@ -6,6 +6,7 @@ from django.contrib.sites.shortcuts import get_current_site
 
 #site_path = str(settings.BASE_DIR)
 current_site = Site.objects.get_current()
+host_name = settings.ALLOWED_HOSTS[0]
 class CompanyInfoSerializer(serializers.ModelSerializer):
     '''
     This serializer is for Company Info model and funtionalities.
@@ -29,7 +30,7 @@ class CompanyInfoSerializer(serializers.ModelSerializer):
             slogan: CharField,max_length=264,
             cookies: CharField,max_length=100000
     '''
-    logo_url = serializers.SerializerMethodField(method_name='get_logo_url')
+    logo_url = serializers.SerializerMethodField(method_name='get_logo')
     icon_url = serializers.SerializerMethodField(method_name='get_icon')
     class Meta:
         model = CompanyInfo
@@ -45,7 +46,7 @@ class CompanyInfoSerializer(serializers.ModelSerializer):
 
         if logo_image is not None:
             logo = logo_image.logo
-            return "{0}{1}".format(current_site,logo.url)
+            return "{0}{1}".format(host_name,logo.url)
 
         else:
             return " "
@@ -60,7 +61,7 @@ class CompanyInfoSerializer(serializers.ModelSerializer):
 
         if logo_image is not None:
             logo = logo_image.icon
-            return "{0}{1}".format(current_site,logo.url)
+            return "{0}{1}".format(host_name,logo.url)
 
         else:
             return " "
