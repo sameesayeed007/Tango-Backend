@@ -92,6 +92,108 @@ class VerifyEmail(views.APIView):
         except jwt.exceptions.DecodeError as identifier:
             return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view (["GET", "POST"])
+def user_signup(request):
+    '''
+    This is for user signup without Email varification. User will be able to signup using email and password. Signup will automatically create
+    corresponding user profile and balance. Calling http://127.0.0.1:8000/user/user_signup/ will cause to invoke this Api.
+    Response Type : Post
+    Required filed: email, password
+    Successful Post response:
+        {
+            "success": true,
+            "message": "A verification link has been sent to your email"
+        }
+    unsuccessful Post Response:
+        {
+            "success": false,
+            "message": "Some internal problem occurs"
+        }
+    '''
+    if request.method == 'POST':
+        try:
+            serializer_class = RegisterSerializer
+            user = request.data
+            serializer = serializer_class(data=user)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            user_data = serializer.data
+            user = User.objects.get(email=user_data['email'])
+            if not user.is_verified:
+                user.is_verified = True
+                user.save()
+            balance_values = {'user_id':user.id}
+            create_user_balance(balance_values)
+            profile_values ={'user_id':user.id,'email':user.email}
+            create_user_profile(profile_values)
+            return Response(
+                {
+                'success': True,
+                'message': 'A verification link has been sent to your email'
+                },
+                status=status.HTTP_201_CREATED
+                )
+        except:
+            return Response(
+                {
+                'success': False,
+                'message': 'Some internal problem occurs'
+                }
+                
+                )
+
+@api_view (["GET", "POST"])
+def user_credentials_retrive (request):
+    '''
+    This method will give detail user information upon getting the token in header as named Authorization. 
+    Url: http://127.0.0.1:8000/user/user_credential
+    Response type : get
+    Required : token in header as bellow format
+        'Authorization' : 'Token'
+    Successful get Response:
+        {
+            "success": true,
+            "user": {
+                "id": 8,
+                "name": null,
+                "email": "abcdef@gmail.com",
+                "profile_picture": null,
+                "phone_number": null,
+                "gender": "",
+                "city": null,
+                "district": null,
+                "road_number": null,
+                "building_number": null,
+                "apartment_number": null,
+                "user_id": 12
+            }
+        }
+    Unsuccessful get response:
+        {
+            "success": false,
+            "user": ""
+        }
+    '''
+    if request.method == 'GET':
+        try:
+            
+            token = request.headers['Authorization']
+            payload = jwt.decode(token, settings.SECRET_KEY)
+            user_id = payload['user_id']
+            user_profile = Profile.objects.get(user_id = user_id)
+            user_profile_serializer = ProfileSerializer (user_profile, many = False)
+            return Response ({
+                'success': True,
+                'user': user_profile_serializer.data
+                    },status=status.HTTP_204_NO_CONTENT
+                )
+        except:
+             return Response ({
+                'success': False,
+                'user': ''
+                 }
+                )
+
     
 @api_view (["GET","POST"])
 def user_delete(request):
@@ -208,6 +310,8 @@ def specific_user_profile(request, user_id):
     '''
 
     if request.method == 'GET':
+        #print(request.META['HTTP_HOST'])
+        print(request.headers)
         try:
 
             user_profile = Profile.objects.get(user_id = user_id)

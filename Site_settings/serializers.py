@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from Intense.models import CompanyInfo,Banner,RolesPermissions,Banner_Image,Currency,Settings,APIs,Theme,FAQ
+from django.conf import settings
 
+#site_path = str(settings.BASE_DIR)
+#current_site = Site.objects.get_current()
 class CompanyInfoSerializer(serializers.ModelSerializer):
     '''
     This serializer is for Company Info model and funtionalities.
@@ -24,10 +27,42 @@ class CompanyInfoSerializer(serializers.ModelSerializer):
             slogan: CharField,max_length=264,
             cookies: CharField,max_length=100000
     '''
+    logo_url = serializers.SerializerMethodField(method_name='get_logo')
+    icon_url = serializers.SerializerMethodField(method_name='get_icon')
     class Meta:
         model = CompanyInfo
-        fields = "__all__"
-        #fields=("name", "email")
+        #fields = "__all__"
+        fields=("name", "logo","address","icon","Facebook","twitter","linkedin","youtube","email","phone","help_center","About","policy","terms_condition","slogan","cookies","logo_url","icon_url")
+
+    def get_logo(self,instance):
+
+        try:
+            logo_image = CompanyInfo.objects.all().first()
+        except:
+            logo_image = None
+
+        if logo_image is not None:
+            logo = logo_image.logo
+            return "{0}{1}".format(settings.BASE_DIR,logo.url)
+
+        else:
+            return " "
+
+
+    def get_icon(self,instance):
+
+        try:
+            logo_image = CompanyInfo.objects.all().first()
+        except:
+            logo_image = None
+
+        if logo_image is not None:
+            logo = logo_image.icon
+            return "{0}{1}".format(settings.BASE_DIR,logo.url)
+
+        else:
+            return " "
+
 
 class BannerSerializer(serializers.ModelSerializer):
     '''

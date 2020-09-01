@@ -23,6 +23,7 @@ from django.contrib.auth.models import (
 from rest_framework_simplejwt.tokens import RefreshToken
 from User_details.decorators import unauthenticated_user, allowed_users, admin_only
 from django.contrib.auth.models import Group
+from autoslug import AutoSlugField
 
 #------------------------------------- User_details--------------------------------
 
@@ -461,13 +462,13 @@ class Product(models.Model):
 	title = models.CharField(max_length=250 ,blank=True)
 	brand = models.CharField(max_length=120 , blank=True )
 	date=models.DateTimeField(auto_now_add=True)
-	image = ArrayField(models.ImageField(upload_to=product_image_path, blank=True),null=True , blank=True)
+	#image = ArrayField(models.ImageField(upload_to=product_image_path, blank=True),null=True , blank=True)
 	description = models.TextField(null=True, blank=True)
 	key_features=ArrayField(models.TextField(null=True , blank=True), null=True ,blank=True)
 	quantity = models.IntegerField(default=1)
 	is_deleted = models.BooleanField(default=False)
 	properties= models.BooleanField(default=True)
-	slug = models.SlugField(unique=True,null=True , blank=True)
+	#slug = AutoSlugField(populate_from=lambda instance: instance.title,slugify=lambda value: value.replace(' ','-'),default=0)
 
 
 
@@ -527,7 +528,7 @@ post_save.connect(product_post_saved_receiver, sender=Product)
 
 class Category(models.Model):
 	title = models.CharField(max_length=120, unique=True)
-	slug = models.SlugField(unique=True)
+	#slug = models.SlugField(unique=True)
 	active = models.BooleanField(default=True)
 	timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
 
@@ -542,7 +543,7 @@ class Category(models.Model):
 class GroupProduct(models.Model):
 	products_ids = ArrayField(models.IntegerField( null=True , blank=True),null=True , blank=True)
 	title = models.CharField(max_length=120, unique=True)
-	slug = models.SlugField(unique=True , blank=True)
+	#slug = models.SlugField(unique=True , blank=True)
 	startdate=models.DateTimeField(null=True , blank=True)
 	enddate=models.DateTimeField(null=True , blank=True)
 	flashsellname=models.name = models.CharField(max_length=120, blank = True , null=True)

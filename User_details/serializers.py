@@ -45,13 +45,14 @@ class LoginSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'password','tokens']
+        fields = ['email', 'password','tokens','id']
 
     def validate(self, attrs):
         email = attrs.get('email', '')
         password = attrs.get('password', '')
 
         user = auth.authenticate(email=email, password=password)
+        print(user.id)
         if not user:
             raise AuthenticationFailed('Invalid credentials, try again')
         if not user.is_active:
@@ -61,7 +62,7 @@ class LoginSerializer(serializers.ModelSerializer):
 
         return {
             'email': user.email,
-            'tokens': user.tokens
+            'tokens': user.tokens,
         }
 
         return super().validate(attrs)

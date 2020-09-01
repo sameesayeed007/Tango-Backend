@@ -30,5 +30,7 @@ urlpatterns = [
     path('update_profile/<int:user_id>', views.update_user_profile), 
     path('delete_user/', views.user_delete), 
     path('user_balance/<int:user_id>', views.specific_user_balace_value), 
-   
+    path('user_signup/', views.user_signup), 
+    path('user_credential/', views.user_credentials_retrive), 
+    
 ]

@@ -42,7 +42,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'properties',
             'is_deleted',
             "key_features" ,
-            "slug",
+            
         ]
  
     def get_seller(self, obj):
@@ -56,7 +56,7 @@ class CategorySerializer(serializers.ModelSerializer):
         fields= [
             "id",
             "title",
-            "slug",
+            
             'active',
             'timestamp'
 
@@ -70,7 +70,7 @@ class GroupProductSerialyzer(serializers.ModelSerializer):
             'id',
             "products_ids",
             'title',
-            'slug',
+            
             'startdate',
             'enddate',
             'flashsellname',
