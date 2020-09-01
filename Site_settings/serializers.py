@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from Intense.models import CompanyInfo,Banner,RolesPermissions,Banner_Image,Currency,Settings,APIs,Theme,FAQ
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.contrib.sites.shortcuts import get_current_site
 
 #site_path = str(settings.BASE_DIR)
