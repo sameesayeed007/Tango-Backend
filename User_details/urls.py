@@ -2,7 +2,7 @@ from django.urls import path, include
 from .import views
 from django.views.generic import TemplateView
 from django.urls import path,include
-from .views import RegisterView, SetNewPasswordAPIView, VerifyEmail, LoginAPIView, PasswordTokenCheckAPI, RequestPasswordResetEmail 
+from .views import RegisterView, SetNewPasswordAPIView, VerifyEmail, LoginAPIView, PasswordTokenCheckAPI, RequestPasswordResetEmail,MyTokenObtainPairView
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
@@ -32,5 +32,6 @@ urlpatterns = [
     path('user_balance/<int:user_id>', views.specific_user_balace_value), 
     path('user_signup/', views.user_signup), 
     path('user_credential/', views.user_credentials_retrive), 
+    path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair')
     
 ]

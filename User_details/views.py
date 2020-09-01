@@ -1,6 +1,6 @@
 from django.shortcuts import render , redirect
 from rest_framework import generics, status, views
-from .serializers import RegisterSerializer, SetNewPasswordSerializer, UserBalanceSerializer, ResetPasswordEmailRequestSerializer, EmailVerificationSerializer,UserRelationSerializer, LoginSerializer , UserSerializer , ProfileSerializer,GuestUserSerializer
+from .serializers import RegisterSerializer, SetNewPasswordSerializer, UserBalanceSerializer, ResetPasswordEmailRequestSerializer, EmailVerificationSerializer,UserRelationSerializer, LoginSerializer,MyTokenObtainPairSerializer , UserSerializer , ProfileSerializer,GuestUserSerializer
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from Intense.models import User , user_relation,Settings,user_balance
@@ -38,6 +38,8 @@ from .decorators import unauthenticated_user, allowed_users, admin_only
 from django.contrib import messages
 from django.db import transaction
 from Intense.Integral_apis import create_user_balance,create_user_profile
+# from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 
 class RegisterView(generics.GenericAPIView):
@@ -194,7 +196,9 @@ def user_credentials_retrive (request):
                  }
                 )
 
-    
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
 @api_view (["GET","POST"])
 def user_delete(request):
    
@@ -215,6 +219,9 @@ class LoginAPIView(generics.GenericAPIView):
     serializer_class = LoginSerializer
 
     def post(self, request):
+        print(request.data['email'])
+        user = User.objects.get(email=request.data['email'])
+        print(user)
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

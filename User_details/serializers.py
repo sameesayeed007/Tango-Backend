@@ -10,7 +10,8 @@ from rest_framework.validators import UniqueValidator
 from rest_framework.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import Permission
-
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -50,9 +51,9 @@ class LoginSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         email = attrs.get('email', '')
         password = attrs.get('password', '')
+       
 
         user = auth.authenticate(email=email, password=password)
-        print(user.id)
         if not user:
             raise AuthenticationFailed('Invalid credentials, try again')
         if not user.is_active:
@@ -62,7 +63,7 @@ class LoginSerializer(serializers.ModelSerializer):
 
         return {
             'email': user.email,
-            'tokens': user.tokens,
+            'tokens': user.tokens
         }
 
         return super().validate(attrs)
@@ -77,6 +78,28 @@ class LoginSerializer(serializers.ModelSerializer):
             raise exceptions.ValidationError(msg)
 
         return user
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        try:
+            data = super().validate(attrs)
+            refresh = self.get_token(self.user)
+            data['refresh'] = str(refresh)
+            data['access'] = str(refresh.access_token)
+
+            # Add extra responses here
+            data['email'] = self.user.email
+            return {
+                'success': True,
+                'data': data  
+            }
+        except:
+            return {
+                'success': False,
+                'message' : 'Please provide valid credentials'
+            }
+
 
 class ResetPasswordEmailRequestSerializer(serializers.Serializer):
     email = serializers.EmailField(min_length=2)
