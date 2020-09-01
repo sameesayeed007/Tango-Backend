@@ -1,9 +1,10 @@
 from rest_framework import serializers
 from Intense.models import CompanyInfo,Banner,RolesPermissions,Banner_Image,Currency,Settings,APIs,Theme,FAQ
 from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
 
 #site_path = str(settings.BASE_DIR)
-#current_site = Site.objects.get_current()
+current_site = Site.objects.get_current()
 class CompanyInfoSerializer(serializers.ModelSerializer):
     '''
     This serializer is for Company Info model and funtionalities.
@@ -43,7 +44,7 @@ class CompanyInfoSerializer(serializers.ModelSerializer):
 
         if logo_image is not None:
             logo = logo_image.logo
-            return "{0}{1}".format(settings.BASE_DIR,logo.url)
+            return "{0}{1}".format(current_site,logo.url)
 
         else:
             return " "
@@ -58,7 +59,7 @@ class CompanyInfoSerializer(serializers.ModelSerializer):
 
         if logo_image is not None:
             logo = logo_image.icon
-            return "{0}{1}".format(settings.BASE_DIR,logo.url)
+            return "{0}{1}".format(current_site,logo.url)
 
         else:
             return " "
