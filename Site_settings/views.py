@@ -9,7 +9,7 @@ from Intense.utils import get_image,get_roles_id
 import datetime
 # Create your views here.
 
-@api_view (["GET",])
+@api_view (["GET","POST"])
 def CompanyInfos(request):
 
     '''
@@ -67,18 +67,18 @@ def CompanyInfos(request):
         except:
             return Response({'message': 'There is no information to display'})
 
-    # elif(request.method == "POST"):
+    elif(request.method == "POST"):
 
-    #     # This data will come from frontend API
-    #     Info_Api_data = {'name': "intense", 'address': "Glafasha Plaza", 'Facebook': "facebook.com", 'twitter': "twitter.com",
-    #     'linkedin': "linkedin.com", 'youtube': "youtube.com", 'email': "abc@gmail.com", 'phone': "017494",'help_center': "+880", 'About': "we are", 
-    #     'policy': ["some", "policies"], 'terms_condition': ["terms", "conditions"], 'role_id': "1", 'slogan': "Some slogan", 'cookies': "cookis"}
+        # This data will come from frontend API
+        Info_Api_data = {'name': "intense", 'address': "Glafasha Plaza", 'Facebook': "facebook.com", 'twitter': "twitter.com",
+        'linkedin': "linkedin.com", 'youtube': "youtube.com", 'email': "abc@gmail.com", 'phone': "017494",'help_center': "+880", 'About': "we are", 
+        'policy': ["some", "policies"], 'terms_condition': ["terms", "conditions"], 'role_id': "1", 'slogan': "Some slogan", 'cookies': "cookis"}
         
-    #     serializers = CompanyInfoSerializer (data= Info_Api_data)
-    #     if(serializers.is_valid()):
-    #         serializers.save()
-    #         return Response (serializers.data, status=status.HTTP_201_CREATED)
-    #     return Response (serializers.errors)
+        serializers = CompanyInfoSerializer (data= Info_Api_data)
+        if(serializers.is_valid()):
+            serializers.save()
+            return Response (serializers.data, status=status.HTTP_201_CREATED)
+        return Response (serializers.errors)
             
        
 @api_view(['POST','GET'])
