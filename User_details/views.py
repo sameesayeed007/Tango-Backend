@@ -177,9 +177,18 @@ def user_credentials_retrive (request):
         }
     '''
     if request.method == 'GET':
+        #value = "Token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTU5OTA1Mjg5NSwianRpIjoiMjMxZjU0NTc4Y2FlNDFmNDk5NDc1ZGNmZmFmN2U3NmQiLCJ1c2VyX2lkIjoyfQ.ygudAXnaafE_Tq82CsVrSKt1YLsuIZ4bCAOsZ9a7j5Q"
         try:
-            
+            # print("ashche")
+            # encoded_token = jwt.encode({'user_id': 'abc'}, settings.SECRET_KEY, algorithm='HS256')
+            # print(encoded_token)
+            # val=jwt.decode(encoded_token, settings.SECRET_KEY, algorithms=['HS256'])
+            # print(val)
             token = request.headers['Authorization']
+            # token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTk5MDE1MTU5LCJqdGkiOiJhMGFjMTU3NDc1YTI0MjQyYTc2YjRmODA5MjljMWU4ZiIsInVzZXJfaWQiOjJ9.AMcPrkEl3IJk79IrtO4g9-Gx27aEJDP_TbP0oj09zdA"
+            # print("++++++++++++++++++++++++++++++")
+            # print(token)
+            #print(settings.SECRET_KEY)
             payload = jwt.decode(token, settings.SECRET_KEY)
             user_id = payload['user_id']
             user_profile = Profile.objects.get(user_id = user_id)
@@ -193,8 +202,7 @@ def user_credentials_retrive (request):
              return Response ({
                 'success': False,
                 'user': ''
-                 }
-                )
+                 })
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
