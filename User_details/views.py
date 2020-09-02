@@ -143,6 +143,44 @@ def user_signup(request):
                 }
                 
                 )
+@api_view (["GET", "POST"])
+def user_password_change (request,user_id):
+    try: 
+        user_profile = Profile.objects.get(user_id = user_id)
+        user= User.objects.get(id = user_id)
+    except :
+        return Response({
+            'success': False,
+            'message': 'User does not exist'
+            })
+
+    if(request.method == "POST"):
+        email = user_profile.email
+        old_password = request.data['old_password']
+        new_password = request.data['new_password']
+        confirm_password = request.data['confirm_password']
+
+        user = auth.authenticate(email=email, password=old_password)
+        if not user:
+            return Response({
+                'success': False,
+                'message': 'User credential is invalid'
+                })
+        else:
+            if new_password==confirm_password:
+                user.set_password(new_password)
+                user.save()
+                return Response ({
+                        'success': True,
+                        'message': 'Password has been changed successfully'
+                    }, status=status.HTTP_201_CREATED)
+            else:
+                 return Response ({
+                    'success': False,
+                    'message': 'New password and Confirm password did not match',
+                })
+
+
 
 @api_view (["GET", "POST"])
 def user_credentials_retrive (request):
@@ -184,20 +222,15 @@ def user_credentials_retrive (request):
             # print(encoded_token)
             # val=jwt.decode(encoded_token, settings.SECRET_KEY, algorithms=['HS256'])
             # print(val)
-            token = request.headers
-            #print(token)
+            token = request.headers['Authorization']
             TokenArray = token.split(" ")
-            print(TokenArray[1])
             #token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTk5MTA0NTEwLCJqdGkiOiJiMzQ4NWVhNmVjOTU0M2I4ODRhMzM5MDZiNjg3ZWMyOCIsInVzZXJfaWQiOjJ9.LQQMqXD8Qo5Pnaa0Oqh7sL9X4KuByqh32K4djfU-BQA"
             # print("++++++++++++++++++++++++++++++")
             # print(token)
             #print(settings.SECRET_KEY)
             payload = jwt.decode(TokenArray[1], settings.SECRET_KEY)
-            print(payload)
             user_id = payload['user_id']
-            print(user_id)
             user_profile = Profile.objects.get(user_id = user_id)
-            print(user_profile)
             user_profile_serializer = ProfileSerializer (user_profile, many = False)
             return Response ({
                 'success': True,
