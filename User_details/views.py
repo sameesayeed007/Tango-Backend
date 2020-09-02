@@ -184,24 +184,24 @@ def user_credentials_retrive (request):
             # print(encoded_token)
             # val=jwt.decode(encoded_token, settings.SECRET_KEY, algorithms=['HS256'])
             # print(val)
-            token = request.headers['Authorization']
+            token = request.headers
             #print(token)
-            # TokenArray = token.split(" ")
-            # print(TokenArray[1])
+            TokenArray = token.split(" ")
+            print(TokenArray[1])
             #token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTk5MTA0NTEwLCJqdGkiOiJiMzQ4NWVhNmVjOTU0M2I4ODRhMzM5MDZiNjg3ZWMyOCIsInVzZXJfaWQiOjJ9.LQQMqXD8Qo5Pnaa0Oqh7sL9X4KuByqh32K4djfU-BQA"
             # print("++++++++++++++++++++++++++++++")
             # print(token)
             #print(settings.SECRET_KEY)
-            # payload = jwt.decode(TokenArray[1], settings.SECRET_KEY)
-            # print(payload)
-            # user_id = payload['user_id']
-            # print(user_id)
-            # user_profile = Profile.objects.get(user_id = user_id)
-            # print(user_profile)
-            # user_profile_serializer = ProfileSerializer (user_profile, many = False)
+            payload = jwt.decode(TokenArray[1], settings.SECRET_KEY)
+            print(payload)
+            user_id = payload['user_id']
+            print(user_id)
+            user_profile = Profile.objects.get(user_id = user_id)
+            print(user_profile)
+            user_profile_serializer = ProfileSerializer (user_profile, many = False)
             return Response ({
                 'success': True,
-                'user': token
+                'user': user_profile_serializer.data
                     },status=status.HTTP_204_NO_CONTENT
                 )
         except:
