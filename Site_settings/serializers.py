@@ -89,6 +89,7 @@ class BannerSerializer(serializers.ModelSerializer):
         role_id: IntegerField
     
     '''
+
     class Meta:
         model = Banner
         fields = "__all__"
@@ -105,10 +106,33 @@ class BannerImageSerializer(serializers.ModelSerializer):
         content : CharField,max_length=264,
     
     '''
+    image_link = serializers.SerializerMethodField(method_name='get_link')
  
     class Meta:
         model = Banner_Image
-        fields = "__all__"
+        fields = ('id','Banner_id','image','image_link','content')
+
+    def get_link(self,instance):
+
+        try:
+            print("Coming here")
+            print(instance.Banner_id)
+            link  = Banner_Image.objects.filter(id=instance.id).last()
+
+            print(link)
+
+        except:
+
+            link = None
+
+        if link is not None:
+            logo = link.image
+            print(logo)
+            return "{0}{1}".format(host_name,logo.url)
+
+        else:
+            return " "
+
        
 
 class RolesPermissionsSerializer(serializers.ModelSerializer):

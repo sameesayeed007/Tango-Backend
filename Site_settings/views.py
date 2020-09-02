@@ -166,16 +166,36 @@ def get_specific_Banners(request,banner_id):
 
     '''
 
+
+
     if(request.method == "GET"):
         try:
             queryset = Banner.objects.get(pk= banner_id)
+        except:
+            queryset = None
+        if queryset is not None:
+
             serializers = BannerSerializer (queryset,many = False)
             banner_image = Banner_Image.objects.filter(Banner_id = banner_id)
             image_serializers = BannerImageSerializer (banner_image,many = True)
-            banner_data = [serializers.data,image_serializers.data]
-            return Response (banner_data)
-        except:
-            return Response ({'message': 'There is no value'})
+            #banner_data = [serializers.data,image_serializers.data]
+            return Response({
+                'success': True,
+                'message': 'The values are inserted below',
+                'banner_data': serializers.data ,
+                'images' : image_serializers.data
+                })
+
+        else:
+            return Response({
+                'success': False,
+                'message': 'There are no values to show',
+                'data': ''
+                })
+
+            
+        
+            
 
 @api_view (["GET","POST"])
 def Banner_Insertion(request):
