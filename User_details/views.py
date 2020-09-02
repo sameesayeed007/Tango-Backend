@@ -184,7 +184,7 @@ def user_credentials_retrive (request):
             # print(encoded_token)
             # val=jwt.decode(encoded_token, settings.SECRET_KEY, algorithms=['HS256'])
             # print(val)
-            token = request.headers['Authorization']
+            token = request.headers
             #print(token)
             # TokenArray = token.split(" ")
             # print(TokenArray[1])
