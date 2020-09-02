@@ -185,11 +185,12 @@ def user_credentials_retrive (request):
             # val=jwt.decode(encoded_token, settings.SECRET_KEY, algorithms=['HS256'])
             # print(val)
             token = request.headers['Authorization']
-            # token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTk5MDE1MTU5LCJqdGkiOiJhMGFjMTU3NDc1YTI0MjQyYTc2YjRmODA5MjljMWU4ZiIsInVzZXJfaWQiOjJ9.AMcPrkEl3IJk79IrtO4g9-Gx27aEJDP_TbP0oj09zdA"
+            TokenArray = token.split(" ")
+            #token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTk5MTA0NTEwLCJqdGkiOiJiMzQ4NWVhNmVjOTU0M2I4ODRhMzM5MDZiNjg3ZWMyOCIsInVzZXJfaWQiOjJ9.LQQMqXD8Qo5Pnaa0Oqh7sL9X4KuByqh32K4djfU-BQA"
             # print("++++++++++++++++++++++++++++++")
             # print(token)
             #print(settings.SECRET_KEY)
-            payload = jwt.decode(token, settings.SECRET_KEY)
+            payload = jwt.decode(TokenArray[1], settings.SECRET_KEY)
             user_id = payload['user_id']
             user_profile = Profile.objects.get(user_id = user_id)
             user_profile_serializer = ProfileSerializer (user_profile, many = False)
@@ -229,7 +230,6 @@ class LoginAPIView(generics.GenericAPIView):
     def post(self, request):
         print(request.data['email'])
         user = User.objects.get(email=request.data['email'])
-        print(user)
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
