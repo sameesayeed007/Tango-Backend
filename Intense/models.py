@@ -291,9 +291,9 @@ status = (
 #receiver_id is the one from the support team who receives the comments
 class Ticket(models.Model):
     
-    title = models.CharField(max_length=255)
-    sender_id = models.IntegerField(default=1)
-    receiver_id = models.IntegerField(default=1)
+    title = models.CharField(max_length=255, null = True, blank = True)
+    sender_id = models.IntegerField(blank = True, null = True)
+    receiver_id = models.IntegerField(blank = True, null = True)
     department = models.CharField(max_length=255, blank=True)
     complain = models.TextField(blank = True)
     #replies = ArrayField(models.TextField(blank = True))
@@ -320,7 +320,7 @@ class TicketReplies(models.Model):
     ticket_id = models.IntegerField(blank = False)
     reply = models.TextField(blank=True)
     created = models.DateTimeField(auto_now_add=True)
-    user_id = models.IntegerField(default=1)
+    user_id = models.IntegerField(blank = True, null = True)
 
     def _str_(self):
         return self.reply

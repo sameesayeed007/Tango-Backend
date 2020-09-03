@@ -5,7 +5,7 @@ urlpatterns = [
     path('info/', views.CompanyInfos), # this url for company Info API
     path('update_info/', views.update_CompanyInfos), #*********
     path('delete_info/<int:info_id>/', views.delete_CompanyInfos), # this url is for specific roles update**
-    path('banner/<int:banner_id>/', views.get_specific_Banners), # this url for Banner API
+    path('banner/', views.get_specific_Banners), # this url for Banner API
     path('banner_insert/', views.Banner_Insertion), 
     path('banner_value_update/<int:banner_id>', views.Banner_value_update), 
     path('banner_img_update/<int:banner_id>', views.Banner_image_add), 

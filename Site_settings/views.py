@@ -130,7 +130,7 @@ def delete_CompanyInfos(request,info_id):
 
 
 @api_view (["GET","POST"])
-def get_specific_Banners(request,banner_id):
+def get_specific_Banners(request):
 
     '''
     This is for getting specific Banner. Site does have multiple banner and in each banner there will be multiple images. While performing the 
@@ -170,20 +170,34 @@ def get_specific_Banners(request,banner_id):
 
     if(request.method == "GET"):
         try:
-            queryset = Banner.objects.get(pk= banner_id)
+            queryset = Banner.objects.all()
         except:
             queryset = None
         if queryset is not None:
 
             serializers = BannerSerializer (queryset,many = False)
-            banner_image = Banner_Image.objects.filter(Banner_id = banner_id)
-            image_serializers = BannerImageSerializer (banner_image,many = True)
+            banner_ids = queryset.values_list('id' , flat = True)
+            image_serializers = []
+            for i in range(len(banner_ids)):
+                try:
+                    banner_image = Banner_Image.objects.filter(Banner_id = banner_ids[i])
+                except:
+                    banner_image = None
+                if banner_image is not None:
+                    image_serializer = BannerImageSerializer (banner_image,many = True)
+                    image_serializers += image_serializer.data
+
+
+
+
+            
+            
             #banner_data = [serializers.data,image_serializers.data]
             return Response({
                 'success': True,
                 'message': 'The values are inserted below',
                 'banner_data': serializers.data ,
-                'images' : image_serializers.data
+                'images' : image_serializers
                 })
 
         else:
