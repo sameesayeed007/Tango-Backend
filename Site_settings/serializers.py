@@ -5,7 +5,7 @@ from django.contrib.sites.models import Site
 from django.contrib.sites.shortcuts import get_current_site
 
 #site_path = str(settings.BASE_DIR)
-current_site = Site.objects.get_current()
+
 host_prefix = "https://"
 host_name = host_prefix+settings.ALLOWED_HOSTS[0]
 class CompanyInfoSerializer(serializers.ModelSerializer):

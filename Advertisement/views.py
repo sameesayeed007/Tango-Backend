@@ -14,26 +14,40 @@ from django.views.decorators.csrf import csrf_exempt
 #This creates an ad
 @api_view(['POST',])
 def add_ad(request):
+		
+	adsserializer = AdvertisementSerializer(data=request.data)
+	if adsserializer.is_valid():
+		adsserializer.save()
+		return JsonResponse({
+			'success': True,
+			'message': 'Successfully added the advertisement',
+			'data':adsserializer.data
+		}, status=status.HTTP_201_CREATED)
 
-		values = {'view_count': '5'}
-		adsserializer = AdvertisementSerializer(data=values)
-		if adsserializer.is_valid():
-			
-			adsserializer.save()
-
-		return JsonResponse(adsserializer.data, status=status.HTTP_201_CREATED)
+	return JsonResponse({
+		'success': False,
+		'message': 'Advertisment value could not be inserted.',
+		'data':adsserializer.errors
+	})
 
 #Shows information about a specific ad
 @api_view(['GET',])
 def show_ad(request,ad_id):
 
 	try:
-		ad = Advertisement.objects.filter(id = ad_id)
-		adserializer = AdvertisementSerializer(ad,many=True)
-		return JsonResponse(adserializer.data,safe=False)
+		ad = Advertisement.objects.get(id = ad_id)
+		adserializer = AdvertisementSerializer(ad,many=False)
+		return JsonResponse({
+			'success': True,
+			'message': 'Advertisement data has been retrieved successfully',
+			'data': adserializer.data
+		},safe=False)
 
 	except Advertisement.DoesNotExist:
-		return JsonResponse({'message': 'This Advertisement does not exist'}, status=status.HTTP_404_NOT_FOUND)
+		return JsonResponse({
+			'success': False,
+			'message': 'This Advertisement does not exist'
+			}, status=status.HTTP_404_NOT_FOUND)
 
 
 #This shows all the ad
@@ -43,10 +57,16 @@ def show_all_ads(request):
 	try:
 		ad = Advertisement.objects.all()
 		adserializer = AdvertisementSerializer(ad,many=True)
-		return JsonResponse(adserializer.data,safe=False)
+		return JsonResponse({
+			'success': True,
+			'message': 'Data has been retrived successfully',
+			'data': adserializer.data
+		},safe=False)
 
 	except Advertisement.DoesNotExist:
-		return JsonResponse({'message': 'This Advertisement does not exist'}, status=status.HTTP_404_NOT_FOUND)
+		return JsonResponse({
+			'success': False,
+			'message': 'This Advertisement does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
 
 
@@ -55,13 +75,17 @@ def show_all_ads(request):
 def update_ad(request,ad_id):
 
 	try:
-		ad = Advertisement.objects.filter(id=ad_id).last()
-		click_count = int(request.data.get('click_count'))
-		view_count = int(request.data.get('view_count'))
+		ad = Advertisement.objects.get(id=ad_id)
+		try:
+			
+			click_count = int(request.data.get('click_count'))
+			view_count = int(request.data.get('view_count'))
 
-		ad.total_view_count += view_count
-		ad.total_click_count += click_count
-		ad.save()
+			ad.total_view_count += view_count
+			ad.total_click_count += click_count
+			ad.save()
+		except:
+			pass
 
 
 		if request.method == 'POST':
@@ -69,10 +93,17 @@ def update_ad(request,ad_id):
 			if adserializer.is_valid():
 				adserializer.save()
 
-			return JsonResponse(adserializer.data, status=status.HTTP_201_CREATED)
+			return JsonResponse({
+				'success': True,
+				'message': 'Data has been retrived successfully',
+				'data': adserializer.data
+			}, status=status.HTTP_201_CREATED)
 
 	except Advertisement.DoesNotExist:
-		return JsonResponse({'message': 'This advertisement does not exist'}, status=status.HTTP_404_NOT_FOUND)
+		return JsonResponse({
+			'success': False,
+			'message': 'This advertisement does not exist'
+			}, status=status.HTTP_404_NOT_FOUND)
 
 
 #This deletes an ad 
@@ -80,10 +111,14 @@ def update_ad(request,ad_id):
 def delete_ad(request,ad_id):
 
 	try:
-		ad = Advertisement.objects.filter(id = ad_id)
+		ad = Advertisement.objects.get(id = ad_id)
 		ad.delete()
-		return JsonResponse({'message': 'This Advertisement has been deleted'})
+		return JsonResponse({
+			'success': True,
+			'message': 'This Advertisement has been deleted successfully'})
 
 
 	except Advertisement.DoesNotExist:
-		return JsonResponse({'message': 'This Advertisement does not exist'}, status=status.HTTP_404_NOT_FOUND)
+		return JsonResponse({
+			'success': False,
+			'message': 'This Advertisement does not exist'}, status=status.HTTP_404_NOT_FOUND)

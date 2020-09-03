@@ -37,8 +37,9 @@ from .serializers import (
         CreateProductSerializer
 		)
 
+
 from .decorators import time_calculator
-from Intense.models import Comment,CommentReply,Reviews,Order,OrderDetails,User,GroupProduct, Product, Variation, Category 
+from Intense.models import Comment,CommentReply,Reviews,Order,OrderDetails,User,GroupProduct, Product, Variation, Category,discount_product,ProductImpression
 from .serializers import CommentSerializer, CommentReplySerializer,ReviewsSerializer ,ProductReviewSerializer
 from django.http.response import JsonResponse
 from django.contrib.auth import get_user_model
@@ -49,6 +50,140 @@ from rest_framework.generics import ListAPIView
 from User_details.serializers import UserSerializer
 
 # -------------------- Product -----------------------
+
+@api_view(['GET',])
+def display_products(request):
+
+
+    latest = {}
+    discount = {}
+    popular = {}
+
+
+    try:
+        latest_products = Product.objects.order_by('date')[:10]
+        #this fetches all the comment ids
+        
+    except:
+        latest_products = None
+
+   
+
+    if latest_products:
+
+       
+
+        latest_products_serializer = ProductSerializer(latest_products,many=True)
+        latest = latest_products_serializer.data
+        
+
+    else: 
+
+        
+
+        latest = {}
+
+    
+    
+    try:
+
+
+        discounted_product_ids = list(discount_product.objects.values_list('product_id',flat=True).distinct())
+        
+
+        discounted_products = Product.objects.filter(pk__in=discounted_product_ids)[:10]
+
+    except:
+
+        discounted_products = None
+
+
+    if discounted_products:
+
+        
+
+        discounted_products_serializer = ProductSerializer(discounted_products,many=True)
+        discount = discounted_products_serializer.data
+
+    else:
+        
+        discount = {}
+
+
+    try:
+
+        popular_products = ProductImpression.objects.order_by('-sales_count')[:10]
+        print(popular_products)
+
+    except:
+
+        popular_products = None
+
+    if popular_products:
+
+        #Fetch the product ids 
+        product_ids = list(popular_products.values_list('product_id' , flat = True))
+
+        try:
+
+            pop_products = Product.objects.filter(pk__in = product_ids)[:10]
+
+        except:
+
+            pop_products = None
+
+
+        if pop_products:
+
+
+            popular_products_serializer = ProductSerializer(pop_products,many=True)
+            popular = popular_products_serializer.data
+
+        else:
+
+            popular = {}
+
+    else:
+
+        popular = {}
+
+
+
+
+
+
+
+       
+
+
+
+        
+        
+
+        
+
+
+
+
+
+        
+
+    
+
+    
+    data = [{'name':'New Arrivals','products':latest},{'name':'On Sale','products':discount},{'name':'Popular','products':popular}]
+
+
+
+    return Response({
+                'success': True,
+                'message': 'The values are shown below',
+                'data': data 
+                })
+
+  
+
+      
 
 
 class ListProductView(ListAPIView):

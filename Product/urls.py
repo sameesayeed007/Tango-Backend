@@ -39,5 +39,6 @@ urlpatterns = [
     path('ratings/<int:product_id>/',views.product_ratings,name='ratings'),
     path('upload/',views.upload_product),
     path('edit/',views.edit_product),
+    path('display/',views.display_products),
 
 ]

@@ -163,20 +163,16 @@ class Guest_user(models.Model):
 
 class Advertisement(models.Model):
 
-	image = models.ImageField(upload_to='Advertisement',null = True)
-	ad_link = models.CharField(max_length=255,blank=True,null = True)
-	content = models.CharField(max_length=255,blank=True,null = True)
-	click_count = models.IntegerField(default =0)
-	view_count = models.IntegerField(default=0)
-	total_click_count = models.IntegerField(default =0)
-	total_view_count = models.IntegerField(default=0)
-	user_id = models.IntegerField(default =0)
-	non_verfied_user_id = models.IntegerField(default =0)
-	ip_address = models.CharField(max_length=255,blank=True,null = True)
-
-
-	def __str__(self):
-		return str(self.content)
+    image = models.ImageField(upload_to='Advertisement',null = True)
+    ad_link = models.CharField(max_length=255,blank=True,null = True)
+    content = models.CharField(max_length=255,blank=True,null = True)
+    click_count = models.IntegerField(default =0)
+    view_count = models.IntegerField(default=0)
+    total_click_count = models.IntegerField(default =0)
+    total_view_count = models.IntegerField(default=0)
+    
+    def __str__(self):
+        return str(self.content)
 
 # ----------------------------- Impression ----------------------------
 
@@ -459,23 +455,56 @@ def product_image_path(instance, filename):
     return "product/images/{}/{}".format(instance.title, filename)
 
 class ProductImage(models.Model):
+    
     product_id = models.IntegerField(default= 0)
-    image= models.ImageField(upload_to=product_image_path, blank=True, null = True)
-    title= models.CharField(max_length=255,blank=True,null=True)
+    #image= models.ImageField(upload_to='Products/', blank=True,null=True)
+    product_image= models.ImageField(blank=True,null=True)
+
+    
+    
+    image_url = models.CharField(max_length=255,blank=True,null=True)
+
+
+    @property
+    def image(self):
+
+        #link ='/media/'+'Product/'+str(self.product_image)
+    
+        return "{0}{1}".format(host_name,self.product_image.url)
+        
+       
+
+
+    def save(self, *args, **kwargs):
+          #self.unique_id = self.get_unique_id()
+          #print(self.image_url())
+        
+          # print(host_name)
+          # print(self.image)
+          # print(self.image.url)
+
+          # print(self.image_url)
+          print(self.product_image.url)
+          print(self.image)
+          self.image_url = self.image
+          #print(self.image_urls)
+          super(ProductImage, self).save(*args, **kwargs)
+
+
+
     
 class Product(models.Model):
-	seller = models.ForeignKey(User, on_delete=models.CASCADE , null=True)
-	category_id = models.IntegerField( blank=True , null=True)
-	title = models.CharField(max_length=250 ,blank=True)
-	brand = models.CharField(max_length=120 , blank=True )
-	date=models.DateTimeField(auto_now_add=True)
-	#image = ArrayField(models.ImageField(upload_to=product_image_path, blank=True),null=True , blank=True)
-	description = models.TextField(null=True, blank=True)
-	key_features=ArrayField(models.TextField(null=True , blank=True), null=True ,blank=True)
-	quantity = models.IntegerField(default=1)
-	is_deleted = models.BooleanField(default=False)
-	properties= models.BooleanField(default=True)
-	#slug = AutoSlugField(populate_from=lambda instance: instance.title,slugify=lambda value: value.replace(' ','-'),default=0)
+    seller = models.ForeignKey(User, on_delete=models.CASCADE , null=True)
+    category_id = models.IntegerField( blank=True , null=True)
+    title = models.CharField(max_length=250 ,blank=True)
+    brand = models.CharField(max_length=120 , blank=True )
+    date=models.DateTimeField(auto_now_add=True)
+    #image = ArrayField(models.ImageField(upload_to=product_image_path, blank=True),null=True , blank=True)
+    description = models.TextField(null=True, blank=True)
+    key_features=ArrayField(models.TextField(null=True , blank=True), null=True ,blank=True)
+    quantity = models.IntegerField(default=1)
+    is_deleted = models.BooleanField(default=False)
+    properties= models.BooleanField(default=True)
 
 
 

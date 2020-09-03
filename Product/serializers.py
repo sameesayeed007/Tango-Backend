@@ -2,13 +2,14 @@ import json
 import serpy
 from rest_framework import serializers
 #from user_profile.models import User
-from Intense.models import Category, Product , Variation ,GroupProduct,Comment,CommentReply,Reviews,User,Category, Product, Variation , GroupProduct
+from Intense.models import Category, Product , Variation ,GroupProduct,Comment,CommentReply,Reviews,User,Category, Product, Variation , GroupProduct,ProductImage,ProductPrice,discount_product
 from drf_extra_fields.fields import Base64ImageField
 from django.db.models import Avg
 
 
 from rest_framework import serializers
 from rest_framework import fields
+from django.utils import timezone
 
 
 #------------------------ product---------------------------
@@ -23,31 +24,149 @@ class VariationSerializer(serializers.ModelSerializer):
 		]
 
 
+# class ProductSerializer(serializers.ModelSerializer):
+#     seller=serializers.SerializerMethodField(method_name='get_seller')
+
+
+
+#     class Meta:
+#         model = Product
+#         fields=[
+#             'id',
+#             'seller',
+#             'category_id',
+#             'title',
+#             'brand',
+#             'image',
+#             'description',
+#             'quantity',
+#             'properties',
+#             'is_deleted',
+#             "key_features" ,
+            
+#         ]
+ 
+#     def get_seller(self, obj):
+#         return obj.seller
+
+
 class ProductSerializer(serializers.ModelSerializer):
-    seller=serializers.SerializerMethodField(method_name='get_seller')
-
-
-
+    images = serializers.SerializerMethodField(method_name='get_images')
+    new_price = serializers.SerializerMethodField(method_name='get_new_price')
+    old_price = serializers.SerializerMethodField(method_name='get_old_price')
+    #comment_name = serializers.SerializerMethodField(method_name='get_name')
     class Meta:
         model = Product
-        fields=[
-            'id',
-            'seller',
-            'category_id',
-            'title',
-            'brand',
-            'image',
-            'description',
-            'quantity',
-            'properties',
-            'is_deleted',
-            "key_features" ,
-            
-        ]
- 
-    def get_seller(self, obj):
-        return obj.seller
+        fields = ('id','title','quantity','old_price','new_price','images')
 
+    def get_images(self,instance):
+        replys = ProductImage.objects.filter(product_id=instance.id).values()
+        list_result = [entry for entry in replys] 
+    
+        return list_result
+
+
+    def get_old_price(self,instance):
+
+        old_price = 0 
+
+
+        try:
+
+
+            p_price = ProductPrice.objects.filter(product_id = instance.id).last()
+
+        except:
+
+            p_price = None 
+
+
+        if p_price is not None:
+
+            old_price =p_price.price
+
+        else:
+            old_price = 0
+
+
+        float_total = format(old_price, '0.2f')
+        return float_total
+
+
+
+    def get_new_price(self,instance):
+
+        new_price = 0
+        discount = 0  
+
+
+        try:
+
+
+            p_price = ProductPrice.objects.filter(product_id = instance.id).last()
+
+        except:
+
+            p_price = None 
+
+
+        if p_price is not None:
+
+            new_price =p_price.price
+
+            try:
+
+                p_discount = discount_product.objects.filter(product_id = instance.id).last()
+
+            except:
+
+                p_discount = None
+
+
+            if p_discount is not None:
+
+                discount = p_discount.amount
+                discount_start_date = p_discount.start_date
+                discount_end_date = p_discount.end_date
+                current_date = timezone.now().date()
+
+                if (current_date >= discount_start_date) and (current_date <= discount_end_date):
+
+                    new_price = new_price - discount
+
+                else:
+                    discount =0 
+                    new_price = new_price - discount
+
+            else:
+                discount = 0
+                new_price = new_price - discount
+
+
+
+
+        else:
+
+            new_price = 0
+            
+
+
+        float_total = format(new_price, '0.2f')
+        return float_total
+
+
+
+
+
+
+
+
+        
+
+        
+        
+    
+        
 
 
 class CategorySerializer(serializers.ModelSerializer):
