@@ -306,7 +306,7 @@ class Ticket(models.Model):
 
 
     def __str__(self):
-        return self.title
+        return str(self.title)
         
 
     class Meta:
@@ -323,7 +323,7 @@ class TicketReplies(models.Model):
     user_id = models.IntegerField(blank = True, null = True)
 
     def _str_(self):
-        return self.reply
+        return str(self.reply)
 
 #------------------------------ Email_Configuration---------------
 
