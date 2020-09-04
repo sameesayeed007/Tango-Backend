@@ -48,6 +48,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.generics import ListAPIView 
 from User_details.serializers import UserSerializer
+from django.db.models import Q
+from django.utils import timezone
 
 # -------------------- Product -----------------------
 
@@ -58,6 +60,7 @@ def display_products(request):
     latest = {}
     discount = {}
     popular = {}
+    current_date = timezone.now()
 
 
     try:
@@ -83,37 +86,59 @@ def display_products(request):
 
         latest = {}
 
-    
-    
+
     try:
 
+        print("coming here")
+        print(current_date)
 
-        discounted_product_ids = list(discount_product.objects.values_list('product_id',flat=True).distinct())
-        
+        # criterion1 = Q(start_date<=current_date)
+        # print(criterion1)
+        # criterion2 = Q(end_date>=current_date)
+        # print(criterion2)
 
-        discounted_products = Product.objects.filter(pk__in=discounted_product_ids)[:10]
+        product_discounts = discount_product.objects.filter(start_date__lte=current_date ,end_date__gte=current_date)
+        print(product_discounts)
 
     except:
+        product_discounts = None
 
-        discounted_products = None
+    if product_discounts:
+
+        print("yessssssssss")
+
+        discounted_product_ids = list(product_discounts.values_list('product_id',flat=True).distinct())
+    
+        try:
+            
+
+            discounted_products = Product.objects.filter(pk__in=discounted_product_ids)[:10]
+
+        except:
+
+            discounted_products = None
 
 
-    if discounted_products:
+        if discounted_products:
 
-        
+            
 
-        discounted_products_serializer = ProductSerializer(discounted_products,many=True)
-        discount = discounted_products_serializer.data
+            discounted_products_serializer = ProductSerializer(discounted_products,many=True)
+            discount = discounted_products_serializer.data
+
+        else:
+            
+            discount = {}
 
     else:
-        
+        print("Dammit")
         discount = {}
 
 
     try:
 
         popular_products = ProductImpression.objects.order_by('-sales_count')[:10]
-        print(popular_products)
+        #print(popular_products)
 
     except:
 
@@ -146,31 +171,7 @@ def display_products(request):
     else:
 
         popular = {}
-
-
-
-
-
-
-
-       
-
-
-
-        
-        
-
-        
-
-
-
-
-
-        
-
-    
-
-    
+  
     data = [{'name':'New Arrivals','products':latest},{'name':'On Sale','products':discount},{'name':'Popular','products':popular}]
 
 

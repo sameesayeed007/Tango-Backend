@@ -23,7 +23,11 @@ from django.contrib.auth.models import (
 from rest_framework_simplejwt.tokens import RefreshToken
 from User_details.decorators import unauthenticated_user, allowed_users, admin_only
 from django.contrib.auth.models import Group
+from django.conf import settings
 
+
+host_prefix = "https://"
+host_name = host_prefix+settings.ALLOWED_HOSTS[0]
 
 #------------------------------------- User_details--------------------------------
 
