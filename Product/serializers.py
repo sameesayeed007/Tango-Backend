@@ -10,6 +10,10 @@ from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework import fields
 from django.utils import timezone
+from django.conf import settings
+
+host_prefix = "https://"
+host_name = host_prefix+settings.ALLOWED_HOSTS[0]
 
 
 #------------------------ product---------------------------
@@ -224,7 +228,7 @@ class CommentSerializer(serializers.ModelSerializer):
     comment_name = serializers.SerializerMethodField(method_name='get_name')
     class Meta:
         model = Comment
-        fields = ('id','comment','date_created','product_id','user_id','non_verified_user_id','replies','comment_name')
+        fields = ('id','comment','date_created','product_id','user_id','non_verified_user_id','comment_name','replies',)
 
     def get_replies(self,instance):
         replys = CommentReply.objects.filter(comment_id=instance.id).values()
@@ -280,9 +284,10 @@ class CommentReplySerializer(serializers.ModelSerializer):
 #------------Review Serializers--------------------
 class ReviewsSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField(method_name='get_name')
+    image_link = serializers.SerializerMethodField(method_name='get_image')
     class Meta:
         model = Reviews
-        fields = ('id','product_id','user_id','non_verified_user_id','name','content','image','rating','date_created')
+        fields = ('id','product_id','user_id','non_verified_user_id','name','content','image','image_link','rating','date_created')
 
     def get_name(self,instance):
             user_id = instance.user_id
@@ -320,6 +325,22 @@ class ReviewsSerializer(serializers.ModelSerializer):
 
                 comment_name = "Anonymous"
                 return comment_name
+
+
+    def get_image(self,instance):
+
+        try:
+            logo_image = Reviews.objects.get(id=instance.id)
+        except:
+            logo_image = None
+
+        if logo_image is not None:
+            logo = logo_image.image
+            return "{0}{1}".format(host_name,logo.url)
+
+        else:
+            return " "
+
 
 
 

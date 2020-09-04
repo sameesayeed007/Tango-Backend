@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from Intense.utils import get_image,get_roles_id
 import datetime
+from django.http.response import JsonResponse
 # Create your views here.
 
 @api_view (["GET","POST"])
@@ -59,13 +60,27 @@ def CompanyInfos(request):
     if(request.method == "GET"):
         try:
             queryset = CompanyInfo.objects.all()
-            
 
-            serializers = CompanyInfoSerializer (queryset,many = True)
-           
-            return Response (serializers.data)
         except:
-            return Response({'message': 'There is no information to display'})
+            queryset = None
+
+        if queryset:
+            serializers = CompanyInfoSerializer (queryset,many = True)
+            return JsonResponse({
+            'success': True,
+            'message': 'The data is shown below',
+            'data':serializers.data
+        })
+
+        else:
+            return JsonResponse({
+            'success': False,
+            'message': 'No data is available',
+            'data': {}
+        })
+
+           
+  
 
     elif(request.method == "POST"):
 
@@ -89,17 +104,33 @@ def update_CompanyInfos(request):
         Calling  http://127.0.0.1:8000/site/update_info will invoke this Api.
         
     '''
-    try:
-        queryset = CompanyInfo.objects.all().last()
-    
-    except :
-        return Response({'message': 'This value does not exist'})
-
     if request.method == 'GET':
-        serializers = CompanyInfoSerializer (queryset,many = False)
-        return Response (serializers.data)
+        try:
+            queryset = CompanyInfo.objects.all()
+        
+        except :
+            queryset = None
+
+        if queryset:
+
+        
+            serializers = CompanyInfoSerializer (queryset,many = False)
+            return JsonResponse({
+            'success': True,
+            'message': 'The data is shown below',
+            'data':serializers.data
+        })
+
+        else:
+
+            return JsonResponse({
+            'success': False,
+            'message': 'No data is available',
+            'data': {}
+        })  
  
     elif request.method == "POST" :
+
         try:
             serializers = CompanyInfoSerializer (queryset, data= request.data)
             if(serializers.is_valid()):

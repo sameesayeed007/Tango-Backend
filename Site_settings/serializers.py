@@ -3,7 +3,7 @@ from Intense.models import CompanyInfo,Banner,RolesPermissions,Banner_Image,Curr
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.contrib.sites.shortcuts import get_current_site
-
+from django.http.response import JsonResponse
 #site_path = str(settings.BASE_DIR)
 
 host_prefix = "https://"
@@ -41,7 +41,7 @@ class CompanyInfoSerializer(serializers.ModelSerializer):
     def get_logo(self,instance):
 
         try:
-            logo_image = CompanyInfo.objects.all().first()
+            logo_image = CompanyInfo.objects.get(id=instance.id)
         except:
             logo_image = None
 
@@ -56,7 +56,7 @@ class CompanyInfoSerializer(serializers.ModelSerializer):
     def get_icon(self,instance):
 
         try:
-            logo_image = CompanyInfo.objects.all().first()
+            logo_image = CompanyInfo.objects.get(id=instance.id)
         except:
             logo_image = None
 

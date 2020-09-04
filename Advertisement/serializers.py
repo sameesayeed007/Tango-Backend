@@ -23,7 +23,7 @@ class AdvertisementSerializer(serializers.ModelSerializer):
 
 		try:
 
-			logo_image = Advertisement.objects.filter(id = instance.id)
+			logo_image = Advertisement.objects.get(id = instance.id)
 
 		except:
 			logo_image = None

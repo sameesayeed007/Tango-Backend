@@ -9,6 +9,8 @@ from django.urls import reverse,reverse_lazy
 from Intense.Integral_apis import ratings
 import json
 
+site_path = "https://tango99.herokuapp.com/"
+
 
 # Serializers define the API representation.
 
@@ -33,17 +35,18 @@ class ProductSpecificationSerializer(serializers.ModelSerializer):
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
-    price = serializers.SerializerMethodField(method_name='get_price')
-    discounted_price = serializers.SerializerMethodField(method_name='get_discounted_price')
+    old_price = serializers.SerializerMethodField(method_name='get_price')
+    new_price = serializers.SerializerMethodField(method_name='get_discounted_price')
     specification = serializers.SerializerMethodField(method_name='get_specifications')
     #availability = serializers.SerializerMethodField(method_name='available')
     ratings = serializers.SerializerMethodField(method_name='get_ratings')
     reviews = serializers.SerializerMethodField(method_name='get_reviews')
     images = serializers.SerializerMethodField(method_name='get_images')
+    imagez = serializers.SerializerMethodField(method_name='get_imagez')
     question_answers = serializers.SerializerMethodField(method_name='get_comments')
     class Meta:
         model = Product
-        fields = ('id','title','quantity','description','key_feature','price','specification','discounted_price','ratings','reviews','question_answers','images')
+        fields = ('id','title','quantity','description','key_features','old_price','specification','new_price','ratings','reviews','question_answers','images','imagez')
 
     def get_price(self,instance):
         p_price = 0
@@ -114,7 +117,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
 
         product_id = instance.id
-        site_path = "http://127.0.0.1:8000/"
+        #site_path = "http://127.0.0.1:8000/"
 
         url = site_path+ "product/ratings/"+str(product_id)+"/"
         values = requests.get(url).json()
@@ -125,7 +128,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
 
         product_id = instance.id
-        site_path = "http://127.0.0.1:8000/"
+        #site_path = "http://127.0.0.1:8000/"
 
         url = site_path+ "product/reviews_product/"+str(product_id)+"/"
         values = requests.get(url).json()
@@ -135,7 +138,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
 
         product_id = instance.id
-        site_path = "http://127.0.0.1:8000/"
+        #site_path = "http://127.0.0.1:8000/"
 
         url = site_path+ "product/comments_product/"+str(product_id)+"/"
         values = requests.get(url).json()
@@ -146,7 +149,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
 
         product_id = instance.id
-        site_path = "http://127.0.0.1:8000/"
+        #site_path = "http://127.0.0.1:8000/"
 
         url = site_path+ "productdetails/showspec/"+str(product_id)+"/"
         values = requests.get(url).json()
@@ -166,7 +169,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             product_images = None
 
         if product_images is not None:
-            images = list(product_images.values_list('image' , flat = True))
+            images = list(product_images.values_list('image_url' , flat = True))
             # images=[] 
             # for i in range(len(image_ids)):
             #     images += product_images.image
@@ -176,6 +179,13 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             images=[]
 
         return images
+
+
+    def get_imagez(self,instance):
+        replys = ProductImage.objects.filter(product_id=instance.id).values()
+        list_result = [entry for entry in replys] 
+    
+        return list_result
             
 # ------------------------- Product Cupon ---------------------------------
 

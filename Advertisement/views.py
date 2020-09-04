@@ -56,6 +56,7 @@ def show_all_ads(request):
 
 	try:
 		ad = Advertisement.objects.all()
+		
 		adserializer = AdvertisementSerializer(ad,many=True)
 		return JsonResponse({
 			'success': True,
