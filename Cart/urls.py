@@ -19,6 +19,7 @@ urlpatterns = [
     path('cancel_cart/', views.cancel_cart),
     path('unpaidorders/', views.orders_not_paid),
     path('notdeliveredorders/', views.orders_not_delivered),
+    path('deliveryinfo/', views.order_delivery),
     path('create_address/', views.create_address),
     path('show_address/', views.show_address),
     path('edit_address/', views.edit_address),

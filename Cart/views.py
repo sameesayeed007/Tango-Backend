@@ -1115,50 +1115,79 @@ def orders_not_paid(request):
 
 
 
-		try:
-			specific_order = Order.objects.filter(order_status="Unpaid")
-			# order_ids = specific_order.values_list('id' , flat = True)
-			# orderdetails =[]
-			# for i in range(len(order_ids)):
-			# 	details_data = OrderDetails.objects.filter(order_id = order_ids[i],is_removed=False)
-			# 	orderdetails += details_data
+	try:
+		specific_order = Order.objects.filter(order_status="Unpaid",checkout_status=True)
+		# order_ids = specific_order.values_list('id' , flat = True)
+		# orderdetails =[]
+		# for i in range(len(order_ids)):
+		# 	details_data = OrderDetails.objects.filter(order_id = order_ids[i],is_removed=False)
+		# 	orderdetails += details_data
 
-			if request.method == 'GET':
-				orderserializer = OrderSerializer(specific_order, many = True)
-				#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
+		if request.method == 'GET':
+			orderserializer = OrderSerializer(specific_order, many = True)
+			#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
-				#orders = [orderserializer.data , orderdetailserializer.data]
-				return JsonResponse(orderserializer.data , safe=False)
+			#orders = [orderserializer.data , orderdetailserializer.data]
+			return JsonResponse(orderserializer.data , safe=False)
 
-		except Order.DoesNotExist:
-			return JsonResponse({'message': 'This order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+	except Order.DoesNotExist:
+		return JsonResponse({'message': 'This order does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
 #This shows the information of all the orders that have not been delivered for 
 #FOR THE DELIVERY API
 @api_view(['GET',])
 def orders_not_delivered(request):
 
+	try:
+		specific_order = Order.objects.filter(delivery_status="To ship",checkout_status=True)
+		# order_ids = specific_order.values_list('id' , flat = True)
+		# orderdetails =[]
+		# for i in range(len(order_ids)):
+		# 	details_data = OrderDetails.objects.filter(order_id = order_ids[i],is_removed=False)
+		# 	orderdetails += details_data
 
+		if request.method == 'GET':
+			orderserializer = OrderSerializer(specific_order, many = True)
+			#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
+			#orders = [orderserializer.data , orderdetailserializer.data]
+			return JsonResponse(orderserializer.data , safe=False)
 
-		try:
-			specific_order = Order.objects.filter(delivery_status="To ship")
-			# order_ids = specific_order.values_list('id' , flat = True)
-			# orderdetails =[]
-			# for i in range(len(order_ids)):
-			# 	details_data = OrderDetails.objects.filter(order_id = order_ids[i],is_removed=False)
-			# 	orderdetails += details_data
-
-			if request.method == 'GET':
-				orderserializer = OrderSerializer(specific_order, many = True)
-				#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
-
-				#orders = [orderserializer.data , orderdetailserializer.data]
-				return JsonResponse(orderserializer.data , safe=False)
-
-		except Order.DoesNotExist:
-			return JsonResponse({'message': 'This order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+	except Order.DoesNotExist:
+		return JsonResponse({'message': 'This order does not exist'}, status=status.HTTP_404_NOT_FOUND)
 	
+#This shows the information of all the orders that have not been delivered for 
+#FROM THE DELIVERY API 
+@api_view(['GET',])
+def order_delivery(request,order_id):
+
+	arr={
+		"delivery_charge": "45.00",
+		"name": "DHL",
+		"delivery_status": "delivered"  
+		}
+
+
+	try:
+		specific_order = Order.objects.filter(id=order_id).last()
+		# order_ids = specific_order.values_list('id' , flat = True)
+		# orderdetails =[]
+		# for i in range(len(order_ids)):
+		# 	details_data = OrderDetails.objects.filter(order_id = order_ids[i],is_removed=False)
+		# 	orderdetails += details_data
+
+		if request.method == 'GET':
+			orderserializer = OrderSerializer(specific_order, many = True)
+
+			#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
+
+			#orders = [orderserializer.data , orderdetailserializer.data]
+			return JsonResponse({'order':orderserializer.data,'delivery_info':arr}, safe=False)
+
+	except Order.DoesNotExist:
+		return JsonResponse({'message': 'This order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+
 
 #This cancels the current user order
 #Has to cancel within 3 days of the ordered and if delivery_status is not received
