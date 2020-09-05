@@ -6,10 +6,11 @@ from django.utils import timezone
 from colour import Color
 import requests
 from django.urls import reverse,reverse_lazy
-from Intense.Integral_apis import ratings
+#from Intense.Integral_apis import ratings
 import json
 
-site_path = "https://tango99.herokuapp.com/"
+#site_path = "https://tango99.herokuapp.com/"
+
 
 
 # Serializers define the API representation.
@@ -117,7 +118,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
 
         product_id = instance.id
-        #site_path = "http://127.0.0.1:8000/"
+        site_path = "https://tango99.herokuapp.com/"
 
         url = site_path+ "product/ratings/"+str(product_id)+"/"
         values = requests.get(url).json()
@@ -128,7 +129,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
 
         product_id = instance.id
-        #site_path = "http://127.0.0.1:8000/"
+        site_path = "https://tango99.herokuapp.com/"
 
         url = site_path+ "product/reviews_product/"+str(product_id)+"/"
         values = requests.get(url).json()
@@ -138,7 +139,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
 
         product_id = instance.id
-        #site_path = "http://127.0.0.1:8000/"
+        site_path = "https://tango99.herokuapp.com/"
 
         url = site_path+ "product/comments_product/"+str(product_id)+"/"
         values = requests.get(url).json()
@@ -149,7 +150,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
 
         product_id = instance.id
-        #site_path = "http://127.0.0.1:8000/"
+        site_path = "https://tango99.herokuapp.com/"
 
         url = site_path+ "productdetails/showspec/"+str(product_id)+"/"
         values = requests.get(url).json()
