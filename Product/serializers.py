@@ -399,14 +399,21 @@ class ProductReviewSerializer(serializers.ModelSerializer):
             product_count = Reviews.objects.filter(product_id=instance.product_id).count()
             review_ids = product.values_list('rating' , flat = True)
             total_count = 0
+            #print(len(review_ids))
 
             for i in range(len(review_ids)):
+
                 total_count += int(review_ids[i])
+
+            #print(total_count)
 
             average = total_count/product_count
 
+            #print(product_count)
+            print(average)
+
             num1 = int(average)
-            #print(num1)
+            print(num1)
             num2 = average%1
             if num2>0.5:
                 num2=1
@@ -418,6 +425,8 @@ class ProductReviewSerializer(serializers.ModelSerializer):
             #print(num2)
 
             num = num1 + num2
+
+            return num
 
         else:
 
