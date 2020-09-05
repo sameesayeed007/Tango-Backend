@@ -401,7 +401,7 @@ class ProductReviewSerializer(serializers.ModelSerializer):
             total_count = 0
 
             for i in range(len(review_ids)):
-                total_count += review_ids[i]
+                total_count += int(review_ids[i])
 
             average = total_count/product_count
 
