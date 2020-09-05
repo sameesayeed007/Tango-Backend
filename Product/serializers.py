@@ -363,7 +363,16 @@ class ProductReviewSerializer(serializers.ModelSerializer):
 
             product = None
 
-        return int(product)
+        if product:
+            return int(product)
+
+        else:
+
+            return 0
+
+       
+
+        
 
     def total_reviews(self,instance):
         try:
@@ -374,7 +383,14 @@ class ProductReviewSerializer(serializers.ModelSerializer):
 
             product = None
 
-        return int(product)
+        if product:
+            return int(product)
+
+        else:
+
+            return 0
+
+
 
 
     def average_rating(self,instance):
@@ -481,6 +497,10 @@ class ProductReviewSerializer(serializers.ModelSerializer):
         except:
             product = None
 
-        return nums
+        if product:
+            return nums
+
+        else:
+            return ""
 
 
