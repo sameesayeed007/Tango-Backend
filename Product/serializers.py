@@ -378,14 +378,24 @@ class ProductReviewSerializer(serializers.ModelSerializer):
 
 
     def average_rating(self,instance):
-	
-	num = 0
 
-        
+
+	
+        num = 0
+
+
 
         try:
 
             product = Reviews.objects.filter(product_id=instance.product_id)
+
+        except:
+
+            product = None
+
+
+        if product:
+
             product_count = Reviews.objects.filter(product_id=instance.product_id).count()
             review_ids = product.values_list('rating' , flat = True)
             total_count = 0
@@ -408,14 +418,19 @@ class ProductReviewSerializer(serializers.ModelSerializer):
             #print(num2)
 
             num = num1 + num2
-                
+
+        else:
 
 
-        except:
+            num = 0
 
-            product = None
+            return num
+            
 
-        return num
+
+       
+
+      
 
     def each_rating(self,instance):
 
