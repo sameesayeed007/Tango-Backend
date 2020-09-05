@@ -378,6 +378,7 @@ class ProductReviewSerializer(serializers.ModelSerializer):
 
 
     def average_rating(self,instance):
+	
 	num = 0
 
         
