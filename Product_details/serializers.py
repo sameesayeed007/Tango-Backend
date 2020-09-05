@@ -9,7 +9,7 @@ from django.urls import reverse,reverse_lazy
 #from Intense.Integral_apis import ratings
 import json
 
-site_path = "tango99.herokuapp.com/"
+site_path = "https://tango99.herokuapp.com/"
 
 
 
