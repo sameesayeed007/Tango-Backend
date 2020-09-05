@@ -200,10 +200,10 @@ def show_specification(request,product_id):
 	try:
 		product = ProductSpecification.objects.filter(product_id=product_id)
 		productserializer = ProductSpecificationSerializer(product,many=True)
-		return JsonResponse(productserializer.data,safe=False)
+		return JsonResponse({'success':True,'message':'The data is shown below','data':productserializer.data},safe=False)
 
 	except Product.DoesNotExist:
-		return JsonResponse({'message': 'This Product does not exist'}, status=status.HTTP_404_NOT_FOUND)
+		return JsonResponse({'success':False,'message':'This product does not exist','data':''}, status=status.HTTP_404_NOT_FOUND)
 
 
 
@@ -277,10 +277,12 @@ def product_detail(request,product_id):
 	if product is not None:
 
 		product_serializer = ProductDetailSerializer(product,many=False)
-		return JsonResponse(product_serializer.data,safe=False)
+		return JsonResponse({'success':True,'message':'The data is shown below','data':product_serializer.data},safe=False)
+		
 
 	else:
-		return JsonResponse({'message': 'This product does not exist'})
+		return JsonResponse({'success':False,'message':'This product does not exist','data':''}, status=status.HTTP_404_NOT_FOUND)
+		
 
 
 # --------------------------------- Product Cupon -------------------------------
