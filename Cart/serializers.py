@@ -203,7 +203,7 @@ class ProductPointSerializer(serializers.ModelSerializer):
 class BillingAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = BillingAddress
-        fields = ('id','user_id','address','date_created','date_updated','non_verified_user_id','ip_address')
+        fields="__all__"
 
 
 class UserzSerializer(serializers.ModelSerializer):

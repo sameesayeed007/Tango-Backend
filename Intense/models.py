@@ -383,6 +383,7 @@ class Order(models.Model):
     admin = (
     ("Processing", "Processing"),
     ("Confirmed", "Confirmed"),
+    ("Cancelled", "Cancelled"),
     )
     admin_status = models.CharField(choices=admin, max_length=155, default="Processing",blank=True,null=True)
     date_created = models.DateTimeField(auto_now_add=True,blank=True,null=True)
@@ -433,11 +434,18 @@ class Userz(models.Model):
 
 class BillingAddress(models.Model):
     user_id = models.IntegerField(blank=True,null=True)
-    address = models.TextField(blank=True,null=True)
+    #address = models.TextField(blank=True,null=True)
     date_created = models.DateTimeField(auto_now_add=True,blank=True,null=True)
     date_updated = models.DateTimeField(auto_now_add=True,blank=True,null=True)
     non_verified_user_id = models.IntegerField(blank=True,null=True)
     ip_address = models.CharField(max_length = 255,blank=True,null=True)
+    phone_number = models.CharField(max_length=100 ,  null=True)
+    #gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)
+    city = models.CharField(max_length=100, blank= True, null= True)
+    district = models.CharField(max_length=100, blank= True, null= True)
+    road_number = models.CharField(max_length = 264,blank=True, null=True)
+    building_number = models.CharField(max_length = 264,blank=True, null=True)
+    apartment_number = models.CharField(max_length = 264,blank=True, null=True)
 
     def __str__(self):
         return str(self.id)

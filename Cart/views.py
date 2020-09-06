@@ -5,7 +5,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework import status
 import datetime
  
-from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,discount_product,ProductImpression
+from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,discount_product,ProductImpression,Profile
 
 from Cart.serializers import ProductSerializer, OrderSerializer,OrderDetailsSerializer,ProductPriceSerializer,UserzSerializer,BillingAddressSerializer,ProductPointSerializer
 from Product_details.serializers import ProductImpressionSerializer
@@ -1423,7 +1423,7 @@ def cancel_order(request):
 	if non_verified_user_id == 0:
 
 		try:
-			specific_order =Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="To pay",order_status="Unpaid").last()
+			specific_order =Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="To pay",order_status="Unpaid",admin_status="Processing").last()
 		except:
 			specific_order = None
 
@@ -1439,6 +1439,7 @@ def cancel_order(request):
 			if current_date < cancellation_date:
 				specific_order.order_status = "Cancelled"
 				specific_order.delivery_status="Cancelled"
+				specific_order.admin_status="Cancelled"
 				specific_order.save()
 				orderserializer = OrderSerializer(specific_order,request.data)
 				if orderserializer.is_valid():
@@ -1457,7 +1458,7 @@ def cancel_order(request):
 
 	else:
 		try:
-			specific_order =Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True,delivery_status="To pay",order_status="Unpaid").last()
+			specific_order =Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True,delivery_status="To pay",order_status="Unpaid",admin_status="Processing").last()
 		except:
 			specific_order = None
 
@@ -1473,6 +1474,7 @@ def cancel_order(request):
 			if current_date < cancellation_date:
 				specific_order.order_status = "Cancelled"
 				specific_order.delivery_status="Cancelled"
+				specific_order.admin_status="Cancelled"
 				specific_order.save()
 				orderserializer = OrderSerializer(specific_order,request.data)
 				if orderserializer.is_valid():
@@ -1501,7 +1503,7 @@ def cancel_specific_order(request,order_id):
 
 	if specific_order is not None:
 
-		if (specific_order.delivery_status == "To pay") and (specific_order.order_status == "Unpaid"):
+		if (specific_order.delivery_status == "To pay") and (specific_order.order_status == "Unpaid") and (specific_order.admin_status == "Processing"):
 
 
 			order_date = specific_order.ordered_date
@@ -1512,6 +1514,7 @@ def cancel_specific_order(request,order_id):
 			if current_date < cancellation_date:
 				specific_order.order_status = "Cancelled"
 				specific_order.delivery_status="Cancelled"
+				specific_order.admin_status="Cancelled"
 				specific_order.save()
 				orderserializer = OrderSerializer(specific_order,request.data)
 				if orderserializer.is_valid():
@@ -1699,11 +1702,6 @@ def show_address(request):
 
 	if non_verified_user_id == 0:
 
-		
-		
-
-
-
 		try:
 			address = BillingAddress.objects.filter(user_id=user_id)
 			
@@ -1711,19 +1709,15 @@ def show_address(request):
 			address = None
 
 
-		if address:
-			
-			
+		if address:	
 			billing_address_serializers = BillingAddressSerializer(address,many=True)
-			return JsonResponse(billing_address_serializers.data,safe=False)
+			return JsonResponse({'success':True,'data':billing_address_serializers.data},safe=False)
 
 		else:
 			#Fetching the exisitng user's address
-			
-			
 			try:
 
-				existing_address = Userz.objects.filter(id=user_id).first()
+				existing_address = Profile.objects.filter(user_id=user_id).last()
 			except:
 				existing_address = None
 
@@ -1731,14 +1725,20 @@ def show_address(request):
 			if existing_address:
 				
 				
-				billing_address = existing_address.address
+				#billing_address = existing_address.address
+				phone_number = existing_address.phone_number
+				city = existing_address.city
+				district = existing_address.district
+				road_number = existing_address.road_number
+				building_number = existing_address.building_number
+				apartment_number = existing_address.apartment_number
 				#create a billing address 
-				billing_address_obj = BillingAddress.objects.create(user_id=user_id,address=billing_address)
+				billing_address_obj = BillingAddress.objects.create(user_id=user_id,phone_number=phone_number,city=city,district=district,road_number=road_number,building_number=building_number,apartment_number=apartment_number)
 				billing_address_obj.save()
 				billing_serializer = BillingAddressSerializer(billing_address_obj,data=request.data)
 				if billing_serializer.is_valid():
 					billing_serializer.save()
-					return JsonResponse(billing_serializer.data)
+					return JsonResponse({'success':True,'data':billing_serializer.data})
 				else:
 					return JsonResponse(billing_serializer.errors)
 
@@ -1752,24 +1752,33 @@ def show_address(request):
 				billing_serializer = BillingAddressSerializer(billing_address_obj,data=request.data)
 				if billing_serializer.is_valid():
 					billing_serializer.save()
-					return JsonResponse(billing_serializer.data)
+					return JsonResponse({'success':True,'data':billing_serializer.data})
 				else:
 					return JsonResponse(billing_serializer.errors)
 
-					
-				
-	
-
-
 	else:
+		print("Coming HERE")
 		try:
 
-			address = BillingAddress.objects.filter(non_verified_user_id=non_verified_user_id)
-			billing_address_serializer = BillingAddressSerializer(address,many=True)
-			return JsonResponse(billing_address_serializer.data,safe=False)
+			address = BillingAddress.objects.filter(non_verified_user_id=non_verified_user_id).last()
+			print(address)
 
-		except BillingAddress.DoesNotExist:
-			return JsonResponse({'message': 'This address does not exist'}, status=status.HTTP_404_NOT_FOUND)
+		except:
+			address = None
+
+			
+
+		if address is None:
+			print("Yessssss")
+			return JsonResponse({'success':False,'data':''})
+			
+		else:
+			print("Coming here")
+			billing_address_serializer = BillingAddressSerializer(address)
+			return JsonResponse({'success':True,'data':billing_address_serializer.data})
+				
+
+	
 
 
 
@@ -1793,15 +1802,21 @@ def edit_address(request):
 
 		try:
 			address = BillingAddress.objects.filter(user_id=user_id).last()
+		except:
+			address = None
+
+		if address:
+
 			
 			billing_address_serializer = BillingAddressSerializer(address,data = request.data)
 			if billing_address_serializer.is_valid():
 				billing_address_serializer.save()
+				return JsonResponse({'success':True,'data':billing_address_serializer.data},safe=False)
+		else:
+			return JsonResponse({'success':False,'data':{}},safe=False)
 
-				return JsonResponse(billing_address_serializer.data,safe=False)
 
-		except BillingAddress.DoesNotExist:
-			return JsonResponse({'message': 'This address does not exist'}, status=status.HTTP_404_NOT_FOUND)
+		
 	else:
 		try:
 			address = BillingAddress.objects.filter(non_verified_user_id=non_verified_user_id).last()
@@ -1810,13 +1825,13 @@ def edit_address(request):
 				billing_address_serializer = BillingAddressSerializer(address,data = request.data)
 				if billing_address_serializer.is_valid():
 					billing_address_serializer.save()
-					return JsonResponse(billing_address_serializer.data,safe=False)
+					return JsonResponse({'success':True,'data':billing_address_serializer.data})
 
 			else:
 				billing_address_serializer = BillingAddressSerializer(data = request.data)
 				if billing_address_serializer.is_valid():
 					billing_address_serializer.save()
-					return JsonResponse(billing_address_serializer.data,safe=False)
+					return JsonResponse({'success':True,'data':billing_address_serializer.data},safe=False)
 
 
 				
