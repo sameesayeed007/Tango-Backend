@@ -64,8 +64,18 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = ('id','title','quantity','old_price','new_price','images')
 
     def get_images(self,instance):
-        replys = ProductImage.objects.filter(product_id=instance.id).values()
-        list_result = [entry for entry in replys] 
+        try:
+
+            replys = ProductImage.objects.filter(product_id=instance.id).values()
+
+        except:
+            replys = None
+
+        if replys:
+            list_result = [entry for entry in replys] 
+
+        else:
+            list_result = []
     
         return list_result
 
@@ -231,8 +241,10 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ('id','comment','date_created','product_id','user_id','non_verified_user_id','comment_name','replies',)
 
     def get_replies(self,instance):
+
         replys = CommentReply.objects.filter(comment_id=instance.id).values()
-        list_result = [entry for entry in replys] 
+        list_result = [entry for entry in replys]
+
     
         return list_result
 
@@ -285,6 +297,7 @@ class CommentReplySerializer(serializers.ModelSerializer):
 class ReviewsSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField(method_name='get_name')
     image_link = serializers.SerializerMethodField(method_name='get_image')
+    print("coming to serializer")
     class Meta:
         model = Reviews
         fields = ('id','product_id','user_id','non_verified_user_id','name','content','image','image_link','rating','date_created')
@@ -329,17 +342,29 @@ class ReviewsSerializer(serializers.ModelSerializer):
 
     def get_image(self,instance):
 
+        #print("Coming here2")
+
         try:
             logo_image = Reviews.objects.get(id=instance.id)
         except:
             logo_image = None
 
-        if logo_image is not None:
-            logo = logo_image.image
-            return "{0}{1}".format(host_name,logo.url)
+        if logo_image is None:
+            #print("Coming here3")
+            return ""
 
         else:
-            return " "
+            if logo_image.image:
+
+                logo = logo_image.image
+
+                return "{0}{1}".format(host_name,logo.url)
+
+            else:
+
+                return ""
+
+            
 
 
 

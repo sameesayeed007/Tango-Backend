@@ -182,7 +182,7 @@ class Advertisement(models.Model):
 
 class ProductImpression (models.Model):
 
-    Users = ArrayField(models.IntegerField(), blank=True, null=True,default=list)
+    users = ArrayField(models.IntegerField(), blank=True, null=True,default=list)
     product_id = models.IntegerField (null = False)
     view_count = models.IntegerField (blank = True, null = True, default = 0)
     click_count = models.IntegerField (blank = True, null = True,default = 0)
@@ -378,9 +378,13 @@ class Order(models.Model):
     ("Received", "Received"),
     ("Not Ordered", "Not Ordered"),
     ("Cancelled", "Cancelled"),
-
     )
     delivery_status = models.CharField(choices=delivery, max_length=155, default="To pay",blank=True,null=True)
+    admin = (
+    ("Processing", "Processing"),
+    ("Confirmed", "Confirmed"),
+    )
+    admin_status = models.CharField(choices=admin, max_length=155, default="Processing",blank=True,null=True)
     date_created = models.DateTimeField(auto_now_add=True,blank=True,null=True)
     user_id = models.IntegerField(blank=True,null=True)
     ip_address = models.CharField(max_length = 255,blank=True,null=True)
@@ -632,7 +636,7 @@ class Reviews(models.Model):
     user_id = models.IntegerField(blank=True,null=True)
     non_verified_user_id = models.IntegerField(blank=True,null=True)
     content = models.TextField(blank = True)
-    image = models.ImageField(upload_to = 'product_reviews' , blank = True)
+    image = models.ImageField(upload_to = 'product_reviews' ,null=True, blank = True)
     num_stars = (
         (1 , "Worst"),
         (2 , "Bad"),

@@ -40,5 +40,6 @@ urlpatterns = [
     path('upload/',views.upload_product),
     path('edit/',views.edit_product),
     path('display/',views.display_products),
+    path('reviews_list' , views.ListReviewView.as_view()),
 
 ]

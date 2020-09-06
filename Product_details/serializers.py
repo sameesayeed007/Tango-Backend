@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from Intense.models import ProductPoint,ProductPrice,ProductSpecification ,Product,Comment,CommentReply,Reviews,discount_product,ProductImage,Cupons
+from Intense.models import ProductPoint,ProductPrice,ProductSpecification ,Product,Comment,CommentReply,Reviews,discount_product,ProductImage,Cupons,ProductImpression
 from django.contrib.auth.models import User
 #from Cart.models import ProductPoint
 from django.utils import timezone
@@ -9,7 +9,7 @@ from django.urls import reverse,reverse_lazy
 #from Intense.Integral_apis import ratings
 import json
 
-site_path = "https://tango99.herokuapp.com/"
+site_path = "http://127.0.0.1:8000/"
 
 
 
@@ -205,6 +205,13 @@ class ProductDiscountSerializer(serializers.ModelSerializer):
         fields = "__all__"
         #fields=("name", "email")
 
+
+
+class ProductImpressionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImpression
+        fields = "__all__"
+        #fields=("name", "email")
 
 
 

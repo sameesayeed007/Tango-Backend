@@ -5,9 +5,10 @@ from rest_framework.parsers import JSONParser
 from rest_framework import status
 import datetime
  
-from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,discount_product
+from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,discount_product,ProductImpression
 
 from Cart.serializers import ProductSerializer, OrderSerializer,OrderDetailsSerializer,ProductPriceSerializer,UserzSerializer,BillingAddressSerializer,ProductPointSerializer
+from Product_details.serializers import ProductImpressionSerializer
 from rest_framework.decorators import api_view 
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
@@ -120,10 +121,50 @@ def add_cart(request,productid):
 
 	else:
 		p_name = ""
+
+	try:
+		product_impression = ProductImpression.objects.filter(product_id=productid)[0:1].get()
+	except:
+		product_impression = None
+
+	if product_impression is None:
+		#Create a productimpression object for that particular product
+		print("create impression")
+		p_impression = ProductImpression.objects.create(product_id=productid)
+		p_impression_serializer = ProductImpressionSerializer(p_impression,data=request.data)
+		if p_impression_serializer.is_valid():
+			p_impression_serializer.save()
+
+	else:
+		product_impression = ProductImpression.objects.filter(product_id=productid)[0:1].get()
+
+		
+
 	
 
 
 	if non_verified_user_id == 0:
+
+
+		#checking if the user exists in product impression
+		try:
+			product_impression = ProductImpression.objects.filter(product_id=productid)[0:1].get()
+		except:
+			product_impression = None
+
+		if product_impression:
+			users_list = product_impression.users
+			cart_count = product_impression.cart_count
+			if user_id in users_list:
+				pass
+			else:
+				users_list.append(user_id)
+
+			cart = cart_count + quantity
+			ProductImpression.objects.filter(product_id=productid).update(users=users_list,cart_count=cart)
+
+
+
 		
 
 		try:
@@ -159,6 +200,10 @@ def add_cart(request,productid):
 				orderdetailsserializers = OrderDetailsSerializer(specific_order_product , data=request.data)
 				if orderdetailsserializers.is_valid():
 					orderdetailsserializers.save()
+					return JsonResponse({'success':True ,'message':'The quantity has been updated'})
+				else:
+					return JsonResponse(orderdetailsserializers.errors)
+
 
 			else:
 				#create a new orderdetail for that order id if the product is bough for the first time 
@@ -168,11 +213,9 @@ def add_cart(request,productid):
 				orderdetailsserializer = OrderDetailsSerializer(orderdetails , data=request.data)
 				if orderdetailsserializer.is_valid():
 					orderdetailsserializer.save()
-
-			return JsonResponse({'message':'The quantity has been updated or a new order details has been created'})
-
-
-
+					return JsonResponse({'success':True ,'message':'The product has been added to your cart'})
+				else:
+					return JsonResponse(orderdetailsserializers.errors)
 				
 		# if no order for the user exists
 		else:
@@ -184,6 +227,9 @@ def add_cart(request,productid):
 			orderserializer = OrderSerializer(order , data=request.data)
 			if orderserializer.is_valid():
 				orderserializer.save()
+			else:
+				return JsonResponse(orderserializer.errors)
+
 			
 			#create a new order details for the specific product for the specific order
 			orderdetails = OrderDetails.objects.create(order_id = order.id , product_id=productid,quantity=quantity,total_quantity=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name)
@@ -192,12 +238,30 @@ def add_cart(request,productid):
 			orderdetailserializer = OrderDetailsSerializer(orderdetails, data=request.data)
 			if orderdetailserializer.is_valid():
 				orderdetailserializer.save()
-			
+				return JsonResponse({'success':True,'message':'A new order with a order details has been created'})
+			else:
+				return JsonResponse(orderdetailserializer.errors)
 
-			return JsonResponse({'message':'A new order with a order details has been created'})
+						
 
 	else:
-		
+
+        #checking if the user exists in the impression user list
+		try:
+			product_impression = ProductImpression.objects.filter(product_id=productid)[0:1].get()
+		except:
+			product_impression = None
+		if product_impression:
+			users_list = product_impression.non_verified_user
+			cart_count = product_impression.cart_count
+			if non_verified_user_id in users_list:
+				pass
+			else:
+				users_list.append(non_verified_user_id)
+
+			cart = cart_count + quantity
+			ProductImpression.objects.filter(product_id=productid).update(non_verified_user=users_list,cart_count=cart)
+
 		try:
 			#Fetching the specific order of the specific user that hasnt been checked out
 			specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=False)[0:1].get()
@@ -206,7 +270,7 @@ def add_cart(request,productid):
 		except:
 			specific_order = None
 
-		    # if the specific user exists
+		    # if the specific user order exists
 		if specific_order is not None:
 			
 			
@@ -231,49 +295,70 @@ def add_cart(request,productid):
 				orderdetailsserializers = OrderDetailsSerializer(specific_order_product , data=request.data)
 				if orderdetailsserializers.is_valid():
 					orderdetailsserializers.save()
+					return JsonResponse({'success':True ,'message':'The quantity has been updated'})
+				else:
+					return JsonResponse(orderdetailsserializers.errors)
+
 
 			else:
 				#create a new orderdetail for that order id if the product is bough for the first time 
 				orderdetails = OrderDetails.objects.create(order_id = order_id , product_id=productid,quantity=quantity,total_quantity=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name)
+				
 				orderdetails.save()
 				orderdetailsserializer = OrderDetailsSerializer(orderdetails , data=request.data)
 				if orderdetailsserializer.is_valid():
 					orderdetailsserializer.save()
-
-			return JsonResponse({'message':'The quantity has been updated or a new order details has been created'})
-
-
-
+					return JsonResponse({'success':True ,'message':'The product has been added to your cart'})
+				else:
+					return JsonResponse(orderdetailsserializers.errors)
 				
 		# if no order for the user exists
 		else:
 			
+
 			#create a new Order 
 			order = Order.objects.create(non_verified_user_id = non_verified_user_id)
 			order.save()
 			orderserializer = OrderSerializer(order , data=request.data)
 			if orderserializer.is_valid():
 				orderserializer.save()
+			else:
+				return JsonResponse(orderserializer.errors)
+
 			
 			#create a new order details for the specific product for the specific order
 			orderdetails = OrderDetails.objects.create(order_id = order.id , product_id=productid,quantity=quantity,total_quantity=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name)
-			
-			#print(productid)
-			#print(userid)
+		
 			orderdetails.save()
 			orderdetailserializer = OrderDetailsSerializer(orderdetails, data=request.data)
 			if orderdetailserializer.is_valid():
 				orderdetailserializer.save()
-			
+				return JsonResponse({'success':True,'message':'A new order with a order details has been created'})
+			else:
+				return JsonResponse(orderdetailserializer.errors)
+		
 
-			return JsonResponse({'message':'A new order with a order details has been created'})
 
 
 
 @api_view(['POST',])
 def increase_quantity(request,productid):
 
-	values = {'user_id':'2', 'non_verified_user_id':''}
+	#values = {'user_id':'2', 'non_verified_user_id':''}
+	user_id = request.data.get('user_id')
+	non_verified_user_id = request.data.get('non_verified_user_id')
+	#quantity = request.data.get('quantity')
+	#quantity = int(quantity)
+	if user_id is not None:
+		user_id = int(user_id)
+		non_verified_user_id =0
+
+	else:
+		non_verified_user_id = int(non_verified_user_id)
+		user_id = 0
+
+
+
 	p_price=0
 	p_discount=0
 	p_point = 0
@@ -364,18 +449,27 @@ def increase_quantity(request,productid):
 	else:
 		p_name = ""
 
-	user_id = values['user_id']
-	non_verified_user_id = values['non_verified_user_id']
-	if user_id is not None:
-		user_id = int(user_id)
-		non_verified_user_id =0
+	# user_id = values['user_id']
+	# non_verified_user_id = values['non_verified_user_id']
+	cart_count = 0
+    
+	try:
+		product_impression = ProductImpression.objects.filter(product_id=productid)[0:1].get()
+	except:
+		product_impression = None
 
+	if product_impression is None:
+		pass
 	else:
-		non_verified_user_id = int(non_verified_user_id)
-		user_id = 0
+
+		cart_count = product_impression.cart_count
+
+	cart = cart_count + 1
+	ProductImpression.objects.filter(product_id=productid).update(cart_count=cart)
+
+
 
 	if non_verified_user_id == 0:
-
 
 		try:
 			#Fetching the specific order of the specific user that hasnt been checked out
@@ -406,15 +500,15 @@ def increase_quantity(request,productid):
 					orderdetailsserializers = OrderDetailsSerializer(specific_order_product , data=request.data)
 					if orderdetailsserializers.is_valid():
 						orderdetailsserializers.save()
-						return JsonResponse({'message':'The quantity has been increased'})
+						return JsonResponse({'success':True,'message':'The quantity has been increased'})
 				
 
 			else:
-				return JsonResponse({'message':'The item does not exist'})	
+				return JsonResponse({'success':False,'message':'The item does not exist'})	
 
 
 		else:
-			return JsonResponse({'message':'The order does not exist'})
+			return JsonResponse({'success':False,'message':'The order does not exist'})
 
 	else:
 
@@ -447,16 +541,16 @@ def increase_quantity(request,productid):
 					if orderdetailsserializers.is_valid():
 						orderdetailsserializers.save()
 
-						return JsonResponse({'message':'The quantity has been increased'})
+						return JsonResponse({'success':True,'message':'The quantity has been increased'})
 					
 
 
 			else:
-				return JsonResponse({'message':'The item does not exist'})	
+				return JsonResponse({'success':False,'message':'The item does not exist'})	
 
 
 		else:
-			return JsonResponse({'message':'The order does not exist'})
+			return JsonResponse({'success':False,'message':'The order does not exist'})
 
 
 
@@ -566,6 +660,22 @@ def decrease_quantity(request,productid):
 		non_verified_user_id = int(non_verified_user_id)
 		user_id = 0
 
+	cart_count = 0
+    
+	try:
+		product_impression = ProductImpression.objects.filter(product_id=productid)[0:1].get()
+	except:
+		product_impression = None
+
+	if product_impression is None:
+		pass
+	else:
+
+		cart_count = product_impression.cart_count
+
+	cart = cart_count - 1
+	ProductImpression.objects.filter(product_id=productid).update(cart_count=cart)
+
 	if non_verified_user_id == 0:
 
 
@@ -597,14 +707,14 @@ def decrease_quantity(request,productid):
 					orderdetailsserializers = OrderDetailsSerializer(specific_order_product , data=request.data)
 					if orderdetailsserializers.is_valid():
 						orderdetailsserializers.save()
-						return JsonResponse({'message':'The quantity has been decreased'})
+						return JsonResponse({'success':True,'message':'The quantity has been decreased'})
 
 			else:
-				return JsonResponse({'message':'The item does not exist'})	
+				return JsonResponse({'success':False,'message':'The item does not exist'})	
 
 
 		else:
-			return JsonResponse({'message':'The order does not exist'})
+			return JsonResponse({'success':False,'message':'The order does not exist'})
 
 	else:
 
@@ -636,14 +746,14 @@ def decrease_quantity(request,productid):
 					orderdetailsserializers = OrderDetailsSerializer(specific_order_product , data=request.data)
 					if orderdetailsserializers.is_valid():
 						orderdetailsserializers.save()
-						return JsonResponse({'message':'The quantity has been decreased'})
+						return JsonResponse({'success':True,'message':'The quantity has been decreased'})
 
 			else:
-				return JsonResponse({'message':'The item does not exist'})	
+				return JsonResponse({'success':False,'message':'The item does not exist'})	
 
 
 		else:
-			return JsonResponse({'message':'The order does not exist'})
+			return JsonResponse({'success': False,'message':'The order does not exist'})
 
 
 
@@ -666,6 +776,20 @@ def delete_product(request,productid):
 		non_verified_user_id = int(non_verified_user_id)
 		user_id = 0
 
+	cart_count = 0  
+	try:
+		product_impression = ProductImpression.objects.filter(product_id=productid)[0:1].get()
+	except:
+		product_impression = None
+
+	if ProductImpression is None:
+		pass
+	else:
+		cart_count = product_impression.cart_count
+
+	# cart = cart_count - 1
+	# ProductImpression.objects.filter(product_id=productid).update(cart_count=cart)
+
 	if non_verified_user_id == 0:
 
 		try:
@@ -688,13 +812,18 @@ def delete_product(request,productid):
 
 			if specific_order_product is not None:
 
+				product_quantity = specific_order_product.total_quantity
+				cart = cart_count - product_quantity
+				ProductImpression.objects.filter(product_id=productid).update(cart_count=cart)
+
+
 				specific_order_product.is_removed = True
 				specific_order_product.save()
-				return JsonResponse({'message':'The item has been removed from the cart'})
+				return JsonResponse({'success':True,'message':'The item has been removed from the cart'})
 
 
 		else:
-			return JsonResponse({'message':'The item doesn not exist'})
+			return JsonResponse({'success': False,'message':'The item doesn not exist'})
 
 	else:
 		try:
@@ -717,13 +846,17 @@ def delete_product(request,productid):
 
 			if specific_order_product is not None:
 
+				product_quantity = specific_order_product.total_quantity
+				cart = cart_count - product_quantity
+				ProductImpression.objects.filter(product_id=productid).update(cart_count=cart)
+
 				specific_order_product.is_removed = True
 				specific_order_product.save()
-				return JsonResponse({'message':'The item has been removed from the cart'})
+				return JsonResponse({'success':True,'message':'The item has been removed from the cart'})
 
 
 		else:
-			return JsonResponse({'message':'The item doesn not exist'})
+			return JsonResponse({'success':False,'message':'The item doesn not exist'})
 
 
 
@@ -742,6 +875,11 @@ def checkout(request):
 		non_verified_user_id = int(non_verified_user_id)
 		user_id = 0
 
+	flag = False
+	product_name = ""
+	product_quantity = 0
+	current_quantity = 0
+
 	if non_verified_user_id == 0:
 
 		try:
@@ -753,30 +891,59 @@ def checkout(request):
 
 		if specific_order is not None:
 
-			specific_order.checkout_status = True
-			specific_order.order_status = "Unpaid"
-			specific_order.delivery_status = "To pay"
-			specific_order.ordered_date = datetime.now()
-			specific_order.save()
+			# specific_order.checkout_status = True
+			# specific_order.order_status = "Unpaid"
+			# specific_order.delivery_status = "To pay"
+			# specific_order.ordered_date = datetime.now()
+			# specific_order.save()
 			order_id = specific_order.id
 			order_details = OrderDetails.objects.filter(order_id =order_id,is_removed=False)
 			order_products = order_details.values_list('product_id',flat = True)
 			order_quantity = order_details.values_list('total_quantity',flat = True)
 			for i in range(len(order_products)):
 				product = Product.objects.filter(id = order_products[i]).last()
-				product.quantity -= order_quantity[i]
-				product.save()
-				productserializer = ProductSerializer(product,data=request.data)
-				if productserializer.is_valid():
-					productserializer.save()
+				product_quantity = product.quantity
+				product_name = product.title
+				if order_quantity[i] > product_quantity:
+					current_quantity = product_quantity
+					current_name = product_name
+					flag = False
+					break
+				else:
+					flag = True
 
+			if flag == True:
+				#user can checkout
+				specific_order.checkout_status = True
+				specific_order.order_status = "Unpaid"
+				specific_order.delivery_status = "To pay"
+				specific_order.ordered_date = datetime.now()
+				specific_order.save()
 
-			return JsonResponse({'message':'The items have been checked out'})
+				for i in range(len(order_products)):
+					product = Product.objects.filter(id = order_products[i]).last()
+					product_quantity = product.quantity
+					product.quantity -= order_quantity[i]
+					product.save()
+					productserializer = ProductSerializer(product,data=request.data)
+					if productserializer.is_valid():
+						productserializer.save()
+					else:
+						return JsonResponse(productserializer.errors)
+
+				return JsonResponse({'success':True,'message':'The items have been checked out'})
+
+			else:
+
+				message = "You cannot checkout.We only have "+str(current_quantity)+" of item "+str(current_name)+" that you have ordered in our stock currently."
+				return JsonResponse({'success':False,'message': message})
 
 		else:
-			return JsonResponse({'message':'The items do not exist'})
+			return JsonResponse({'success':False,'message': 'This order does not exist'})
 
+							
 	else:
+
 
 		try:
 			#Fetching the specific order of the specific user that hasnt been checked out
@@ -787,29 +954,57 @@ def checkout(request):
 
 		if specific_order is not None:
 
-			specific_order.checkout_status = True
-			specific_order.order_status = "Unpaid"
-			specific_order.delivery_status = "To ship"
-			specific_order.ordered_date = datetime.now()
-			specific_order.save()
+			# specific_order.checkout_status = True
+			# specific_order.order_status = "Unpaid"
+			# specific_order.delivery_status = "To pay"
+			# specific_order.ordered_date = datetime.now()
+			# specific_order.save()
 			order_id = specific_order.id
 			order_details = OrderDetails.objects.filter(order_id =order_id,is_removed=False)
 			order_products = order_details.values_list('product_id',flat = True)
 			order_quantity = order_details.values_list('total_quantity',flat = True)
 			for i in range(len(order_products)):
-				
 				product = Product.objects.filter(id = order_products[i]).last()
-				product.quantity -= order_quantity[i]
-				product.save()
-				productserializer = ProductSerializer(product,data=request.data)
-				if productserializer.is_valid():
-					productserializer.save()
+				product_quantity = product.quantity
+				product_name = product.title
+				if order_quantity[i] > product_quantity:
+					current_quantity = product_quantity
+					current_name = product_name
+					flag = False
+					break
+				else:
+					flag = True
 
+			if flag == True:
+				#user can checkout
+				specific_order.checkout_status = True
+				specific_order.order_status = "Unpaid"
+				specific_order.delivery_status = "To pay"
+				specific_order.ordered_date = datetime.now()
+				specific_order.save()
 
-			return JsonResponse({'message':'The items have been checked out'})
+				for i in range(len(order_products)):
+					product = Product.objects.filter(id = order_products[i]).last()
+					product_quantity = product.quantity
+					product.quantity -= order_quantity[i]
+					product.save()
+					productserializer = ProductSerializer(product,data=request.data)
+					if productserializer.is_valid():
+						productserializer.save()
+					else:
+						return JsonResponse(productserializer.errors)
+
+				return JsonResponse({'success':True,'message':'The items have been checked out'})
+
+			else:
+
+				message = "You cannot checkout.We only have "+str(current_quantity)+" of item "+str(current_name)+" that you have ordered in our stock currently."
+				return JsonResponse({'success':False,'message': message})
 
 		else:
-			return JsonResponse({'message':'The items do not exist'})
+			return JsonResponse({'success':False,'message': 'This order does not exist'})
+
+
 
 
 #This shows the information inside the Cart
@@ -837,7 +1032,7 @@ def cart_view(request):
 			specific_order = None
 
 
-		if specific_order is not None:
+		if specific_order:
 
 
 			
@@ -845,31 +1040,34 @@ def cart_view(request):
 			#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
 			#orders = [orderserializer.data , orderdetailserializer.data]
-			return JsonResponse(orderserializer.data , safe=False)
+			return JsonResponse({'success':True,'message':'The products in the cart are shown','data':orderserializer.data}, safe=False)
 
 		else:
-			return JsonResponse({'message': 'There are no products in the cart'})
+			return JsonResponse({'success':False,'message': 'There are no products in the cart'})
 
 	
 
 	else:
+
 		try:
 			specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=False)
-			order_ids = specific_order.values_list('id' , flat = True)
-			orderdetails =[]
-			for i in range(len(order_ids)):
-				details_data = OrderDetails.objects.filter(order_id = order_ids[i],is_removed=False)
-				orderdetails += details_data
+		except:
+			specific_order = None
 
-			if request.method == 'POST':
-				orderserializer = OrderSerializer(specific_order, many = True)
-				orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
-				orders = [orderserializer.data , orderdetailserializer.data]
-				return JsonResponse(orderserializer.data , safe=False)
+		if specific_order:
+	
+			orderserializer = OrderSerializer(specific_order, many = True)
+			#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
-		except Order.DoesNotExist:
-			return JsonResponse({'message': 'This order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+			#orders = [orderserializer.data , orderdetailserializer.data]
+			return JsonResponse({'success':True,'message':'The products in the cart are shown','data':orderserializer.data},safe=False)
+
+		else:
+			return JsonResponse({'success':False,'message': 'There are no products in the cart'})
+		
+
+			
 
 
 
@@ -894,43 +1092,48 @@ def all_orders(request):
 
 	if non_verified_user_id == 0:
 
-
 		try:
 			specific_order = Order.objects.filter(user_id=user_id,checkout_status=True)
-			# order_ids = specific_order.values_list('id' , flat = True)
-			# orderdetails =[]
-			# for i in range(len(order_ids)):
-			# 	details_data = OrderDetails.objects.filter(order_id = order_ids[i],is_removed=False)
-			# 	orderdetails += details_data
+		except:
+			specific_order = None
 
-			if request.method == 'POST':
-				orderserializer = OrderSerializer(specific_order, many = True)
-				#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
-				#orders = [orderserializer.data , orderdetailserializer.data]
-				return JsonResponse(orderserializer.data,safe=False)
+		if specific_order:
 
-		except Order.DoesNotExist:
-			return JsonResponse({'message': 'This order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+			
+			orderserializer = OrderSerializer(specific_order, many = True)
+			#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
+
+			#orders = [orderserializer.data , orderdetailserializer.data]
+			return JsonResponse({'success':True,'message':'The products in your order are shown','data':orderserializer.data}, safe=False)
+
+		else:
+			return JsonResponse({'success':False,'message': 'You have no orders'})
+
+	
 
 	else:
+
 		try:
 			specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True)
-			# order_ids = specific_order.values_list('id' , flat = True)
-			# orderdetails =[]
-			# for i in range(len(order_ids)):
-			# 	details_data = OrderDetails.objects.filter(order_id = order_ids[i],is_removed=False)
-			# 	orderdetails += details_data
+		except:
+			specific_order = None
 
-			if request.method == 'POST':
-				orderserializer = OrderSerializer(specific_order, many = True)
-				#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
-				#orders = [orderserializer.data , orderdetailserializer.data]
-				return JsonResponse(orderserializer.data , safe=False)
+		if specific_order:
+	
+			orderserializer = OrderSerializer(specific_order, many = True)
+			#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
-		except Order.DoesNotExist:
-			return JsonResponse({'message': 'This order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+			#orders = [orderserializer.data , orderdetailserializer.data]
+			return JsonResponse({'success':True,'message':'The products in your orders are shown','data':orderserializer.data},safe=False)
+
+		else:
+			return JsonResponse({'success':False,'message': 'You have no orders'})
+
+
+
 
 
 
@@ -955,41 +1158,45 @@ def orders_to_pay(request):
 
 		try:
 			specific_order = Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="To pay",order_status="Unpaid")
-			# order_ids = specific_order.values_list('id' , flat = True)
-			# orderdetails =[]
-			# for i in range(len(order_ids)):
-			# 	details_data = OrderDetails.objects.filter(order_id = order_ids[i],is_removed=False)
-			# 	orderdetails += details_data
+		except:
+			specific_order = None
 
-			if request.method == 'POST':
-				orderserializer = OrderSerializer(specific_order, many = True)
-				#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
-				#orders = [orderserializer.data , orderdetailserializer.data]
-				return JsonResponse(orderserializer.data , safe=False)
+		if specific_order:
 
-		except Order.DoesNotExist:
-			return JsonResponse({'message': 'This order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+			
+			orderserializer = OrderSerializer(specific_order, many = True)
+			#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
+
+			#orders = [orderserializer.data , orderdetailserializer.data]
+			return JsonResponse({'success':True,'message':'The products in your order are shown','data':orderserializer.data}, safe=False)
+
+		else:
+			return JsonResponse({'success':False,'message': 'You have no orders'})
+
+	
 
 	else:
+
 		try:
-
 			specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True,delivery_status="To pay",order_status="Unpaid")
-			# order_ids = specific_order.values_list('id' , flat = True)
-			# orderdetails =[]
-			# for i in range(len(order_ids)):
-			# 	details_data = OrderDetails.objects.filter(order_id = order_ids[i],is_removed=False)
-			# 	orderdetails += details_data
+		except:
+			specific_order = None
 
-			if request.method == 'POST':
-				orderserializer = OrderSerializer(specific_order, many = True)
-				#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
-				#orders = [orderserializer.data , orderdetailserializer.data]
-				return JsonResponse(orderserializer.data , safe=False)
+		if specific_order:
+	
+			orderserializer = OrderSerializer(specific_order, many = True)
+			#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
-		except Order.DoesNotExist:
-			return JsonResponse({'message': 'This order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+			#orders = [orderserializer.data , orderdetailserializer.data]
+			return JsonResponse({'success':True,'message':'The products in your orders are shown','data':orderserializer.data},safe=False)
+
+		else:
+			return JsonResponse({'success':False,'message': 'You have no orders'})
+
+
 
 
 
@@ -1011,41 +1218,45 @@ def orders_to_ship(request):
 
 		try:
 			specific_order = Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="To ship")
-			# order_ids = specific_order.values_list('id' , flat = True)
-			# orderdetails =[]
-			# for i in range(len(order_ids)):
-			# 	details_data = OrderDetails.objects.filter(order_id = order_ids[i],is_removed=False)
-			# 	orderdetails += details_data
+		except:
+			specific_order = None
 
-			if request.method == 'POST':
-				orderserializer = OrderSerializer(specific_order, many = True)
-				#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
-				#orders = [orderserializer.data , orderdetailserializer.data]
-				return JsonResponse(orderserializer.data , safe=False)
+		if specific_order:
 
-		except Order.DoesNotExist:
-			return JsonResponse({'message': 'This order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+			
+			orderserializer = OrderSerializer(specific_order, many = True)
+			#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
+
+			#orders = [orderserializer.data , orderdetailserializer.data]
+			return JsonResponse({'success':True,'message':'The products in your order are shown','data':orderserializer.data}, safe=False)
+
+		else:
+			return JsonResponse({'success':False,'message': 'You have no orders'})
+
+	
 
 	else:
+
 		try:
-
 			specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True,delivery_status="To ship")
-			# order_ids = specific_order.values_list('id' , flat = True)
-			# orderdetails =[]
-			# for i in range(len(order_ids)):
-			# 	details_data = OrderDetails.objects.filter(order_id = order_ids[i],is_removed=False)
-			# 	orderdetails += details_data
+		except:
+			specific_order = None
 
-			if request.method == 'POST':
-				orderserializer = OrderSerializer(specific_order, many = True)
-				#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
-				#orders = [orderserializer.data , orderdetailserializer.data]
-				return JsonResponse(orderserializer.data , safe=False)
+		if specific_order:
+	
+			orderserializer = OrderSerializer(specific_order, many = True)
+			#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
-		except Order.DoesNotExist:
-			return JsonResponse({'message': 'This order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+			#orders = [orderserializer.data , orderdetailserializer.data]
+			return JsonResponse({'success':True,'message':'The products in your orders are shown','data':orderserializer.data},safe=False)
+
+		else:
+			return JsonResponse({'success':False,'message': 'You have no orders'})
+
+
 
 
 
@@ -1060,51 +1271,53 @@ def orders_received(request):
 		user_id = int(user_id)
 		non_verified_user_id =0
 
-
-
 	else:
 		non_verified_user_id = int(non_verified_user_id)
 		user_id = 0
 
 	if non_verified_user_id == 0:
 
-
 		try:
-			specific_order = Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="Received",order_status="Paid")
-			# order_ids = specific_order.values_list('id' , flat = True)
-			# orderdetails =[]
-			# for i in range(len(order_ids)):
-			# 	details_data = OrderDetails.objects.filter(order_id = order_ids[i],is_removed=False)
-			# 	orderdetails += details_data
+			specific_order = Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="Received")
+		except:
+			specific_order = None
 
-			if request.method == 'POST':
-				orderserializer = OrderSerializer(specific_order, many = True)
-				#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
-				#orders = [orderserializer.data , orderdetailserializer.data]
-				return JsonResponse(orderserializer.data , safe=False)
+		if specific_order:
 
-		except Order.DoesNotExist:
-			return JsonResponse({'message': 'This order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+			
+			orderserializer = OrderSerializer(specific_order, many = True)
+			#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
+
+			#orders = [orderserializer.data , orderdetailserializer.data]
+			return JsonResponse({'success':True,'message':'The products in your order are shown','data':orderserializer.data}, safe=False)
+
+		else:
+			return JsonResponse({'success':False,'message': 'You have no orders'})
+
+	
 
 	else:
+
 		try:
-			specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True,delivery_status="Received",order_status="Paid")
-			# order_ids = specific_order.values_list('id' , flat = True)
-			# orderdetails =[]
-			# for i in range(len(order_ids)):
-			# 	details_data = OrderDetails.objects.filter(order_id = order_ids[i],is_removed=False)
-			# 	orderdetails += details_data
+			specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True,delivery_status="Received")
+		except:
+			specific_order = None
 
-			if request.method == 'POST':
-				orderserializer = OrderSerializer(specific_order, many = True)
-				#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
-				#orders = [orderserializer.data , orderdetailserializer.data]
-				return JsonResponse(orderserializer.data , safe=False)
+		if specific_order:
+	
+			orderserializer = OrderSerializer(specific_order, many = True)
+			#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
-		except Order.DoesNotExist:
-			return JsonResponse({'message': 'This order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+			#orders = [orderserializer.data , orderdetailserializer.data]
+			return JsonResponse({'success':True,'message':'The products in your orders are shown','data':orderserializer.data},safe=False)
+
+		else:
+			return JsonResponse({'success':False,'message': 'You have no orders'})
+
+
 
 
 #This shows the information of all the orders that have not been paid for 
@@ -1210,7 +1423,7 @@ def cancel_order(request):
 	if non_verified_user_id == 0:
 
 		try:
-			specific_order =Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="To ship",order_status="Unpaid").last()
+			specific_order =Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="To pay",order_status="Unpaid").last()
 		except:
 			specific_order = None
 
@@ -1230,13 +1443,13 @@ def cancel_order(request):
 				orderserializer = OrderSerializer(specific_order,request.data)
 				if orderserializer.is_valid():
 					orderserializer.save()
-					return JsonResponse({'message': 'This order has been cancelled'})
+					return JsonResponse({'success':True,'message': 'This order has been cancelled'})
 
 			else:
-				return JsonResponse({'message': 'This order cannot be cancelled now'})
+				return JsonResponse({'success':False,'message': 'This order cannot be cancelled now'})
 
 		else:
-			return JsonResponse({'message': 'This order does not exist'})
+			return JsonResponse({'success':False,'message': 'This order does not exist'})
 
 
 
@@ -1244,7 +1457,7 @@ def cancel_order(request):
 
 	else:
 		try:
-			specific_order =Order.objects.filter(non_verified_user_id=user_id,checkout_status=True,delivery_status="To ship",order_status="Unpaid").last()
+			specific_order =Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True,delivery_status="To pay",order_status="Unpaid").last()
 		except:
 			specific_order = None
 
@@ -1264,13 +1477,13 @@ def cancel_order(request):
 				orderserializer = OrderSerializer(specific_order,request.data)
 				if orderserializer.is_valid():
 					orderserializer.save()
-					return JsonResponse({'message': 'This order has been cancelled'})
+					return JsonResponse({'success':True,'message': 'This order has been cancelled'})
 
 			else:
-				return JsonResponse({'message': 'This order cannot be cancelled now'})
+				return JsonResponse({'success':False,'message': 'This order cannot be cancelled now'})
 
 		else:
-			return JsonResponse({'message': 'This order does not exist'})
+			return JsonResponse({'success':False,'message': 'This order does not exist'})
 		
 
 #This cancels a specific order
@@ -1288,7 +1501,7 @@ def cancel_specific_order(request,order_id):
 
 	if specific_order is not None:
 
-		if (specific_order.delivery_status == "To ship") and (specific_order.order_status == "Unpaid"):
+		if (specific_order.delivery_status == "To pay") and (specific_order.order_status == "Unpaid"):
 
 
 			order_date = specific_order.ordered_date
@@ -1303,17 +1516,17 @@ def cancel_specific_order(request,order_id):
 				orderserializer = OrderSerializer(specific_order,request.data)
 				if orderserializer.is_valid():
 					orderserializer.save()
-					return JsonResponse({'message': 'This order has been cancelled'})
+					return JsonResponse({'success':True,'message': 'This order has been cancelled'})
 
 			else:
-				return JsonResponse({'message': 'This order cannot be cancelled now'})
+				return JsonResponse({'success':False,'message': 'This order cannot be cancelled now'})
 
 		else:
-			return JsonResponse({'message': 'This order has already been paid and shipped for or has been cancelled'})
+			return JsonResponse({'success':False,'message': 'This order has already been paid and shipped for or has been cancelled'})
 
 
 	else:
-		return JsonResponse({'message': 'This order does not exist'})
+		return JsonResponse({'success':False,'message': 'This order does not exist'})
 
 
 
@@ -1361,19 +1574,19 @@ def cancel_cart(request):
 				orderserializer = OrderSerializer(specific_order,request.data)
 				if orderserializer.is_valid():
 					orderserializer.save()
-					return JsonResponse({'message': 'This cart has been cancelled due to not been checked out within two days'})
+					return JsonResponse({'success':True,'message': 'This cart has been cancelled due to not been checked out within two days'})
 
 			else:
-				return JsonResponse({'message': 'This cart still does not have to be cancelled'})
+				return JsonResponse({'success':False,'message': 'This cart still does not have to be cancelled'})
 
 		else:
-			return JsonResponse({'message': 'This cart does not exist'})
+			return JsonResponse({'success':False,'message': 'This cart does not exist'})
 
 
 
 	else:
 		try:
-			specific_order = Order.objects.filter(non_verified_user_id=user_id,checkout_status=False)[0:1].get()
+			specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=False)[0:1].get()
 			
 		except:
 			specific_order = None
@@ -1391,13 +1604,13 @@ def cancel_cart(request):
 				orderserializer = OrderSerializer(specific_order,request.data)
 				if orderserializer.is_valid():
 					orderserializer.save()
-					return JsonResponse({'message': 'This cart has been cancelled due to not been checked out within two days'})
+					return JsonResponse({'success':True,'message': 'This cart has been cancelled due to not been checked out within two days'})
 
 			else:
-				return JsonResponse({'message': 'This cart still does not have to be cancelled'})
+				return JsonResponse({'success':False,'message': 'This cart still does not have to be cancelled'})
 
 		else:
-			return JsonResponse({'message': 'This cart does not exist'})
+			return JsonResponse({'success':False,'message': 'This cart does not exist'})
 
 
 

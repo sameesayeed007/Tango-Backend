@@ -198,12 +198,23 @@ def delete_specification(request,product_id):
 def show_specification(request,product_id):
 
 	try:
-		product = ProductSpecification.objects.filter(product_id=product_id)
-		productserializer = ProductSpecificationSerializer(product,many=True)
-		return JsonResponse({'success':True,'message':'The data is shown below','data':productserializer.data},safe=False)
 
-	except Product.DoesNotExist:
-		return JsonResponse({'success':False,'message':'This product does not exist','data':''}, status=status.HTTP_404_NOT_FOUND)
+		product = ProductSpecification.objects.filter(product_id=product_id)
+		print(product)
+
+	except:
+
+		product = None
+
+	if product is None:
+		print("Coming here")
+		return JsonResponse({})
+
+	else:
+		productserializer = ProductSpecificationSerializer(product,many=True)
+		return JsonResponse(productserializer.data,safe=False)
+
+
 
 
 

@@ -181,7 +181,33 @@ def display_products(request):
                 'message': 'The values are shown below',
                 'data': data 
                 })
+class ListReviewView(ListAPIView):
+    queryset = Reviews.objects.all()
+    serializer_class = ReviewsSerializer
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    )
+    search_fields = ("rating")
+    filterset_fields = ['rating']
+ 
+    
+    @time_calculator
+    def time(self):
+        return 0
 
+    @method_decorator(vary_on_cookie)
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        serializer = self.get_serializer(queryset, many=True)
+        self.time()
+        return Response ({
+            'success': True,
+            'message': "Data has been retrived successfully",
+            'data': serializer
+            })
   
 
       
@@ -197,6 +223,23 @@ class ListProductView(ListAPIView):
     )
     search_fields = ("title",'brand')
     filterset_fields = ['title', 'brand']
+
+    @time_calculator
+    def time(self):
+        return 0
+
+    @method_decorator(vary_on_cookie)
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        serializer = self.get_serializer(queryset, many=True)
+        self.time()
+        return Response ({
+            'success': True,
+            'message': "Data has been retrived successfully",
+            'data': serializer.data
+        })
+
     
 
 
@@ -570,13 +613,20 @@ def reviews_product(request,product_id):
 
     try:
         reviews = Reviews.objects.filter(product_id = product_id)
-        if request.method == 'GET':
-            reviewsserializer = ReviewsSerializer(reviews,many=True)
-            return JsonResponse(reviewsserializer.data , safe=False)
+    except:
+        reviews = None
+
+    if reviews is None:
+
+        return JsonResponse({})
+
+    else:
+
+        reviewsserializer = ReviewsSerializer(reviews,many=True)
+        return JsonResponse(reviewsserializer.data , safe=False)
 
 
-    except Reviews.DoesNotExist:
-        return JsonResponse({'message': 'This review does not exist'}, status=status.HTTP_404_NOT_FOUND)
+ 
 
 
 
@@ -728,12 +778,19 @@ def delete_review(request,review_id):
 def product_ratings(request,product_id):
 
     try:
-        product = Reviews.objects.filter(product_id=product_id).last()
+        product = Reviews.objects.filter(product_id=product_id).first()
+    except:
+        product = None
+
+    if product is None:
+        return JsonResponse({})
+
+    else:
+
         productserializer = ProductReviewSerializer(product,many=False)
         return JsonResponse(productserializer.data,safe=False)
 
-    except Reviews.DoesNotExist:
-        return JsonResponse({'message': 'This review does not exist'}, status=status.HTTP_404_NOT_FOUND)
+   
 
 
 @api_view(['POST',])
