@@ -181,7 +181,7 @@ def add_cart(request,productid):
 			
 			try:
 				#checking if the product exists in this order
-				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid)[0:1].get()
+				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False)[0:1].get()
 			except:
 				specific_order_product = None
 			
@@ -276,7 +276,7 @@ def add_cart(request,productid):
 			
 			try:
 				#checking if the product exists in this order
-				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid)[0:1].get()
+				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False)[0:1].get()
 			except:
 				specific_order_product = None
 			
@@ -484,7 +484,7 @@ def increase_quantity(request,productid):
 
 			try:
 				#checking if the product exists in this order
-				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid)[0:1].get()
+				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False)[0:1].get()
 
 			except:
 				specific_order_product = None
@@ -525,7 +525,7 @@ def increase_quantity(request,productid):
 
 			try:
 				#checking if the product exists in this order
-				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid)[0:1].get()
+				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False)[0:1].get()
 
 			except:
 				specific_order_product = None
@@ -692,7 +692,7 @@ def decrease_quantity(request,productid):
 
 			try:
 				#checking if the product exists in this order
-				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid)[0:1].get()
+				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False)[0:1].get()
 
 			except:
 				specific_order_product = None
@@ -731,7 +731,7 @@ def decrease_quantity(request,productid):
 
 			try:
 				#checking if the product exists in this order
-				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid)[0:1].get()
+				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False)[0:1].get()
 
 			except:
 				specific_order_product = None
@@ -805,7 +805,7 @@ def delete_product(request,productid):
 
 			try:
 				#checking if the product exists in this order
-				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid)[0:1].get()
+				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False)[0:1].get()
 
 			except:
 				specific_order_product = None
@@ -839,7 +839,7 @@ def delete_product(request,productid):
 
 			try:
 				#checking if the product exists in this order
-				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid)[0:1].get()
+				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False)[0:1].get()
 
 			except:
 				specific_order_product = None
