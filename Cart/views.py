@@ -7,7 +7,7 @@ import datetime
  
 from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,discount_product,ProductImpression,Profile
 
-from Cart.serializers import ProductSerializer, OrderSerializer,OrderDetailsSerializer,ProductPriceSerializer,UserzSerializer,BillingAddressSerializer,ProductPointSerializer
+from Cart.serializers import ProductSerializer, OrderSerializer,OrderSerializerz,OrderDetailsSerializer,ProductPriceSerializer,UserzSerializer,BillingAddressSerializer,ProductPointSerializer
 from Product_details.serializers import ProductImpressionSerializer
 from rest_framework.decorators import api_view 
 from django.views.decorators.csrf import csrf_exempt
@@ -866,6 +866,8 @@ def delete_product(request,productid):
 def checkout(request):
 
 	user_id = request.data.get('user_id')
+	coupon_code = request.data.get('coupon_code')
+	print(type(coupon_code))
 	non_verified_user_id = request.data.get('non_verified_user_id')
 	if user_id is not None:
 		user_id = int(user_id)
@@ -913,7 +915,17 @@ def checkout(request):
 					flag = True
 
 			if flag == True:
+
+				#change the coupon
+				# if coupon_code == '':
+				# 	specific_order.coupon_code = 
+				# else:
+				# 	specific_order.coupon = True
+
+
+
 				#user can checkout
+				specific_order.coupon_code = coupon_code
 				specific_order.checkout_status = True
 				specific_order.order_status = "Unpaid"
 				specific_order.delivery_status = "To pay"
@@ -935,7 +947,7 @@ def checkout(request):
 
 			else:
 
-				message = "You cannot checkout.We only have "+str(current_quantity)+" of item "+str(current_name)+" that you have ordered in our stock currently."
+				message = "You cannot checkout.We only have "+str(current_quantity)+" of item "+str(current_name)+" in our stock currently."
 				return JsonResponse({'success':False,'message': message})
 
 		else:
@@ -976,6 +988,8 @@ def checkout(request):
 					flag = True
 
 			if flag == True:
+				
+
 				#user can checkout
 				specific_order.checkout_status = True
 				specific_order.order_status = "Unpaid"
@@ -1011,6 +1025,28 @@ def checkout(request):
 @api_view(['POST',])
 def cart_view(request):
 
+	orders_id = -1
+	checkout_id = False
+	orderz= []
+
+
+	arr= [
+        {
+            "id": orders_id,
+            "date_created": "",
+            "order_status": "",
+            "delivery_status": "",
+            "user_id": orders_id,
+            "non_verified_user_id": orders_id,
+            "ip_address": "",
+            "checkout_status": checkout_id,
+            "price_total": "0.00",
+            "point_total": "0.00",
+            "ordered_date": "",
+            "orders": orderz
+        }
+    ]
+
 
 	user_id = request.data.get('user_id')
 	non_verified_user_id = request.data.get('non_verified_user_id')
@@ -1036,14 +1072,14 @@ def cart_view(request):
 
 
 			
-			orderserializer = OrderSerializer(specific_order, many = True)
+			orderserializer = OrderSerializerz(specific_order, many = True)
 			#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
 			#orders = [orderserializer.data , orderdetailserializer.data]
 			return JsonResponse({'success':True,'message':'The products in the cart are shown','data':orderserializer.data}, safe=False)
 
 		else:
-			return JsonResponse({'success':False,'message': 'There are no products in the cart'})
+			return JsonResponse({'success':True,'message': 'There are no products in the cart','data':arr})
 
 	
 
@@ -1057,14 +1093,14 @@ def cart_view(request):
 
 		if specific_order:
 	
-			orderserializer = OrderSerializer(specific_order, many = True)
+			orderserializer = OrderSerializerz(specific_order, many = True)
 			#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
 			#orders = [orderserializer.data , orderdetailserializer.data]
 			return JsonResponse({'success':True,'message':'The products in the cart are shown','data':orderserializer.data},safe=False)
 
 		else:
-			return JsonResponse({'success':False,'message': 'There are no products in the cart'})
+			return JsonResponse({'success':True,'message': 'There are no products in the cart','data':arr})
 		
 
 			
@@ -1074,7 +1110,7 @@ def cart_view(request):
 
 
 	 	
-#This shows the information of the persons orders
+#This shows the information of the persons all orders
 @api_view(['POST',])
 def all_orders(request):
 
@@ -1134,7 +1170,63 @@ def all_orders(request):
 
 
 
+#This shows the information of the a specific
+@api_view(['POST',])
+def specific_order(request,order_id):
 
+
+
+	# user_id = request.data.get('user_id')
+	# non_verified_user_id = request.data.get('non_verified_user_id')
+	# if user_id is not None:
+	# 	user_id = int(user_id)
+	# 	non_verified_user_id =0
+
+	# else:
+	# 	non_verified_user_id = int(non_verified_user_id)
+	# 	user_id = 0
+
+	# if non_verified_user_id == 0:
+
+	try:
+		specific_order = Order.objects.filter(id=order_id)
+	except:
+		specific_order = None
+
+
+	if specific_order:
+
+
+		
+		orderserializer = OrderSerializer(specific_order, many = True)
+		#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
+
+		#orders = [orderserializer.data , orderdetailserializer.data]
+		return JsonResponse({'success':True,'message':'The products in your order are shown','data':orderserializer.data}, safe=False)
+
+	else:
+		return JsonResponse({'success':False,'message': 'You have no orders'})
+
+	
+
+	# else:
+
+	# 	try:
+	# 		specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True)
+	# 	except:
+	# 		specific_order = None
+
+
+	# 	if specific_order:
+	
+	# 		orderserializer = OrderSerializer(specific_order, many = True)
+	# 		#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
+
+	# 		#orders = [orderserializer.data , orderdetailserializer.data]
+	# 		return JsonResponse({'success':True,'message':'The products in your orders are shown','data':orderserializer.data},safe=False)
+
+	# 	else:
+	# 		return JsonResponse({'success':False,'message': 'You have no orders'})
 
 
 
@@ -1157,7 +1249,7 @@ def orders_to_pay(request):
 	if non_verified_user_id == 0:
 
 		try:
-			specific_order = Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="To pay",order_status="Unpaid")
+			specific_order = Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="To ship",order_status="Unpaid")
 		except:
 			specific_order = None
 
@@ -1180,7 +1272,7 @@ def orders_to_pay(request):
 	else:
 
 		try:
-			specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True,delivery_status="To pay",order_status="Unpaid")
+			specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True,delivery_status="To ship",order_status="Unpaid")
 		except:
 			specific_order = None
 
@@ -1278,7 +1370,7 @@ def orders_received(request):
 	if non_verified_user_id == 0:
 
 		try:
-			specific_order = Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="Received")
+			specific_order = Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="Received",order_status="Paid")
 		except:
 			specific_order = None
 
@@ -1301,7 +1393,7 @@ def orders_received(request):
 	else:
 
 		try:
-			specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True,delivery_status="Received")
+			specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True,delivery_status="Received",order_status="Paid")
 		except:
 			specific_order = None
 
@@ -1319,6 +1411,61 @@ def orders_received(request):
 
 
 
+#This shows the information of the user's orders that have already been received
+@api_view(['POST',])
+def orders_cancelled(request):
+
+	user_id = request.data.get('user_id')
+	non_verified_user_id = request.data.get('non_verified_user_id')
+	if user_id is not None:
+		user_id = int(user_id)
+		non_verified_user_id =0
+
+	else:
+		non_verified_user_id = int(non_verified_user_id)
+		user_id = 0
+
+	if non_verified_user_id == 0:
+
+		try:
+			specific_order = Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="Cancelled",order_status="Cancelled")
+		except:
+			specific_order = None
+
+
+		if specific_order:
+
+
+			
+			orderserializer = OrderSerializer(specific_order, many = True)
+			#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
+
+			#orders = [orderserializer.data , orderdetailserializer.data]
+			return JsonResponse({'success':True,'message':'The products in your order are shown','data':orderserializer.data}, safe=False)
+
+		else:
+			return JsonResponse({'success':False,'message': 'You have no orders'})
+
+	
+
+	else:
+
+		try:
+			specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True,delivery_status="Cancelled",order_status="Cancelled")
+		except:
+			specific_order = None
+
+
+		if specific_order:
+	
+			orderserializer = OrderSerializer(specific_order, many = True)
+			#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
+
+			#orders = [orderserializer.data , orderdetailserializer.data]
+			return JsonResponse({'success':True,'message':'The products in your orders are shown','data':orderserializer.data},safe=False)
+
+		else:
+			return JsonResponse({'success':False,'message': 'You have no orders'})
 
 #This shows the information of all the orders that have not been paid for 
 #FOR THE PAYMENT API
@@ -1423,7 +1570,7 @@ def cancel_order(request):
 	if non_verified_user_id == 0:
 
 		try:
-			specific_order =Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="To pay",order_status="Unpaid",admin_status="Processing").last()
+			specific_order =Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="To ship",order_status="Unpaid",admin_status="Processing").last()
 		except:
 			specific_order = None
 
@@ -1458,7 +1605,7 @@ def cancel_order(request):
 
 	else:
 		try:
-			specific_order =Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True,delivery_status="To pay",order_status="Unpaid",admin_status="Processing").last()
+			specific_order =Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True,delivery_status="To ship",order_status="Unpaid",admin_status="Processing").last()
 		except:
 			specific_order = None
 
