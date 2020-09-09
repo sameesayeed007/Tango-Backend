@@ -5,7 +5,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework import status
 import datetime
  
-from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,discount_product,ProductImpression,Profile
+from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,discount_product,ProductImpression,Profile,Cupons
 
 from Cart.serializers import ProductSerializer, OrderSerializer,OrderSerializerz,OrderDetailsSerializer,ProductPriceSerializer,UserzSerializer,BillingAddressSerializer,ProductPointSerializer
 from Product_details.serializers import ProductImpressionSerializer
@@ -17,7 +17,7 @@ from django.utils import timezone
 
 
 # Create your views here.
-@api_view(['POST',])
+@api_view(['PUT',])
 def add_cart(request,productid):
 
 	user_id = request.data.get('user_id')
@@ -341,7 +341,7 @@ def add_cart(request,productid):
 
 
 
-@api_view(['POST',])
+@api_view(['PUT',])
 def increase_quantity(request,productid):
 
 	#values = {'user_id':'2', 'non_verified_user_id':''}
@@ -556,7 +556,7 @@ def increase_quantity(request,productid):
 
 
 
-@api_view(['POST',])
+@api_view(['PUT',])
 def decrease_quantity(request,productid):
 
 	p_price=0
@@ -761,7 +761,7 @@ def decrease_quantity(request,productid):
 
 
 #this removes the specific product from the cart
-@api_view(['POST',])
+@api_view(['PUT',])
 def delete_product(request,productid):
 
 
@@ -866,8 +866,8 @@ def delete_product(request,productid):
 def checkout(request):
 
 	user_id = request.data.get('user_id')
-	coupon_code = request.data.get('coupon_code')
-	print(type(coupon_code))
+	#coupon_code = request.data.get('coupon_code')
+	#print(type(coupon_code))
 	non_verified_user_id = request.data.get('non_verified_user_id')
 	if user_id is not None:
 		user_id = int(user_id)
@@ -925,7 +925,7 @@ def checkout(request):
 
 
 				#user can checkout
-				specific_order.coupon_code = coupon_code
+				#specific_order.coupon_code = coupon_code
 				specific_order.checkout_status = True
 				specific_order.order_status = "Unpaid"
 				specific_order.delivery_status = "To pay"
@@ -1072,7 +1072,7 @@ def cart_view(request):
 
 
 			
-			orderserializer = OrderSerializerz(specific_order, many = True)
+			orderserializer = OrderSerializer(specific_order, many = True)
 			#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
 			#orders = [orderserializer.data , orderdetailserializer.data]
@@ -1093,7 +1093,7 @@ def cart_view(request):
 
 		if specific_order:
 	
-			orderserializer = OrderSerializerz(specific_order, many = True)
+			orderserializer = OrderSerializer(specific_order, many = True)
 			#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
 			#orders = [orderserializer.data , orderdetailserializer.data]
@@ -1833,6 +1833,19 @@ def create_address(request):
 @api_view(['POST',])
 def show_address(request):
 
+	num =-1
+
+	arr = {
+        "id": num,
+        "user_id": num,
+        "date_created": "",
+        "date_updated": "",
+        "non_verified_user_id": num,
+        "ip_address": "",
+        "phone_number": "",
+        "address": ""
+    }
+
 	user_id = request.data.get('user_id')
 	non_verified_user_id = request.data.get('non_verified_user_id')
 	if user_id is not None:
@@ -1873,14 +1886,16 @@ def show_address(request):
 				
 				
 				#billing_address = existing_address.address
+				# phone_number = existing_address.phone_number
+				# city = existing_address.city
+				# district = existing_address.district
+				# road_number = existing_address.road_number
+				# building_number = existing_address.building_number
+				# apartment_number = existing_address.apartment_number
+				address = existing_address.address
 				phone_number = existing_address.phone_number
-				city = existing_address.city
-				district = existing_address.district
-				road_number = existing_address.road_number
-				building_number = existing_address.building_number
-				apartment_number = existing_address.apartment_number
 				#create a billing address 
-				billing_address_obj = BillingAddress.objects.create(user_id=user_id,phone_number=phone_number,city=city,district=district,road_number=road_number,building_number=building_number,apartment_number=apartment_number)
+				billing_address_obj = BillingAddress.objects.create(user_id=user_id,phone_number=phone_number,address=address)
 				billing_address_obj.save()
 				billing_serializer = BillingAddressSerializer(billing_address_obj,data=request.data)
 				if billing_serializer.is_valid():
@@ -1908,7 +1923,7 @@ def show_address(request):
 		try:
 
 			address = BillingAddress.objects.filter(non_verified_user_id=non_verified_user_id).last()
-			print(address)
+			#print(address)
 
 		except:
 			address = None
@@ -1916,11 +1931,11 @@ def show_address(request):
 			
 
 		if address is None:
-			print("Yessssss")
-			return JsonResponse({'success':False,'data':''})
+			#print("Yessssss")
+			return JsonResponse({'success':False,'data':arr})
 			
 		else:
-			print("Coming here")
+			#print("Coming here")
 			billing_address_serializer = BillingAddressSerializer(address)
 			return JsonResponse({'success':True,'data':billing_address_serializer.data})
 				
@@ -1986,6 +2001,94 @@ def edit_address(request):
 		except BillingAddress.DoesNotExist:
 			return JsonResponse({'message': 'This address does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
+
+
+
+
+@api_view(['POST',])
+def check_coupon(request):
+
+	current_date = timezone.now().date()
+	coupon_percent = 0
+	flag = False
+	coupon_code = request.data.get('coupon_code')
+	user_id = request.data.get('user_id')
+	non_verified_user_id = request.data.get('non_verified_user_id')
+	if user_id is not None:
+		user_id = int(user_id)
+		non_verified_user_id =0
+
+	else:
+		non_verified_user_id = int(non_verified_user_id)
+		user_id = 0
+
+	if non_verified_user_id == 0:
+	
+		try:
+			#Fetching the specific order of the specific user that hasnt been checked out
+			specific_order = Order.objects.filter(user_id=user_id,checkout_status=False)[0:1].get()
+			print("HOITESE NAAAAAAAAAAAAA")
+			print(specific_order)
+
+		except:
+			specific_order = None
+
+		if specific_order is not None:
+			print("hfeufhfgfwgyrgfrygr")
+			specific_order.coupon_code = coupon_code
+			specific_order.save()
+			orderserializer = OrderSerializer(specific_order,request.data)
+			if orderserializer.is_valid():
+				orderserializer.save()
+
+	else:
+		try:
+
+			#Fetching the specific order of the specific user that hasnt been checked out
+			specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=False)[0:1].get()
+			print("HOITESE NAAAAAAAAAAAAA")
+			print(specific_order)
+
+		except:
+			specific_order = None
+
+		if specific_order is not None:
+			print("hfeufhfgfwgyrgfrygr")
+			specific_order.coupon_code = coupon_code
+			specific_order.save()
+			orderserializer = OrderSerializer(specific_order,request.data)
+			if orderserializer.is_valid():
+				orderserializer.save()
+
+
+
+
+
+
+
+
+
+	coupons = Cupons.objects.all()
+	coupon_codes = list(coupons.values_list('cupon_code',flat=True))
+	coupon_amounts = list(coupons.values_list('amount',flat=True))
+	coupon_start = list(coupons.values_list('start_from',flat=True))
+	coupon_end = list(coupons.values_list('valid_to',flat=True))
+	coupon_validity = list(coupons.values_list('is_active',flat=True))
+
+	for i in range(len(coupon_codes)):
+		if (coupon_codes[i]==coupon_code and current_date>=coupon_start[i] and current_date <= coupon_end[i] and coupon_validity[i]==True):
+
+			coupon_percent = coupon_amounts[i]
+			flag = True
+			break
+		else:
+			flag = False
+
+	if flag == True:
+		return JsonResponse({'success':True,'message': 'Promo code applied'})
+
+	else:
+		return JsonResponse({'success':False,'message': 'Promo code is not applied'})
 
 
 

@@ -507,7 +507,7 @@ class ProductImage(models.Model):
 class Product(models.Model):
     seller = models.ForeignKey(User, on_delete=models.CASCADE , null=True)
     category_id = models.IntegerField( blank=True , null=True)
-    title = models.CharField(max_length=250 ,blank=False , null=False)
+    title = models.CharField(max_length=250 ,blank=True , null=True)
     brand = models.CharField(max_length=120 , blank=True )
     date=models.DateTimeField(auto_now_add=True)
     #image = ArrayField(models.ImageField(upload_to=product_image_path, blank=True),null=True , blank=True)

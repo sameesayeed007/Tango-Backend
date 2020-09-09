@@ -25,6 +25,7 @@ urlpatterns = [
     path('create_address/', views.create_address),
     path('show_address/', views.show_address),
     path('edit_address/', views.edit_address),
+    path('check_coupon/', views.check_coupon),
     #path('addpoints/', views.add_points),
    
 
