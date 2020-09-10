@@ -2061,13 +2061,6 @@ def check_coupon(request):
 				orderserializer.save()
 
 
-
-
-
-
-
-
-
 	coupons = Cupons.objects.all()
 	coupon_codes = list(coupons.values_list('cupon_code',flat=True))
 	coupon_amounts = list(coupons.values_list('amount',flat=True))
