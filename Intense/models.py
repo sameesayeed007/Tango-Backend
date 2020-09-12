@@ -366,7 +366,6 @@ class ProductPrice(models.Model):
     
 
 class Order(models.Model):
-   
     order =(
     ("Paid", "Paid"),
     ("Unpaid", "Unpaid"),
@@ -381,7 +380,7 @@ class Order(models.Model):
     ("Not Ordered", "Not Ordered"),
     ("Cancelled", "Cancelled"),
     )
-    delivery_status = models.CharField(choices=delivery, max_length=155, default="To pay",blank=True,null=True)
+    delivery_status = models.CharField(choices=delivery, max_length=155, default="To ship",blank=True,null=True)
     admin = (
     ("Processing", "Processing"),
     ("Confirmed", "Confirmed"),
@@ -389,11 +388,13 @@ class Order(models.Model):
     )
     admin_status = models.CharField(choices=admin, max_length=155, default="Processing",blank=True,null=True)
     date_created = models.DateTimeField(auto_now_add=True,blank=True,null=True)
-    user_id = models.IntegerField(blank=True,null=True)
+    user_id = models.IntegerField(blank=True,null=True,default=-1)
     ip_address = models.CharField(max_length = 255,blank=True,null=True)
     checkout_status = models.BooleanField(default=False,blank=True,null=True)
     ordered_date = models.DateTimeField(auto_now_add=True,blank=True,null=True)
-    non_verified_user_id = models.IntegerField(blank=True,null=True)
+    non_verified_user_id = models.IntegerField(blank=True,null=True,default=-1)
+    coupon = models.BooleanField(default=False,blank=True,null=True)
+    coupon_code = models.CharField(max_length = 255,blank=True,null=True)
 
 
     def __str__(self):
@@ -402,8 +403,8 @@ class Order(models.Model):
 
 
 class OrderDetails(models.Model):
-    order_id = models.IntegerField(blank=True,null=True)
-    product_id = models.IntegerField(blank=True,null=True)
+    order_id = models.IntegerField(blank=True,null=True,default=-1)
+    product_id = models.IntegerField(blank=True,null=True,default=-1)
     quantity = models.IntegerField(default=0,blank=True,null=True)
     date_added = models.DateTimeField(auto_now_add=True,blank=True,null=True)
     is_removed = models.BooleanField(default = False)
@@ -412,7 +413,10 @@ class OrderDetails(models.Model):
     total_price = models.IntegerField(default=0,blank=True,null=True)
     unit_point = models.IntegerField(default=0,blank=True,null=True)
     total_point = models.IntegerField(default=0,blank=True,null=True)
-    product_name = models.CharField(max_length=255,blank=True,null=True)
+    product_name = models.CharField(max_length=255,blank=True,null=True,default="")
+    product_color = models.CharField(max_length = 255,blank=True,null=True,default="")
+    product_size = models.CharField(max_length = 255,blank=True,null=True,default="")
+    product_unit = models.CharField(max_length = 255,blank=True,null=True,default="")
 
     def __str__(self):
         return f'{self.order_id} X {self.product_id}'
