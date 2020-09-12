@@ -123,26 +123,8 @@ def delete_price(request,product_id):
 @api_view(['POST',])
 def add_specification(request):
 
-	arr={
-		"product_id":12,
-		"weight": 17,
-		"color":["red","blue","orange"],
-		"unit":["kg","gram"],
-		"size":["medium","small"]     
-		}
-
 	if request.method == 'POST':
-		#color = request.data.get('color')
-		#colorhex = Color(color).hex
-		#size = request.data.get('size')
-		#unit = request.data.get('unit')
-		#weight = request.data.get('weight')
-
-
-		#product_spec = ProductSpecification.objects.create(color=colorhex,size = size , unit=unit,weight=weight)
-		#product_spec.save()
-		#print(product_spec.color)
-		pointserializer = ProductSpecificationSerializer(data=arr)
+		pointserializer = ProductSpecificationSerializer(data=request.data)
 
 		if pointserializer.is_valid():
 			pointserializer.save()
@@ -154,18 +136,12 @@ def add_specification(request):
 @api_view(['POST',])
 def update_specification(request,product_id):
 
-	arr={
-		"weight": 18,
-		"color":["red","blue","orange","green","black"],
-		"unit":["kg","gram"],
-		"size":["medium"]     
-		}
 
 	try:
 		product = ProductSpecification.objects.filter(product_id=product_id).last()
 
 		if request.method == 'POST':
-			pointserializer = ProductSpecificationSerializer(product,data=arr)
+			pointserializer = ProductSpecificationSerializer(product,data=request.data)
 			if pointserializer.is_valid():
 				pointserializer.save()
 				return JsonResponse(pointserializer.data, status=status.HTTP_201_CREATED)
@@ -200,14 +176,12 @@ def show_specification(request,product_id):
 	try:
 
 		product = ProductSpecification.objects.filter(product_id=product_id)
-		print(product)
 
 	except:
 
 		product = None
 
 	if product is None:
-		print("Coming here")
 		return JsonResponse({})
 
 	else:
@@ -294,6 +268,8 @@ def product_detail(request,product_id):
 	else:
 		return JsonResponse({'success':False,'message':'This product does not exist','data':''}, status=status.HTTP_404_NOT_FOUND)
 		
+
+
 
 
 # --------------------------------- Product Cupon -------------------------------

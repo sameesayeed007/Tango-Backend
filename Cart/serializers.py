@@ -142,6 +142,187 @@ class OrderSerializerz(serializers.ModelSerializer):
 
 
 
+class OrderSerializerzz(serializers.ModelSerializer):
+    price_total = serializers.SerializerMethodField(method_name='get_price')
+    point_total = serializers.SerializerMethodField(method_name='get_point')
+    orders = serializers.SerializerMethodField(method_name='order_details')
+    specification = serializers.SerializerMethodField(method_name='specifications')
+
+    
+    class Meta:
+        model = Order
+        #fields ='__all__'
+        fields = ('id','date_created','order_status','delivery_status','user_id','non_verified_user_id','ip_address','checkout_status','price_total','point_total','ordered_date','orders','specification')
+
+
+    #This method is to calculate the total price
+    def get_price(self,instance):
+        sum_total = 0
+        try:
+
+            order_details = OrderDetails.objects.filter(order_id = instance.id,is_removed=False)
+        except:
+            order_details = None
+
+        if order_details is not None:
+
+            order_prices = order_details.values_list('product_id',flat = True)
+            order_quantity = order_details.values_list('total_quantity',flat = True)
+            sum_total= 0
+            p_price = 0 
+        
+            for i in range(len(order_quantity)):
+                try:
+                    product_price = ProductPrice.objects.filter(product_id=order_prices[i]).last()
+                except:
+                    product_price = None
+                try:
+
+                    product_discount = discount_product.objects.filter(product_id=order_prices[i]).last()
+
+                except:
+                    product_discount = None
+                
+
+                if product_price is not None:
+                    p_price = product_price.price
+
+                else:
+                    p_price = 0
+
+               
+
+          
+                if product_discount is not None:
+                    p_discount = product_discount.amount
+                    start_date = product_discount.start_date
+                    end_date = product_discount.end_date
+                    current_date = timezone.now().date()
+
+
+                    if (current_date >= start_date) and (current_date <= end_date):
+                        total_discount = p_discount * order_quantity[i]
+                        total_price = (p_price * order_quantity[i]) - total_discount
+                        sum_total += total_price
+
+                    else:
+
+                        total_discount = 0
+                        total_price = (p_price * order_quantity[i]) - total_discount
+                        sum_total += total_price
+
+                else:
+
+                    
+                    total_price = (p_price * order_quantity[i]) 
+                    sum_total += total_price
+
+        else:
+            sum_total = 0
+
+        float_total = format(sum_total, '0.2f')
+        return float_total
+
+    def get_point(self,instance):
+        sum_total = 0 
+        try:
+            order_details = OrderDetails.objects.filter(order_id = instance.id,is_removed=False)
+
+        except:
+            order_details = None
+        if order_details is not None:
+
+            order_prices = order_details.values_list('product_id',flat = True)
+            order_quantity = order_details.values_list('total_quantity',flat = True)
+            sum_total= 0
+            
+            for i in range(len(order_quantity)):
+                try:
+                    product_point = ProductPoint.objects.filter(product_id=order_prices[i]).last()
+                except:
+                    product_point = None
+
+                if product_point is not None:
+                    p_point = product_point.point
+                    start_date = product_point.start_date
+                    end_date = product_point.end_date
+                    current_date = timezone.now().date()
+                    if (current_date >= start_date) and (current_date <= end_date):
+                        total_point = p_point * order_quantity[i]
+                        sum_total += total_point
+
+                else:
+                    sum_total = sum_total
+
+
+        else:
+            sum_total = 0
+               
+
+        float_total = format(sum_total, '0.2f')
+        return float_total
+
+    def order_details(self,instance):
+        details = OrderDetails.objects.filter(order_id=instance.id,is_removed=False).values()
+        list_result = [entry for entry in details]
+        
+
+        return list_result
+
+
+    def specifications(self,instance):
+
+        num =-1
+
+        arr = {
+        "id": num ,
+        "product_id":num ,
+        "color": [
+
+        ],
+        "size": [
+         
+        ],
+        "unit": [
+                    ],
+        "weight": ""
+    }
+
+        try:
+            order_details = OrderDetails.objects.filter(order_id = instance.id,is_removed=False)
+
+        except:
+
+            order_details = None
+
+        if order_details is not None:
+            order_products = order_details.values_list('product_id',flat = True)
+            for i in range(len(order_products)):
+                try:
+                    spec = ProductSpecification.objects.filter(product_id=order_products[i]).last()
+                except:
+                    spec = None
+
+            if spec is not None:
+                arr = {
+                        "id": spec.id ,
+                        "product_id":spec.product_id,
+                        "color": spec.color,
+                        "size" : spec.size,
+                        "weight": spec.weight
+                    }
+
+
+            return arr
+      
+
+
+
+
+        
+
+
+
 class OrderSerializer(serializers.ModelSerializer):
     price_total = serializers.SerializerMethodField(method_name='get_price')
     point_total = serializers.SerializerMethodField(method_name='get_point')

@@ -2,7 +2,11 @@ import json
 import serpy
 from rest_framework import serializers
 #from user_profile.models import User
-from Intense.models import Category, Product , Variation ,GroupProduct,Comment,CommentReply,Reviews,User,Category, Product, Variation , GroupProduct,ProductImage,ProductPrice,discount_product
+from Intense.models import (
+    Category, Product , Variation ,GroupProduct,Comment,CommentReply,Reviews,User,Category,
+     Product, Variation , GroupProduct,ProductImage,
+     ProductPrice,discount_product,ProductCode,ProductSpecification,ProductPoint
+)
 from drf_extra_fields.fields import Base64ImageField
 from django.db.models import Avg
 
@@ -11,10 +15,14 @@ from rest_framework import serializers
 from rest_framework import fields
 from django.utils import timezone
 from django.conf import settings
+from django.forms.models import model_to_dict
+
 
 host_prefix = "https://"
 host_name = host_prefix+settings.ALLOWED_HOSTS[0]
 
+site_path = "https://tango99.herokuapp.com/"
+#site_path = "http://127.0.0.1:8000/"
 
 #------------------------ product---------------------------
 
@@ -58,10 +66,13 @@ class ProductSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField(method_name='get_images')
     new_price = serializers.SerializerMethodField(method_name='get_new_price')
     old_price = serializers.SerializerMethodField(method_name='get_old_price')
+    specification = serializers.SerializerMethodField(method_name='get_specification')
+
+
     #comment_name = serializers.SerializerMethodField(method_name='get_name')
     class Meta:
         model = Product
-        fields = ('id','title','quantity','old_price','new_price','images')
+        fields = ('id','title','old_price','new_price','images','specification')
 
     def get_images(self,instance):
         try:
@@ -169,18 +180,206 @@ class ProductSerializer(serializers.ModelSerializer):
         return float_total
 
 
+    def get_specification(self,instance):
 
-
-
-
+        arr =  {'colors':[],'sizes':[],'units':[]}
 
 
         
+        try:
 
-        
-        
+
+            p_spec = ProductSpecification.objects.filter(product_id = instance.id)
+
+        except:
+
+            p_spec = None 
+
+
+        if p_spec is not None:
+
+            colors = list(p_spec.values_list('color',flat=True).distinct())
+            sizes = list(p_spec.values_list('size',flat=True).distinct())
+            units = list(p_spec.values_list('unit',flat=True).distinct())
+
+            arr =  {'colors':colors,'sizes':sizes,'units':units}
+
+            return arr
+
+        else:
+
+            return arr
+
+
+
+
+
+class SearchSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField(method_name='get_images')
+    new_price = serializers.SerializerMethodField(method_name='get_new_price')
+    old_price = serializers.SerializerMethodField(method_name='get_old_price')
+    specification = serializers.SerializerMethodField(method_name='get_specification')
+    ratings = serializers.SerializerMethodField(method_name='get_ratings')
+
+
+    #comment_name = serializers.SerializerMethodField(method_name='get_name')
+    class Meta:
+        model = Product
+        fields = ('id','title','old_price','new_price','brand','images','specification','ratings')
+
+    def get_images(self,instance):
+        try:
+
+            replys = ProductImage.objects.filter(product_id=instance.id).values()
+
+        except:
+            replys = None
+
+        if replys:
+            list_result = [entry for entry in replys] 
+
+        else:
+            list_result = []
     
+        return list_result
+
+
+    def get_old_price(self,instance):
+
+        old_price = 0 
+
+
+        try:
+
+
+            p_price = ProductPrice.objects.filter(product_id = instance.id).last()
+
+        except:
+
+            p_price = None 
+
+
+        if p_price is not None:
+
+            old_price =p_price.price
+
+        else:
+            old_price = 0
+
+
+        float_total = format(old_price, '0.2f')
+        return float_total
+
+
+
+    def get_new_price(self,instance):
+
+        new_price = 0
+        discount = 0  
+
+
+        try:
+
+
+            p_price = ProductPrice.objects.filter(product_id = instance.id).last()
+
+        except:
+
+            p_price = None 
+
+
+        if p_price is not None:
+
+            new_price =p_price.price
+
+            try:
+
+                p_discount = discount_product.objects.filter(product_id = instance.id).last()
+
+            except:
+
+                p_discount = None
+
+
+            if p_discount is not None:
+
+                discount = p_discount.amount
+                discount_start_date = p_discount.start_date
+                discount_end_date = p_discount.end_date
+                current_date = timezone.now().date()
+
+                if (current_date >= discount_start_date) and (current_date <= discount_end_date):
+
+                    new_price = new_price - discount
+
+                else:
+                    discount =0 
+                    new_price = new_price - discount
+
+            else:
+                discount = 0
+                new_price = new_price - discount
+
+
+
+
+        else:
+
+            new_price = 0
+            
+
+
+        float_total = format(new_price, '0.2f')
+        return float_total
+
+
+    def get_specification(self,instance):
+
+        arr =  {'colors':[],'sizes':[],'units':[]}
+
+
         
+        try:
+
+
+            p_spec = ProductSpecification.objects.filter(product_id = instance.id)
+
+        except:
+
+            p_spec = None 
+
+
+        if p_spec is not None:
+
+            colors = list(p_spec.values_list('color',flat=True).distinct())
+            sizes = list(p_spec.values_list('size',flat=True).distinct())
+            units = list(p_spec.values_list('unit',flat=True).distinct())
+
+            arr =  {'colors':colors,'sizes':sizes,'units':units}
+
+            return arr
+
+        else:
+
+            return arr
+
+
+    def get_ratings(self,instance):
+
+
+        product_id = instance.id
+        #site_path = "https://tango99.herokuapp.com/"
+
+        url = site_path+ "product/ratings/"+str(product_id)+"/"
+        values = requests.get(url).json()
+        return values
+
+
+
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = "__all__"
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -189,7 +388,6 @@ class CategorySerializer(serializers.ModelSerializer):
         fields= [
             "id",
             "title",
-            
             'active',
             'timestamp'
 
@@ -446,15 +644,10 @@ class ProductReviewSerializer(serializers.ModelSerializer):
 
                 total_count += int(review_ids[i])
 
-            #print(total_count)
-
             average = total_count/product_count
 
-            #print(product_count)
-            print(average)
 
             num1 = int(average)
-            print(num1)
             num2 = average%1
             if num2>0.5:
                 num2=1
@@ -528,4 +721,110 @@ class ProductReviewSerializer(serializers.ModelSerializer):
         else:
             return ""
 
+
+# ---------------------------- Product Code ------------------
+
+class ProductCodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductCode
+        fields = "__all__"
+
+class ScannerProductSerializer(serializers.ModelSerializer):
+    scan_product_id = serializers.SerializerMethodField('scanned_product_value')
+
+    class Meta:
+        model = ProductCode
+        fields = ('scan_product_id','date')
+
+    def scanned_product_value(self,obj):
+        return obj.product_id
+
+#---------------------------- Group Product----------------------
+
+class AllGroupProductSerialyzer (serializers.ModelSerializer):
+    product_details = serializers.SerializerMethodField(method_name='get_product')
+    images = serializers.SerializerMethodField(method_name='get_images')
+    Group_data = serializers.SerializerMethodField(method_name='get_group_info')
+    price = serializers.SerializerMethodField(method_name='get_price')
+
+    specification = serializers.SerializerMethodField(method_name='get_specification')
+    point = serializers.SerializerMethodField(method_name='get_point')
+    discount = serializers.SerializerMethodField(method_name='get_discount')
+    
+    code = serializers.SerializerMethodField(method_name='get_code')
+    
+    class Meta:
+        model = Product
+        fields = ('product_details','Group_data','price','specification','point','discount','images','code')
+        #fields = ('product_details','images','price','specification','code','discount','point')
+
+    def get_images(self,instance):
+        try:
+
+            Images = ProductImage.objects.filter(product_id=instance.id).values()
+
+        except:
+            Images = None
+
+        if Images:
+            list_result = [entry for entry in Images] 
+
+        else:
+            list_result = []
+    
+        return list_result
+
+    def get_product (self,instance):
+        
+        try:
+            values= Product.objects.filter(id=instance.id).values()[0]
+            return values
+        except:
+            return ''
+
+    def get_group_info (self,instance):
+        
+        try:
+          
+            values= GroupProduct.objects.filter(product_id=instance.id).values()[0]
+            return values
+        except:
+            return ''
+       
+
+    def get_price (self,instance):
+    
+        try:
+            values= ProductPrice.objects.filter(product_id=instance.id).values()[0]
+            return values
+        except:
+            return " "
+
+    def get_specification (self,instance):
+        try:
+            values= ProductSpecification.objects.filter(product_id=instance.id).values()[0]
+            return values
+        except:
+            return " "
+
+    def get_code (self,instance):
+        try:
+            values= ProductCode.objects.filter(product_id=instance.id).values()[0]
+            return values
+        except:
+            return " "
+
+    def get_discount (self,instance):
+        try:
+            values= discount_product.objects.filter(product_id=instance.id).values()[0]
+            return values
+        except:
+            return " "
+
+    def get_point (self,instance):
+        try:
+            values= ProductPoint.objects.filter(product_id=instance.id).values()[0]
+            return values
+        except:
+            return " "
 

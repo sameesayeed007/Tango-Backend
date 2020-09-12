@@ -9,8 +9,8 @@ from django.urls import reverse,reverse_lazy
 #from Intense.Integral_apis import ratings
 import json
 
+#site_path = "http://127.0.0.1:8000/"
 site_path = "https://tango99.herokuapp.com/"
-
 
 
 # Serializers define the API representation.
@@ -38,7 +38,9 @@ class ProductSpecificationSerializer(serializers.ModelSerializer):
 class ProductDetailSerializer(serializers.ModelSerializer):
     old_price = serializers.SerializerMethodField(method_name='get_price')
     new_price = serializers.SerializerMethodField(method_name='get_discounted_price')
-    specification = serializers.SerializerMethodField(method_name='get_specifications')
+    specification = serializers.SerializerMethodField(method_name='get_specification')
+    quantity = serializers.SerializerMethodField(method_name='get_quantity')
+
     #availability = serializers.SerializerMethodField(method_name='available')
     ratings = serializers.SerializerMethodField(method_name='get_ratings')
     reviews = serializers.SerializerMethodField(method_name='get_reviews')
@@ -47,7 +49,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     question_answers = serializers.SerializerMethodField(method_name='get_comments')
     class Meta:
         model = Product
-        fields = ('id','title','quantity','description','key_features','old_price','specification','new_price','ratings','reviews','question_answers','images','imagez')
+        fields = ('id','title','description','quantity','key_features','old_price','specification','new_price','ratings','reviews','question_answers','images','imagez')
 
     def get_price(self,instance):
         p_price = 0
@@ -146,15 +148,85 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         return values
 
 
-    def get_specifications(self,instance):
+    # def get_specifications(self,instance):
 
 
-        product_id = instance.id
-        #site_path = "https://tango99.herokuapp.com/"
+    #     product_id = instance.id
+    #     #site_path = "https://tango99.herokuapp.com/"
 
-        url = site_path+ "productdetails/showspec/"+str(product_id)+"/"
-        values = requests.get(url).json()
-        return values
+    #     url = site_path+ "productdetails/showspec/"+str(product_id)+"/"
+    #     values = requests.get(url).json()
+    #     return values
+
+    def get_specification(self,instance):
+
+        arr =  {'colors':[],'sizes':[],'units':[]}
+
+
+        
+        try:
+
+
+            p_spec = ProductSpecification.objects.filter(product_id = instance.id)
+
+        except:
+
+            p_spec = None 
+
+
+        if p_spec is not None:
+
+            colors = list(p_spec.values_list('color',flat=True).distinct())
+            sizes = list(p_spec.values_list('size',flat=True).distinct())
+            units = list(p_spec.values_list('unit',flat=True).distinct())
+
+            arr =  {'colors':colors,'sizes':sizes,'units':units}
+
+            return arr
+
+        else:
+
+            return arr
+
+
+    def get_quantity(self,instance):
+
+        #arr =  {'colors':[],'sizes':[],'units':[]}
+
+        total_sum = 0
+
+
+        
+        try:
+
+
+            p_spec = ProductSpecification.objects.filter(product_id = instance.id)
+
+        except:
+
+            p_spec = None 
+
+
+        if p_spec is not None:
+
+            quantities = list(p_spec.values_list('quantity',flat=True))
+
+            #total_sum = 0
+            for i in range(len(quantities)):
+
+                total_sum = total_sum + quantities[i]
+
+
+
+            
+
+            return total_sum
+
+        else:
+
+            return total_sum
+
+
 
 
     def get_images(self,instance):
@@ -187,7 +259,6 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         list_result = [entry for entry in replys] 
     
         return list_result
-            
 # ------------------------- Product Cupon ---------------------------------
 
 class CupponSerializer(serializers.ModelSerializer):

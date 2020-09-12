@@ -268,9 +268,23 @@ def Banner_Insertion(request):
 
     if request.method == "POST":
         try:
-            api_banner_data = {'count': '2', 'set_time': '3', 'images': [{'link': "abc.link", 'content': "content"},
-            { 'link': "efg.link", 'content': "nothing"}]}
+            api_banner_data = {'count': '2', 
+                            'set_time': '3', 
+                            'images': [
+                                {
+                                    'link': "abc.link", 
+                                    'content': "content"
+                                },
+                                { 
+                                    'link': "efg.link",
+                                     'content': "nothing"
+                                }
+                                ]}
+
+
             banner_data = {'count': api_banner_data['count'], 'set_time': api_banner_data['set_time']}
+
+
             serializers = BannerSerializer (data= banner_data)
             if(serializers.is_valid()):
                 serializers.save()
@@ -280,9 +294,15 @@ def Banner_Insertion(request):
                 banner_serializers = BannerImageSerializer (data= val)
                 if(banner_serializers.is_valid()):
                     banner_serializers.save()  
-            return Response ({'message': 'Value successfully added'})
+            return Response ({
+                'success': True,
+                'message': 'Value successfully added',
+                })
         except:
-             return Response ({'message': 'Some internal problem occurs'})
+             return Response ({
+                 'success': False,
+                 'message': 'Some internal problem occurs'
+                 })
 
 
 @api_view (["GET","POST"])

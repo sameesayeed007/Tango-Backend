@@ -148,8 +148,8 @@ class Profile(models.Model):
 
 
 class user_relation (models.Model):
-    verified_user_id = models.IntegerField (blank = True, null = True,default=-1)
-    non_verified_user_id = models.IntegerField (blank = True, null = True,default =-1)
+    verified_user_id = models.IntegerField (blank = True, null = True)
+    non_verified_user_id = models.IntegerField (blank = True, null = True)
 
 # class DeactivateUser(TimeStampedModel):
 #     user = models.OneToOneField(User, related_name='deactivate', on_delete=models.CASCADE)
@@ -159,8 +159,8 @@ class user_balance(models.Model):
     wallet = models.FloatField(blank = False, null = True, default=0)
     point = models.FloatField(blank = False, null = True, default = 0)
     dates = models.DateTimeField (auto_now_add=True)
-    user_id = models.IntegerField(blank=False, null=True,default =-1)
-    ip_id = models.IntegerField(blank=False, null=True,default = -1)
+    user_id = models.IntegerField(blank=False, null=True)
+    ip_id = models.IntegerField(blank=False, null=True)
 
 class Guest_user(models.Model):
     ip_address = models.CharField(max_length = 64, blank = False, null = True)
@@ -185,7 +185,7 @@ class Advertisement(models.Model):
 class ProductImpression (models.Model):
 
     users = ArrayField(models.IntegerField(), blank=True, null=True,default=list)
-    product_id = models.IntegerField (null = False,default =-1)
+    product_id = models.IntegerField (null = False)
     view_count = models.IntegerField (blank = True, null = True, default = 0)
     click_count = models.IntegerField (blank = True, null = True,default = 0)
     cart_count = models.IntegerField (blank = True, null = True,default = 0)
@@ -221,13 +221,13 @@ class CompanyInfo(models.Model):
 
 class Banner(models.Model):
 
-    count = models.IntegerField( blank=False, null=False,default= 0 )
-    set_time = models.IntegerField(null = True,default =-1)
+    count = models.IntegerField( blank=False, null=False )
+    set_time = models.IntegerField(null = True)
 
 
 class Banner_Image(models.Model):
     # this call is for uploading banner images
-    Banner_id = models.IntegerField(blank=True, null=True,default=-1)
+    Banner_id = models.IntegerField(blank=True, null=True)
     image = models.ImageField(upload_to='Banner', null = True)
     link = models.CharField(max_length=500, blank=True, null=True)
     content = models.CharField(max_length=264 , blank=True, null=True)
@@ -245,7 +245,7 @@ class Currency (models.Model):
     currency_type = models.CharField (max_length=100, blank = True, null = True, default= "Taka") 
     value = models.FloatField (blank = True, null = True, default= 1.00)
     dates = models.DateTimeField (auto_now_add=True)
-    role_id = models.IntegerField (blank= True, null = True,default=-1)
+    role_id = models.IntegerField (blank= True, null = True)
 
 class ContactUs (models.Model):
     sender_name = models.CharField (max_length = 100, blank = True, null = True)
@@ -258,13 +258,13 @@ class ContactUs (models.Model):
 
 class Settings(models.Model):
     ''' This model class is for settings '''
-    tax = models.FloatField(blank = True, null = True,default=-1)
-    vat = models.FloatField(blank = True, null = True,default=-1)
-    role_id = models.IntegerField (blank= True, null = True,default=-1)
+    tax = models.FloatField(blank = True, null = True)
+    vat = models.FloatField(blank = True, null = True)
+    role_id = models.IntegerField (blank= True, null = True)
     point_value = models.FloatField(blank = True, null = True, default = 1.00)
     point_converted_value = models.FloatField(blank = True, null = True, default = 0.00)
     #dates = models.DateTimeField (auto_now_add=True)
-    theme_id = models.IntegerField (blank= True, null = True,default =-1)
+    theme_id = models.IntegerField (blank= True, null = True)
 
 
 class Theme(models.Model):
@@ -294,8 +294,8 @@ status = (
 class Ticket(models.Model):
     
     title = models.CharField(max_length=255, null = True, blank = True)
-    sender_id = models.IntegerField(blank = True, null = True,default=-1)
-    receiver_id = models.IntegerField(blank = True, null = True,default=-1)
+    sender_id = models.IntegerField(blank = True, null = True)
+    receiver_id = models.IntegerField(blank = True, null = True)
     department = models.CharField(max_length=255, blank=True)
     complain = models.TextField(blank = True)
     #replies = ArrayField(models.TextField(blank = True))
@@ -319,10 +319,10 @@ class Ticket(models.Model):
 #User_id refers to the user who makes the comment(customer,support)
 class TicketReplies(models.Model):
 
-    ticket_id = models.IntegerField(blank = False,default=-1)
+    ticket_id = models.IntegerField(blank = False)
     reply = models.TextField(blank=True)
     created = models.DateTimeField(auto_now_add=True)
-    user_id = models.IntegerField(blank = True, null = True,default=-1)
+    user_id = models.IntegerField(blank = True, null = True)
 
     def _str_(self):
         return str(self.reply)
@@ -355,10 +355,10 @@ class EmailConfig(models.Model):
 
 
 class ProductPrice(models.Model):
-    product_id = models.IntegerField(default=-1)
-    price = models.FloatField(default=-1)
+    product_id = models.IntegerField(default=1)
+    price = models.FloatField()
     date_added = models.DateTimeField(auto_now_add=True,blank=True,null=True)
-    currency_id = models.IntegerField(default=-1)
+    currency_id = models.IntegerField(default=1)
 
 
     def __str__(self):
@@ -366,6 +366,7 @@ class ProductPrice(models.Model):
     
 
 class Order(models.Model):
+   
     order =(
     ("Paid", "Paid"),
     ("Unpaid", "Unpaid"),
@@ -380,7 +381,7 @@ class Order(models.Model):
     ("Not Ordered", "Not Ordered"),
     ("Cancelled", "Cancelled"),
     )
-    delivery_status = models.CharField(choices=delivery, max_length=155, default="To ship",blank=True,null=True)
+    delivery_status = models.CharField(choices=delivery, max_length=155, default="To pay",blank=True,null=True)
     admin = (
     ("Processing", "Processing"),
     ("Confirmed", "Confirmed"),
@@ -388,25 +389,21 @@ class Order(models.Model):
     )
     admin_status = models.CharField(choices=admin, max_length=155, default="Processing",blank=True,null=True)
     date_created = models.DateTimeField(auto_now_add=True,blank=True,null=True)
-    user_id = models.IntegerField(blank=True,null=True,default=-1)
+    user_id = models.IntegerField(blank=True,null=True)
     ip_address = models.CharField(max_length = 255,blank=True,null=True)
     checkout_status = models.BooleanField(default=False,blank=True,null=True)
     ordered_date = models.DateTimeField(auto_now_add=True,blank=True,null=True)
-    non_verified_user_id = models.IntegerField(blank=True,null=True,default=-1)
-    coupon = models.BooleanField(default=False,blank=True,null=True)
-    coupon_code = models.CharField(max_length = 255,blank=True,null=True)
+    non_verified_user_id = models.IntegerField(blank=True,null=True)
 
 
     def __str__(self):
         return str(self.id)
-   
-
 
 
 
 class OrderDetails(models.Model):
-    order_id = models.IntegerField(blank=True,null=True,default=-1)
-    product_id = models.IntegerField(blank=True,null=True,default=-1)
+    order_id = models.IntegerField(blank=True,null=True)
+    product_id = models.IntegerField(blank=True,null=True)
     quantity = models.IntegerField(default=0,blank=True,null=True)
     date_added = models.DateTimeField(auto_now_add=True,blank=True,null=True)
     is_removed = models.BooleanField(default = False)
@@ -422,8 +419,8 @@ class OrderDetails(models.Model):
 
 
 class ProductPoint(models.Model):
-    point = models.FloatField(blank=True,null=True,default=0)
-    product_id = models.IntegerField(default=-1)
+    point = models.FloatField(blank=True,null=True)
+    product_id = models.IntegerField(default=1)
     start_date = models.DateField(default=datetime.date.today)
     end_date = models.DateField(blank=True,null=True)
 
@@ -458,12 +455,13 @@ class BillingAddress(models.Model):
 
 
 class ProductSpecification(models.Model):
-    product_id = models.IntegerField(default=-1)
-    size = ArrayField(models.CharField(max_length=200), blank=True)
-    unit = ArrayField(models.CharField(max_length=200), blank=True)
+    product_id = models.IntegerField(default=1)
+    size = models.CharField(max_length=200, null = True, blank=True)
+    unit = models.CharField(max_length=200, null = True, blank=True)
     weight = models.CharField(max_length = 255,blank=True,null=True)
     #color = ArrayField(models.CharField(max_length=200,default="abc"),default=list,blank=True)
-    color = ArrayField(models.CharField(max_length=200),null= True, blank=True)
+    color = models.CharField(max_length=200,null= True, blank=True)
+    quantity = models.IntegerField(default=1)
 
     def __str__(self):
         return str(self.product_id)
@@ -478,13 +476,11 @@ def product_image_path(instance, filename):
 
 class ProductImage(models.Model):
     
-    product_id = models.IntegerField(default= -1)
+    product_id = models.IntegerField(default= 0)
     #image= models.ImageField(upload_to='Products/', blank=True,null=True)
     product_image= models.ImageField(blank=True,null=True)
-
-    
-    
     image_url = models.CharField(max_length=255,blank=True,null=True)
+    content = models.CharField(max_length = 1500, blank = True, null = True)
 
 
     @property
@@ -504,31 +500,28 @@ class ProductImage(models.Model):
           super(ProductImage, self).save(*args, **kwargs)
 
 
-
     
 class Product(models.Model):
     seller = models.ForeignKey(User, on_delete=models.CASCADE , null=True)
     category_id = models.IntegerField( blank=True , null=True)
-    title = models.CharField(max_length=250 ,blank=True , null=True)
+    title = models.CharField(max_length=250 ,blank=True)
     brand = models.CharField(max_length=120 , blank=True )
     date=models.DateTimeField(auto_now_add=True)
     #image = ArrayField(models.ImageField(upload_to=product_image_path, blank=True),null=True , blank=True)
     description = models.TextField(null=True, blank=True)
     key_features=ArrayField(models.TextField(null=True , blank=True), null=True ,blank=True)
-    quantity = models.IntegerField(default=0)
     is_deleted = models.BooleanField(default=False)
     properties= models.BooleanField(default=True)
-
-
+    is_group = models.BooleanField(default=False)
 
 
 
 class Variation(models.Model):
-	product_id = models.IntegerField(default=-1)
+	product_id = models.IntegerField()
 	title = models.CharField(max_length=120)
 	sale_price = models.FloatField(null=True, blank=True)
 	active = models.BooleanField(default=True)
-	inventory = models.IntegerField(null=True, blank=True,default=-1) #refer none == unlimited amount
+	inventory = models.IntegerField(null=True, blank=True) #refer none == unlimited amount
 
 	def __unicode__(self):
 		return self.title
@@ -591,7 +584,7 @@ class Category(models.Model):
 
 class GroupProduct(models.Model):
 	products_ids = ArrayField(models.IntegerField( null=True , blank=True),null=True , blank=True)
-	title = models.CharField(max_length=120, unique=True)
+	title = models.CharField(max_length=120, blank = True, null = True)
 	#slug = models.SlugField(unique=True , blank=True)
 	startdate=models.DateTimeField(null=True , blank=True)
 	enddate=models.DateTimeField(null=True , blank=True)
@@ -607,10 +600,10 @@ class GroupProduct(models.Model):
 class Comment(models.Model):
     comment = models.TextField(blank = True)
     date_created = models.DateTimeField(auto_now_add=True)
-    product_id = models.IntegerField(default=-1)
+    product_id = models.IntegerField(default=0)
 
-    user_id = models.IntegerField(blank=True,null=True,default=-1)
-    non_verified_user_id = models.IntegerField(blank=True,null=True,default=-1)
+    user_id = models.IntegerField(blank=True,null=True)
+    non_verified_user_id = models.IntegerField(blank=True,null=True)
 
 
     def __str__(self):
@@ -621,11 +614,11 @@ class Comment(models.Model):
 
 
 class CommentReply(models.Model):
-    comment_id = models.IntegerField(blank = True,null=True,default=-1)
+    comment_id = models.IntegerField(blank = True,null=True)
     reply = models.TextField(blank = True)
     date_created = models.DateTimeField(auto_now_add=True)
-    user_id = models.IntegerField(blank=True,null=True,default=-1)
-    non_verified_user_id = models.IntegerField(blank=True,null=True,default=-1)
+    user_id = models.IntegerField(blank=True,null=True)
+    non_verified_user_id = models.IntegerField(blank=True,null=True)
     name = models.CharField(max_length=255,null=True)
 
     def __str__(self):
@@ -636,10 +629,10 @@ class CommentReply(models.Model):
 
 #------------------------------------- Product_Reviews--------------------------------
 class Reviews(models.Model):
-    product_id = models.IntegerField(default=-1)
+    product_id = models.IntegerField(default=0)
     
-    user_id = models.IntegerField(blank=True,null=True,default=-1)
-    non_verified_user_id = models.IntegerField(blank=True,null=True,default=-1)
+    user_id = models.IntegerField(blank=True,null=True)
+    non_verified_user_id = models.IntegerField(blank=True,null=True)
     content = models.TextField(blank = True)
     image = models.ImageField(upload_to = 'product_reviews' ,null=True, blank = True)
     num_stars = (
@@ -649,7 +642,7 @@ class Reviews(models.Model):
         (4 , "Good"),
         (5 , "Excellent"),
         )
-    rating = models.IntegerField(choices=num_stars,blank=True,null=True,default=0)
+    rating = models.IntegerField(choices=num_stars,blank=True,null=True)
     date_created = models.DateTimeField(auto_now_add=True)
 
 
@@ -664,7 +657,7 @@ class Reviews(models.Model):
 class ProductCode (models.Model):
     Barcode_img = models.CharField(max_length = 264,null = True, blank = False)
     date = models.DateField(auto_now_add=True)
-    product_id = models.IntegerField(blank = False, null = True,default=-1)
+    product_id = models.IntegerField(blank = False, null = True)
     Barcode = models.CharField(max_length = 264,null = True, blank = False)
 
 #------------------------- Product Discount ---------------------------------
@@ -682,17 +675,17 @@ class discount_product(models.Model):
     end_date = models.DateField (blank = False, null = True)
     max_amount = models.FloatField (blank = False, null = True, default =0)
     group_product_id = models.IntegerField(blank=False, null=True)
-    product_id = models.IntegerField(blank=False, null=True,default=-1)
+    product_id = models.IntegerField(blank=False, null=True)
 
 
 # ---------------------- Product Cupon -------------------------------------------
 
 class Cupons(models.Model):
     cupon_code = models.CharField(max_length= 264, blank = True, null = True)
-    amount = models.FloatField (blank = True, null = True,default =0)
+    amount = models.FloatField (blank = True, null = True)
     start_from = models.DateField( auto_now_add = True)
     valid_to = models.DateField(blank = True, null = True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField()
 
 # ---------------------------------- FAQ-----------------------------------------
 
