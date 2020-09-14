@@ -89,10 +89,14 @@ def CompanyInfos(request):
         'linkedin': "linkedin.com", 'youtube': "youtube.com", 'email': "abc@gmail.com", 'phone': "017494",'help_center': "+880", 'About': "we are", 
         'policy': ["some", "policies"], 'terms_condition': ["terms", "conditions"], 'role_id': "1", 'slogan': "Some slogan", 'cookies': "cookis"}
         
-        serializers = CompanyInfoSerializer (data= Info_Api_data)
+        serializers = CompanyInfoSerializer (data= request.data)
         if(serializers.is_valid()):
             serializers.save()
-            return Response (serializers.data, status=status.HTTP_201_CREATED)
+            return Response({
+                'success': True,
+                'message': 'Data has been retrived successfully',
+                'data': serializers.data
+            }, status=status.HTTP_201_CREATED)
         return Response (serializers.errors)
             
        
@@ -135,10 +139,21 @@ def update_CompanyInfos(request):
             serializers = CompanyInfoSerializer (queryset, data= request.data)
             if(serializers.is_valid()):
                 serializers.save()
-                return Response (serializers.data, status=status.HTTP_201_CREATED)
+                return Response({
+                'success': True,
+                'message': 'Data has been retrived successfully',
+                'data': serializers.data
+            }, status=status.HTTP_201_CREATED)
             return Response (serializers.errors)
         except:
-            return Response({'message': 'Information could not be updated'})
+
+
+            return Response({
+            'success': True,
+            'message': 'No data is available',
+            'data': {}
+        }, status=status.HTTP_201_CREATED)
+        
 
         
 @api_view(['POST','GET'])
@@ -284,12 +299,16 @@ def Banner_Insertion(request):
 
             banner_data = {'count': api_banner_data['count'], 'set_time': api_banner_data['set_time']}
 
+            print(request.data.get('count'))
+            print(request.data.get('set_time'))
+            print(request.data.get('image'))
 
-            serializers = BannerSerializer (data= banner_data)
+
+            serializers = BannerSerializer (data= request.data)
             if(serializers.is_valid()):
                 serializers.save()
             banner_id = Banner.objects.latest('id')
-            for val in api_banner_data['images']:
+            for val in request.data.get('image'):
                 val.update( {'Banner_id' : banner_id.pk} )
                 banner_serializers = BannerImageSerializer (data= val)
                 if(banner_serializers.is_valid()):
@@ -332,13 +351,20 @@ def Banner_value_update(request,banner_id):
 
     if(request.method == "GET"):
         serializers = BannerSerializer (queryset,many = False)
-        return Response (serializers.data)
+        return Response ({
+                'success': True,
+                'data': serializers.data,
+                'message': 'Values are shown below',
+                })
 
     if request.method == "POST":
         serializers = BannerSerializer (queryset,data= request.data)
         if(serializers.is_valid()):
             serializers.save()
-            return Response (serializers.data, status=status.HTTP_201_CREATED)
+            return Response ({
+                'success': True,
+                'message': 'Value successfully added'
+                }, status=status.HTTP_201_CREATED)
         return Response (serializers.errors)
 
 
@@ -355,7 +381,11 @@ def Banner_image_add(request,banner_id):
 
     if(request.method == "GET"):
         serializers = BannerImageSerializer (banner_image,many = True)
-        return Response (serializers.data)
+        return Response ({
+                'success': True,
+                'data': serializers.data,
+                'message': 'Values are shown below'
+                })
 
     if request.method == "POST":
         value = request.data.copy()
@@ -363,7 +393,11 @@ def Banner_image_add(request,banner_id):
         serializers = BannerImageSerializer (data= value)
         if(serializers.is_valid()):
             serializers.save()
-            return Response (serializers.data, status=status.HTTP_201_CREATED)
+            return Response ({
+                'success': True,
+                'data': serializers.data,
+                'message': 'Values are shown below',
+                },status=status.HTTP_201_CREATED)
         return Response (serializers.errors)
 
 @api_view (["GET","POST"])
@@ -421,13 +455,21 @@ def All_Roles (request):
     if(request.method == "GET"):
         queryset = RolesPermissions.objects.all()
         serializers = RolesPermissionsSerializer (queryset,many = True)
-        return Response (serializers.data)
+        return Response ({
+                'success': True,
+                'data': serializers.data,
+                'message': 'Values are shown below',
+                })
 
     elif(request.method == "POST"):
         serializers = RolesPermissionsSerializer (data= request.data)
         if(serializers.is_valid()):
             serializers.save()
-            return Response (serializers.data, status=status.HTTP_201_CREATED)
+            return Response ({
+                'success': True,
+                'data': serializers.data,
+                'message': 'Values are successfully inserted',
+                }, status=status.HTTP_201_CREATED)
         return Response (serializers.errors)
 
 @api_view (["GET","POST"])
@@ -455,14 +497,22 @@ def Specific_Roles (request,roles_id):
 
     if(request.method == "GET"):
         Roles_serializer = RolesPermissionsSerializer(Roles, many=False)
-        return Response (Roles_serializer.data)
+        return Response ({
+                'success': True,
+                'data': Roles_serializer.data,
+                'message': 'Values are shown below',
+                })
 
     elif(request.method == "POST"):
         Roles = RolesPermissions.objects.get(pk = roles_id)
         Roles_serializers = RolesPermissionsSerializer(Roles,data= request.data)
         if(Roles_serializers.is_valid()):
             Roles_serializers.save()
-            return Response (Roles_serializers.data, status=status.HTTP_201_CREATED)
+            return Response ({
+                'success': True,
+                'data': Roles_serializers.data,
+                'message': 'Values are inserted below',
+                }, status=status.HTTP_201_CREATED)
         return Response (Roles_serializers.errors)
 
 
@@ -510,7 +560,11 @@ def Currency_value (request):
     if(request.method == "GET"):
         currency_data = Currency.objects.all()
         currency_serializers = CurrencySerializer (currency_data, many = True)
-        return Response (currency_serializers.data)
+        return Response ({
+                'success': True,
+                'data': currency_serializers.data,
+                'message': 'Values are shown below',
+                })
 
     elif(request.method == "POST"):
         currency_data={}
@@ -518,10 +572,14 @@ def Currency_value (request):
             currency_data = {'currency_type': currency_api_data['currency_type'], 'value': currency_api_data['value'],
             'dates': currency_api_data['dates'],'role_id': get_roles_id(currency_api_data['role_id'])}
 
-            currency_serializers = CurrencySerializer (data= currency_data)
+            currency_serializers = CurrencySerializer (data= request.data)
             if(currency_serializers.is_valid()):
                 currency_serializers.save()
-                return Response (currency_serializers.data, status=status.HTTP_201_CREATED)
+                return Response ({
+                'success': True,
+                'data': currency_serializers.data,
+                'message': 'Values are shown below',
+                }, status=status.HTTP_201_CREATED)
             return Response (currency_serializers.errors)
         else:
             return Response({'message': 'Please make sure you have Roles value'})
@@ -543,7 +601,11 @@ def latest_Currency_value (request):
     if(request.method == "GET"):
         last_currency_data = Currency.objects.latest("dates")
         last_currency_serializers = CurrencySerializer (last_currency_data)
-        return Response (last_currency_serializers.data)
+        return Response ({
+                'success': True,
+                'data': last_currency_serializers.data,
+                'message': 'Values are shown below',
+                })
 
 @api_view (["GET","POST"])
 def Specific_Currency_get_delete (request,currency_id):
@@ -565,7 +627,11 @@ def Specific_Currency_get_delete (request,currency_id):
     if request.method == "GET" :
     
         currency_serializer_value= CurrencySerializer(currency_value, many=False)
-        return Response (currency_serializer_value.data)
+        return Response ({
+                'success': True,
+                'data': currency_serializer_value.data,
+                'message': 'Values are shown below',
+                })
 
     elif request.method == 'POST':
         currency_value.delete()
@@ -676,13 +742,21 @@ def all_APIs_infos(request):
     if request.method == 'GET':
         Api_value= APIs.objects.all()
         Api_serializer_value = APIsSerializer (Api_value, many = True)
-        return Response (Api_serializer_value.data)
+        return Response ({
+                'success': True,
+                'data': Api_serializer_value.data,
+                'message': 'Values are shown below',
+                })
 
     if request.method == 'POST':
         Api_serializer_value = APIsSerializer (data= request.data)
         if(Api_serializer_value.is_valid()):
             Api_serializer_value.save()
-            return Response (Api_serializer_value.data, status=status.HTTP_201_CREATED)
+            return Response ({
+                'success': True,
+                'data': Api_serializer_value.data,
+                'message': 'Values are shown below',
+                }, status=status.HTTP_201_CREATED)
         return Response (Api_serializer_value.errors)
 
 @api_view (["GET","POST"])
@@ -711,13 +785,21 @@ def Specific_Api (request,Api_id):
 
     if(request.method == "GET"):
         Api_serializer_value = APIsSerializer(Api, many=False)
-        return Response (Api_serializer_value.data)
+        return Response ({
+                'success': True,
+                'data': Api_serializer_value.data,
+                'message': 'Values are shown below',
+                })
 
     elif(request.method == "POST"):
         Api_serializer_value = APIsSerializer(Api,data= request.data)
         if(Api_serializer_value.is_valid()):
             Api_serializer_value.save()
-            return Response (Api_serializer_value.data, status=status.HTTP_201_CREATED)
+            return Response ({
+                'success': True,
+                'data': Api_serializer_value.data,
+                'message': 'Values are shown below',
+                }, status=status.HTTP_201_CREATED)
         return Response (Api_serializer_value.errors)
         
 @api_view(['POST','GET'])
@@ -882,7 +964,11 @@ def Faq_insertion (request):
             faq_value = FaqSerializer (data= request.data)
             if(faq_value.is_valid()):
                 faq_value.save()
-                return Response (faq_value.data, status=status.HTTP_201_CREATED)
+                return Response ({
+                'success': True,
+                'data': faq_value.data,
+                'message': 'Values are inserted successfully',
+                }, status=status.HTTP_201_CREATED)
             return Response (faq_value.errors)
         except:
             return Response({'message': 'It occurs some problem to insert values'})
@@ -920,7 +1006,11 @@ def show_all_Faq (request):
         if request.method == 'GET':
             faq_value= FAQ.objects.all()
             faq_serializer_value = FaqSerializer (faq_value, many = True)
-            return Response (faq_serializer_value.data)
+            return Response ({
+                'success': True,
+                'data': faq_serializer_value.data,
+                'message': 'Values are shown',
+                })
     except:
         return Response({'message': 'It occurs some problem to show the values'})
 
@@ -958,14 +1048,22 @@ def specific_faq (request,faq_id):
 
     if request.method == 'GET':
         faq_serializer_value = FaqSerializer (faq_value, many = False)
-        return Response (faq_serializer_value.data)
+        return Response ({
+                'success': True,
+                'data': faq_serializer_value.data,
+                'message': 'Values are shown',
+                })
 
     if request.method == 'POST':
         try:
             faq_serializer_value = FaqSerializer (faq_value,data= request.data)
             if(faq_serializer_value.is_valid()):
                 faq_serializer_value.save()
-                return Response (faq_serializer_value.data, status=status.HTTP_201_CREATED)
+                return Response ({
+                'success': True,
+                'data': faq_serializer_value.data,
+                'message': 'Values are shown below',
+                }, status=status.HTTP_201_CREATED)
             return Response (faq_serializer_value.errors)
         except:
             return Response({'message': 'This value could not be updated'})

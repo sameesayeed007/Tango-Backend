@@ -193,9 +193,11 @@ def edit_ticketinfo(request,ticket_id):
 
 @api_view(['POST',])
 #Creates a reply for a specific ticket reply
-def create_reply(request):
+def create_reply(request,ticket_id):
 
-	ticketreplies_serializer = TicketRepliesSerializer(data=request.data)
+	ticketreply = TicketReplies.objects.create(ticket_id=ticket_id)
+
+	ticketreplies_serializer = TicketRepliesSerializer(ticketreply,data=request.data)
 	if ticketreplies_serializer.is_valid():
 
 		ticketreplies_serializer.save()

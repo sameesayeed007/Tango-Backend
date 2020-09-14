@@ -46,8 +46,9 @@ class CompanyInfoSerializer(serializers.ModelSerializer):
             logo_image = None
 
         if logo_image is not None:
-            logo = logo_image.logo
-            return "{0}{1}".format(host_name,logo.url)
+            if logo_image.logo:
+                logo = logo_image.logo
+                return "{0}{1}".format(host_name,logo.url)
 
         else:
             return " "
@@ -61,8 +62,9 @@ class CompanyInfoSerializer(serializers.ModelSerializer):
             logo_image = None
 
         if logo_image is not None:
-            logo = logo_image.icon
-            return "{0}{1}".format(host_name,logo.url)
+            if logo_image.icon:
+                logo = logo_image.icon
+                return "{0}{1}".format(host_name,logo.url)
 
         else:
             return " "

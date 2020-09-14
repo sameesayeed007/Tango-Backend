@@ -83,7 +83,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_suplier  = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    phone_number = models.CharField(max_length= 64)
+    phone_number = models.CharField(max_length= 64,default="")
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -133,11 +133,11 @@ class Profile(models.Model):
         (OTHER,'Other'),
     )
 
-    name = models.CharField(max_length = 264, null = True, blank = True)
-    email = models.CharField(max_length = 64, null= True, blank = True)
+    name = models.CharField(max_length = 264, null = True, blank = True,default="")
+    email = models.CharField(max_length = 64, null= True, blank = True,default="")
     profile_picture = models.ImageField(upload_to='Profile_Img', blank=True)
-    phone_number = models.CharField(max_length=100 ,  null=True)
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)
+    phone_number = models.CharField(max_length=100 ,  null=True,blank=True,default="")
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True,default="")
     # city = models.CharField(max_length=100, blank= True, null= True)
     # district = models.CharField(max_length=100, blank= True, null= True)
     # road_number = models.CharField(max_length = 264,blank=True, null=True)
@@ -148,8 +148,8 @@ class Profile(models.Model):
 
 
 class user_relation (models.Model):
-    verified_user_id = models.IntegerField (blank = True, null = True)
-    non_verified_user_id = models.IntegerField (blank = True, null = True)
+    verified_user_id = models.IntegerField (blank = True, null = True,default=-1)
+    non_verified_user_id = models.IntegerField (blank = True, null = True,default=-1)
 
 # class DeactivateUser(TimeStampedModel):
 #     user = models.OneToOneField(User, related_name='deactivate', on_delete=models.CASCADE)
@@ -159,19 +159,19 @@ class user_balance(models.Model):
     wallet = models.FloatField(blank = False, null = True, default=0)
     point = models.FloatField(blank = False, null = True, default = 0)
     dates = models.DateTimeField (auto_now_add=True)
-    user_id = models.IntegerField(blank=False, null=True)
-    ip_id = models.IntegerField(blank=False, null=True)
+    user_id = models.IntegerField(blank=False, null=True,default=-1)
+    ip_id = models.IntegerField(blank=False, null=True,default=-1)
 
 class Guest_user(models.Model):
-    ip_address = models.CharField(max_length = 64, blank = False, null = True)
-    Date = models.DateField (blank = False, null = True)
+    ip_address = models.CharField(max_length = 64, blank = False, null = True,default="")
+    Date = models.DateField (auto_now_add=True)
 # ------------------------- Advertisement ---------------------
 
 class Advertisement(models.Model):
 
     image = models.ImageField(upload_to='Advertisement',null = True)
-    ad_link = models.CharField(max_length=255,blank=True,null = True)
-    content = models.CharField(max_length=255,blank=True,null = True)
+    ad_link = models.CharField(max_length=255,blank=True,null = True,default="")
+    content = models.CharField(max_length=255,blank=True,null = True,default="")
     click_count = models.IntegerField(default =0)
     view_count = models.IntegerField(default=0)
     total_click_count = models.IntegerField(default =0)
@@ -185,7 +185,7 @@ class Advertisement(models.Model):
 class ProductImpression (models.Model):
 
     users = ArrayField(models.IntegerField(), blank=True, null=True,default=list)
-    product_id = models.IntegerField (null = False)
+    product_id = models.IntegerField (null = False,default=-1)
     view_count = models.IntegerField (blank = True, null = True, default = 0)
     click_count = models.IntegerField (blank = True, null = True,default = 0)
     cart_count = models.IntegerField (blank = True, null = True,default = 0)
@@ -200,42 +200,42 @@ class CompanyInfo(models.Model):
     This is Compnay Info model class.
     '''
     # company_id = models.AutoField(primary_key = True, auto_created = True, unique=True)
-    name = models.CharField(max_length=500 , blank=True, null=True)
+    name = models.CharField(max_length=500 , blank=True, null=True,default="")
     logo = models.ImageField(upload_to='Logo', null = True)
-    address = models.TextField(max_length=1500,blank=True, null=True )
+    address = models.TextField(max_length=1500,blank=True, null=True,default="" )
     icon = models.ImageField(upload_to='Icon', null = True)
-    Facebook = models.CharField(max_length=264 , blank=True, null=True)
-    twitter = models.CharField(max_length=264 , blank=True, null=True)
-    linkedin = models.CharField(max_length=264 , blank=True, null=True)
-    youtube = models.CharField(max_length=264 , blank=True, null=True)
-    email = models.CharField(max_length=264 , blank=True, null=True)
-    phone = models.CharField(max_length=264 , blank=True, null=True)
-    help_center = models.CharField(max_length=264 , blank=True, null=True)
-    About = models.CharField(max_length=5000 , blank=True, null=True)
+    Facebook = models.CharField(max_length=264 , blank=True, null=True,default="")
+    twitter = models.CharField(max_length=264 , blank=True, null=True,default="")
+    linkedin = models.CharField(max_length=264 , blank=True, null=True,default="")
+    youtube = models.CharField(max_length=264 , blank=True, null=True,default="")
+    email = models.CharField(max_length=264 , blank=True, null=True,default="")
+    phone = models.CharField(max_length=264 , blank=True, null=True,default="")
+    help_center = models.CharField(max_length=264 , blank=True, null=True,default="")
+    About = models.CharField(max_length=5000 , blank=True, null=True,default="")
     policy = ArrayField(models.CharField(max_length=100000), blank=True, null=True,default=list)
     terms_condition= ArrayField(models.CharField(max_length=100000), blank=True, null=True,default=list)
-    slogan = models.CharField(max_length=264 , blank=True, null=True)
-    cookies = models.CharField(max_length=10000 , blank=True, null=True)
+    slogan = models.CharField(max_length=264 , blank=True, null=True,default="")
+    cookies = models.CharField(max_length=10000 , blank=True, null=True,default="")
     
 
 
 class Banner(models.Model):
 
-    count = models.IntegerField( blank=False, null=False )
-    set_time = models.IntegerField(null = True)
+    count = models.IntegerField( blank=False, null=False,default=0)
+    set_time = models.IntegerField(null = True,default=0)
 
 
 class Banner_Image(models.Model):
     # this call is for uploading banner images
-    Banner_id = models.IntegerField(blank=True, null=True)
+    Banner_id = models.IntegerField(blank=True, null=True,default=-1)
     image = models.ImageField(upload_to='Banner', null = True)
-    link = models.CharField(max_length=500, blank=True, null=True)
-    content = models.CharField(max_length=264 , blank=True, null=True)
+    link = models.CharField(max_length=500, blank=True, null=True,default="")
+    content = models.CharField(max_length=264 , blank=True, null=True,default="")
 
 class RolesPermissions(models.Model):
 
-    roleType = models.CharField(max_length=264 , blank=True, null=True)
-    roleDetails = models.CharField(max_length=264 , blank=True, null=True)
+    roleType = models.CharField(max_length=264 , blank=True, null=True,default="")
+    roleDetails = models.CharField(max_length=264 , blank=True, null=True,default="")
 
     def __str__(self):
         return self.roleType
@@ -245,37 +245,37 @@ class Currency (models.Model):
     currency_type = models.CharField (max_length=100, blank = True, null = True, default= "Taka") 
     value = models.FloatField (blank = True, null = True, default= 1.00)
     dates = models.DateTimeField (auto_now_add=True)
-    role_id = models.IntegerField (blank= True, null = True)
+    role_id = models.IntegerField (blank= True, null = True,default=-1)
 
 class ContactUs (models.Model):
-    sender_name = models.CharField (max_length = 100, blank = True, null = True)
-    sender_email = models.EmailField(blank = True, null = True)
-    subject = models.CharField(max_length = 264, blank = True, null = True)
-    message = models.CharField (max_length = 10000, blank = True, null = True)
+    sender_name = models.CharField (max_length = 100, blank = True, null = True,default="")
+    sender_email = models.EmailField(blank = True, null = True,default="")
+    subject = models.CharField(max_length = 264, blank = True, null = True,default="")
+    message = models.CharField (max_length = 10000, blank = True, null = True,default="")
     is_attended = models.BooleanField(blank = True, null = True, default = False)
 
 #---------------------------------------------------------------------------------------------------------
 
 class Settings(models.Model):
     ''' This model class is for settings '''
-    tax = models.FloatField(blank = True, null = True)
-    vat = models.FloatField(blank = True, null = True)
-    role_id = models.IntegerField (blank= True, null = True)
+    tax = models.FloatField(blank = True, null = True,default=0.00)
+    vat = models.FloatField(blank = True, null = True,default=0.00)
+    role_id = models.IntegerField (blank= True, null = True,default=-1)
     point_value = models.FloatField(blank = True, null = True, default = 1.00)
     point_converted_value = models.FloatField(blank = True, null = True, default = 0.00)
     #dates = models.DateTimeField (auto_now_add=True)
-    theme_id = models.IntegerField (blank= True, null = True)
+    theme_id = models.IntegerField (blank= True, null = True,default=-1)
 
 
 class Theme(models.Model):
     ''' This model class is for Theme details'''
-    name = models.CharField(max_length=264, blank=True, null= True)
-    details = models.CharField (max_length=100000, blank= True, null= True)
+    name = models.CharField(max_length=264, blank=True, null= True,default="")
+    details = models.CharField (max_length=100000, blank= True, null= True,default="")
 
 class APIs(models.Model):
     ''' This model class is for APIs '''
-    name = models.CharField(max_length=264, blank= True, null= True)
-    details = models.CharField (max_length=100000, blank = True, null = True)
+    name = models.CharField(max_length=264, blank= True, null= True,default="")
+    details = models.CharField (max_length=100000, blank = True, null = True,default="")
 
 
 
@@ -293,11 +293,11 @@ status = (
 #receiver_id is the one from the support team who receives the comments
 class Ticket(models.Model):
     
-    title = models.CharField(max_length=255, null = True, blank = True)
-    sender_id = models.IntegerField(blank = True, null = True)
-    receiver_id = models.IntegerField(blank = True, null = True)
-    department = models.CharField(max_length=255, blank=True)
-    complain = models.TextField(blank = True)
+    title = models.CharField(max_length=255, null = True, blank = True,default="")
+    sender_id = models.IntegerField(blank = True, null = True,default=-1)
+    receiver_id = models.IntegerField(blank = True, null = True,default=-1)
+    department = models.CharField(max_length=255, blank=True,default="")
+    complain = models.TextField(blank = True,default="")
     #replies = ArrayField(models.TextField(blank = True))
     status = models.CharField(choices=status, max_length=155, default="pending")
     created = models.DateTimeField(auto_now_add=True)
@@ -319,10 +319,10 @@ class Ticket(models.Model):
 #User_id refers to the user who makes the comment(customer,support)
 class TicketReplies(models.Model):
 
-    ticket_id = models.IntegerField(blank = False)
-    reply = models.TextField(blank=True)
+    ticket_id = models.IntegerField(blank = False,default=-1)
+    reply = models.TextField(blank=True,default="")
     created = models.DateTimeField(auto_now_add=True)
-    user_id = models.IntegerField(blank = True, null = True)
+    user_id = models.IntegerField(blank = True, null = True,default=-1)
 
     def _str_(self):
         return str(self.reply)
@@ -355,10 +355,10 @@ class EmailConfig(models.Model):
 
 
 class ProductPrice(models.Model):
-    product_id = models.IntegerField(default=1)
-    price = models.FloatField()
+    product_id = models.IntegerField(default=-1)
+    price = models.FloatField(default=0.00)
     date_added = models.DateTimeField(auto_now_add=True,blank=True,null=True)
-    currency_id = models.IntegerField(default=1)
+    currency_id = models.IntegerField(default=-1)
 
 
     def __str__(self):
@@ -389,12 +389,12 @@ class Order(models.Model):
     admin_status = models.CharField(choices=admin, max_length=155, default="Processing",blank=True,null=True)
     date_created = models.DateTimeField(auto_now_add=True,blank=True,null=True)
     user_id = models.IntegerField(blank=True,null=True,default=-1)
-    ip_address = models.CharField(max_length = 255,blank=True,null=True)
+    ip_address = models.CharField(max_length = 255,blank=True,null=True,default="")
     checkout_status = models.BooleanField(default=False,blank=True,null=True)
     ordered_date = models.DateTimeField(auto_now_add=True,blank=True,null=True)
     non_verified_user_id = models.IntegerField(blank=True,null=True,default=-1)
     coupon = models.BooleanField(default=False,blank=True,null=True)
-    coupon_code = models.CharField(max_length = 255,blank=True,null=True)
+    coupon_code = models.CharField(max_length = 255,blank=True,null=True,default="")
 
 
     def __str__(self):
@@ -409,10 +409,10 @@ class OrderDetails(models.Model):
     date_added = models.DateTimeField(auto_now_add=True,blank=True,null=True)
     is_removed = models.BooleanField(default = False)
     total_quantity = models.IntegerField(default=0,blank=True,null=True)
-    unit_price = models.IntegerField(default=0,blank=True,null=True)
-    total_price = models.IntegerField(default=0,blank=True,null=True)
-    unit_point = models.IntegerField(default=0,blank=True,null=True)
-    total_point = models.IntegerField(default=0,blank=True,null=True)
+    unit_price = models.FloatField(default=0.00,blank=True,null=True)
+    total_price = models.FloatField(default=0.00,blank=True,null=True)
+    unit_point = models.FloatField(default=0.00,blank=True,null=True)
+    total_point = models.FloatField(default=0.00,blank=True,null=True)
     product_name = models.CharField(max_length=255,blank=True,null=True,default="")
     product_color = models.CharField(max_length = 255,blank=True,null=True,default="")
     product_size = models.CharField(max_length = 255,blank=True,null=True,default="")
@@ -423,8 +423,8 @@ class OrderDetails(models.Model):
 
 
 class ProductPoint(models.Model):
-    point = models.FloatField(blank=True,null=True)
-    product_id = models.IntegerField(default=1)
+    point = models.FloatField(blank=True,null=True,default=0.00)
+    product_id = models.IntegerField(default=-1)
     start_date = models.DateField(default=datetime.date.today)
     end_date = models.DateField(blank=True,null=True)
 
@@ -459,13 +459,13 @@ class BillingAddress(models.Model):
 
 
 class ProductSpecification(models.Model):
-    product_id = models.IntegerField(default=1)
-    size = models.CharField(max_length=200, null = True, blank=True)
-    unit = models.CharField(max_length=200, null = True, blank=True)
-    weight = models.CharField(max_length = 255,blank=True,null=True)
+    product_id = models.IntegerField(default=-1)
+    size = models.CharField(max_length=200, null = True, blank=True,default="")
+    unit = models.CharField(max_length=200, null = True, blank=True,default="")
+    weight = models.CharField(max_length = 255,blank=True,null=True,default="")
     #color = ArrayField(models.CharField(max_length=200,default="abc"),default=list,blank=True)
-    color = models.CharField(max_length=200,null= True, blank=True)
-    quantity = models.IntegerField(default=1)
+    color = models.CharField(max_length=200,null= True, blank=True,default="")
+    quantity = models.IntegerField(default=0)
 
     def __str__(self):
         return str(self.product_id)
@@ -480,11 +480,11 @@ def product_image_path(instance, filename):
 
 class ProductImage(models.Model):
     
-    product_id = models.IntegerField(default= 0)
+    product_id = models.IntegerField(default= -1)
     #image= models.ImageField(upload_to='Products/', blank=True,null=True)
     product_image= models.ImageField(blank=True,null=True)
-    image_url = models.CharField(max_length=255,blank=True,null=True)
-    content = models.CharField(max_length = 1500, blank = True, null = True)
+    image_url = models.CharField(max_length=255,blank=True,null=True,default="")
+    content = models.CharField(max_length = 1500, blank = True, null = True,default="")
 
 
     @property
@@ -507,13 +507,15 @@ class ProductImage(models.Model):
     
 class Product(models.Model):
     seller = models.ForeignKey(User, on_delete=models.CASCADE , null=True)
-    category_id = models.IntegerField( blank=True , null=True)
-    title = models.CharField(max_length=250 ,blank=True)
-    brand = models.CharField(max_length=120 , blank=True )
+    category_id = models.IntegerField( blank=True , null=True,default=-1)
+    sub_category_id = models.IntegerField( blank=True , null=True,default=-1)
+    sub_sub_category_id = models.IntegerField( blank=True , null=True,default=-1)
+    title = models.CharField(max_length=250 ,blank=True,default="")
+    brand = models.CharField(max_length=120 , blank=True,default="" )
     date=models.DateTimeField(auto_now_add=True)
     #image = ArrayField(models.ImageField(upload_to=product_image_path, blank=True),null=True , blank=True)
-    description = models.TextField(null=True, blank=True)
-    key_features=ArrayField(models.TextField(null=True , blank=True), null=True ,blank=True)
+    description = models.TextField(null=True, blank=True,default="")
+    key_features=ArrayField(models.TextField(null=True , blank=True), null=True ,blank=True,default=list)
     is_deleted = models.BooleanField(default=False)
     properties= models.BooleanField(default=True)
     is_group = models.BooleanField(default=False)
@@ -521,9 +523,9 @@ class Product(models.Model):
 
 
 class Variation(models.Model):
-	product_id = models.IntegerField()
-	title = models.CharField(max_length=120)
-	sale_price = models.FloatField(null=True, blank=True)
+	product_id = models.IntegerField(default=-1)
+	title = models.CharField(max_length=120,default="")
+	sale_price = models.FloatField(null=True, blank=True,default=0.00)
 	active = models.BooleanField(default=True)
 	inventory = models.IntegerField(null=True, blank=True) #refer none == unlimited amount
 
@@ -573,26 +575,165 @@ post_save.connect(product_post_saved_receiver, sender=Product)
 
 
 class Category(models.Model):
-	title = models.CharField(max_length=120, unique=True)
-	#slug = models.SlugField(unique=True)
-	active = models.BooleanField(default=True)
-	timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
+    #product_id = models.IntegerField(default=-1)
+    title = models.CharField(max_length=120, unique=True,null=True,blank=True)
+    category_id = models.IntegerField(default=-1)
+    active = models.BooleanField(default=False)
+    level = models.CharField(max_length=120, default="First")
+    #slug = models.SlugField(unique=True)
+    #active = models.BooleanField(default=True)
+    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
 
-	def __unicode__(self):
-		return self.title
+    @property
+    def sub(self):
 
 
-	def get_absolute_url(self):
-		return reverse("category_detail", kwargs={"slug": self.slug })
+        if self.id: 
+
+            category_id = self.id
+
+
+        else:
+
+            category_id = 0 
+
+        return category_id 
+
+            
+
+
+    def save(self, *args, **kwargs):
+
+        self.category_id = self.sub
+        super(Category, self).save(*args, **kwargs)
+
+
+
+
+class Sub_Category(models.Model):
+    category_id = models.IntegerField(default=-1)
+    sub_category_id = models.IntegerField(default=-1)
+    title = models.CharField(max_length=120,default="None",null=True,blank=True)
+    active = models.BooleanField(default=False)
+    level = models.CharField(max_length=120,default="Second")
+    #slug = models.SlugField(unique=True)
+    #active = models.BooleanField(default=True)
+    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
+    children = ArrayField(models.CharField(max_length=120,null=True , blank=True), null=True ,blank=True,default=list)
+
+
+    @property
+    def sub(self):
+
+
+        if self.id: 
+
+            sub_cat = self.id
+
+
+        else:
+
+            sub_cat = 0 
+
+        return sub_cat
+
+            
+
+
+    def save(self, *args, **kwargs):
+
+        self.sub_category_id = self.sub
+        super(Sub_Category, self).save(*args, **kwargs)
+
+    # @property
+    # def sub(self):
+
+
+    #     if self.id is not None: 
+
+    #         print("entering here")
+
+
+
+    #         subsub = []
+
+    #         try:
+
+    #             sub_sub = Sub_Sub_Category.objects.filter(sub_category_id=self.id)
+
+
+    #         except:
+
+    #             sub_sub = None 
+
+    #         if sub_sub:
+    #             print(here)
+
+    #             subsub = list(existing.values_list('title',flat=True))
+
+    #         else:
+
+    #             subsub
+
+
+
+    #     def save(self, *args, **kwargs):
+    #       self.sub_sub_categories = self.sub
+    #       super(Sub_category, self).save(*args, **kwargs)
+
+
+
+
+
+
+
+
+
+
+
+
+
+class Sub_Sub_Category(models.Model):
+    sub_category_id = models.IntegerField(default=-1)
+    title = models.CharField(max_length=120,default="None",null=True,blank=True)
+    active = models.BooleanField(default=False)
+    level = models.CharField(max_length=120,default="Third")
+    #slug = models.SlugField(unique=True)
+    #active = models.BooleanField(default=True)
+    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
+    sub_sub_category_id = models.IntegerField(default=-1)
+
+    @property
+    def sub(self):
+
+
+        if self.id: 
+
+            sub_sub = self.id
+
+
+        else:
+
+            sub_sub = 0 
+
+        return sub_sub 
+
+            
+
+
+    def save(self, *args, **kwargs):
+
+        self.sub_sub_category_id = self.sub
+        super(Sub_Sub_Category, self).save(*args, **kwargs)
 
 
 class GroupProduct(models.Model):
-	products_ids = ArrayField(models.IntegerField( null=True , blank=True),null=True , blank=True)
-	title = models.CharField(max_length=120, blank = True, null = True)
+	products_ids = ArrayField(models.IntegerField( null=True , blank=True),null=True , blank=True,default=list)
+	title = models.CharField(max_length=120, blank = True, null = True,default="")
 	#slug = models.SlugField(unique=True , blank=True)
 	startdate=models.DateTimeField(null=True , blank=True)
 	enddate=models.DateTimeField(null=True , blank=True)
-	flashsellname=models.name = models.CharField(max_length=120, blank = True , null=True)
+	flashsellname = models.CharField(max_length=120, blank = True , null=True)
 	active = models.BooleanField(default=True)
 	timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
 	product_id = models.IntegerField(null = True, blank = True)

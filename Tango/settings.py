@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'Product',
     'User_details',
     'Product_details',
+    'Product_category',
     # 'core',
     # 'user_profile',
     # 'site_settings',
@@ -93,6 +94,7 @@ MIDDLEWARE = [
 
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000',
+    'http://tes.com.bd:49000',
 ]
 
 ROOT_URLCONF = 'Tango.urls'
@@ -133,7 +135,7 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ecommerce2',
+        'NAME': 'ecommerce4',
         'USER': 'postgres',
         'PASSWORD': '12345',
         'HOST': 'localhost',
