@@ -128,9 +128,11 @@ class BannerImageSerializer(serializers.ModelSerializer):
             link = None
 
         if link is not None:
-            logo = link.image
-            print(logo)
-            return "{0}{1}".format(host_name,logo.url)
+            if link.image:
+                
+                logo = link.image
+                print(logo)
+                return "{0}{1}".format(host_name,logo.url)
 
         else:
             return " "

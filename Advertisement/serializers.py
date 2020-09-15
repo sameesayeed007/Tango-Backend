@@ -29,8 +29,10 @@ class AdvertisementSerializer(serializers.ModelSerializer):
 			logo_image = None
 
 		if logo_image is not None:
-			logo = logo_image.image
-			return "{0}{1}".format(host_name,logo.url)
+			if logo_image.image:
+
+				logo = logo_image.image
+				return "{0}{1}".format(host_name,logo.url)
 
 		else:
 			return " "

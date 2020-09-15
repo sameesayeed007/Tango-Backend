@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from django.contrib.auth.models import User
-from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,ProductSpecification
+from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,ProductSpecification,ProductImage
 from Intense.models import discount_product,Cupons
 from django.utils import timezone
 from colour import Color
@@ -329,6 +329,7 @@ class OrderSerializer(serializers.ModelSerializer):
     orders = serializers.SerializerMethodField(method_name='order_details')
     #orders = serializers.SerializerMethodField(method_name='order_details')
     coupon_percentage = serializers.SerializerMethodField(method_name='get_coupon')
+    product = serializers.SerializerMethodField(method_name='get_coupon')
 
     
     class Meta:
@@ -520,6 +521,10 @@ class OrderSerializer(serializers.ModelSerializer):
     def order_details(self,instance):
         details = OrderDetails.objects.filter(order_id=instance.id,is_removed=False).values()
         list_result = [entry for entry in details]
+        # for i in range(len(list_result)):
+        #     product_id = list_result[i]['product_id']
+        #     try:
+        #         product_images = ProductImage.objects.filter(product_id = product_id)
         
 
         return list_result

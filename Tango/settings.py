@@ -95,6 +95,7 @@ MIDDLEWARE = [
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000',
     'http://tes.com.bd:49000',
+    'https://front-end-134.herokuapp.com',
 ]
 
 ROOT_URLCONF = 'Tango.urls'
