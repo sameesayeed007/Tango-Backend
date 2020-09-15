@@ -1364,6 +1364,45 @@ def specific_order(request,order_id):
 	else:
 		return JsonResponse({'success':False,'message': 'You have no orders'})
 
+
+
+#This shows the information of the a specific
+@api_view(['GET',])
+def orders(request):
+
+
+
+	# user_id = request.data.get('user_id')
+	# non_verified_user_id = request.data.get('non_verified_user_id')
+	# if user_id is not None:
+	# 	user_id = int(user_id)
+	# 	non_verified_user_id =0
+
+	# else:
+	# 	non_verified_user_id = int(non_verified_user_id)
+	# 	user_id = 0
+
+	# if non_verified_user_id == 0:
+
+	try:
+		specific_order = Order.objects.all()
+	except:
+		specific_order = None
+
+
+	if specific_order:
+
+
+		
+		orderserializer = OrderSerializer(specific_order, many = True)
+		#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
+
+		#orders = [orderserializer.data , orderdetailserializer.data]
+		return JsonResponse({'success':True,'message':'The products in your order are shown','data':orderserializer.data}, safe=False)
+
+	else:
+		return JsonResponse({'success':False,'message': 'You have no orders'})
+
 	
 
 	# else:

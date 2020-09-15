@@ -417,6 +417,7 @@ class OrderDetails(models.Model):
     product_color = models.CharField(max_length = 255,blank=True,null=True,default="")
     product_size = models.CharField(max_length = 255,blank=True,null=True,default="")
     product_unit = models.CharField(max_length = 255,blank=True,null=True,default="")
+    product_images = ArrayField(models.CharField(max_length=100000), blank=True, null=True,default=list)
 
     def __str__(self):
         return f'{self.order_id} X {self.product_id}'

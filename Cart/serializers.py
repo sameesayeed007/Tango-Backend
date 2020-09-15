@@ -521,14 +521,19 @@ class OrderSerializer(serializers.ModelSerializer):
     def order_details(self,instance):
         details = OrderDetails.objects.filter(order_id=instance.id,is_removed=False).values()
         list_result = [entry for entry in details]
-        # for i in range(len(list_result)):
-        #     product_id = list_result[i]['product_id']
-        #     try:
-        #         product_images = ProductImage.objects.filter(product_id = product_id)
-        #     except:
-        #         product_images = None 
+        for i in range(len(list_result)):
+            product_id = list_result[i]['product_id']
+            try:
+                product_images = ProductImage.objects.filter(product_id = product_id)
+            except:
+                product_images = None 
 
-        #     if product_images:
+            images= []
+
+            if product_images:
+                images= list(product_images.values_list('image_url',flat=True).distinct())
+
+            list_result[i]['product_images'] = images
 
         
 
