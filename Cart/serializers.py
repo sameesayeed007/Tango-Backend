@@ -329,7 +329,7 @@ class OrderSerializer(serializers.ModelSerializer):
     orders = serializers.SerializerMethodField(method_name='order_details')
     #orders = serializers.SerializerMethodField(method_name='order_details')
     coupon_percentage = serializers.SerializerMethodField(method_name='get_coupon')
-    product = serializers.SerializerMethodField(method_name='get_coupon')
+    #product = serializers.SerializerMethodField(method_name='get_coupon')
 
     
     class Meta:
@@ -525,6 +525,11 @@ class OrderSerializer(serializers.ModelSerializer):
         #     product_id = list_result[i]['product_id']
         #     try:
         #         product_images = ProductImage.objects.filter(product_id = product_id)
+        #     except:
+        #         product_images = None 
+
+        #     if product_images:
+
         
 
         return list_result
