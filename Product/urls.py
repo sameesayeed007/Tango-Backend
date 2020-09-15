@@ -44,6 +44,7 @@ urlpatterns = [
     path('update_product/<int:product_id>/',views.specific_product_update),
     
     path('display/<int:number>/',views.display_products),
+    path('showmore/',views.show_more),
     path('reviews_list' , views.ListReviewView.as_view()),
 
     path('insert_product_image/',views.product_image_up),

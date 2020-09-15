@@ -249,6 +249,170 @@ def display_products(request,number):
                 'message': 'The values are shown below',
                 'data': data 
                 })
+
+
+@api_view(['POST',])
+def show_more(request):
+
+
+    latest = {}
+    discount = {}
+    popular = {}
+    group={}
+    current_date = timezone.now()
+
+    name = request.data.get('name')
+
+
+    try:
+        
+        latest_products = Product.objects.filter(is_deleted=False).order_by('date')
+        #this fetches all the comment ids
+        
+    except:
+        latest_products = None
+
+   
+
+    if latest_products:
+
+        latest_products_serializer = ProductSerializer(latest_products,many=True)
+     
+        latest = latest_products_serializer.data
+
+    else: 
+
+        latest = {}
+
+    
+    try:
+        
+        group_products = Product.objects.filter(is_group = True,is_deleted=False).order_by('date')
+        #this fetches all the comment ids
+        
+    except:
+        group_products = None
+
+   
+
+    if group_products:
+
+        group_products_products_serializer = ProductSerializer(group_products,many=True)
+
+        group = group_products_products_serializer.data
+
+    else: 
+
+        group = {}
+
+
+    try:
+
+
+        # criterion1 = Q(start_date<=current_date)
+        # print(criterion1)
+        # criterion2 = Q(end_date>=current_date)
+        # print(criterion2)
+
+        product_discounts = discount_product.objects.filter(start_date__lte=current_date ,end_date__gte=current_date)
+
+    except:
+        product_discounts = None
+
+    if product_discounts:
+
+
+        discounted_product_ids = list(product_discounts.values_list('product_id',flat=True).distinct())
+    
+        try:
+            
+
+            discounted_products = Product.objects.filter(pk__in=discounted_product_ids, is_deleted=False)
+
+        except:
+
+            discounted_products = None
+
+
+        if discounted_products:
+
+            
+
+            discounted_products_serializer = ProductSerializer(discounted_products,many=True)
+
+            discount = discounted_products_serializer.data
+
+        else:
+            
+            discount = {}
+
+    else:
+        discount = {}
+
+
+    try:
+
+        popular_products = ProductImpression.objects.order_by('-sales_count')[:number]
+        #print(popular_products)
+
+    except:
+
+        popular_products = None
+
+    if popular_products:
+
+        #Fetch the product ids 
+        product_ids = list(popular_products.values_list('product_id' , flat = True))
+
+        try:
+
+            pop_products = Product.objects.filter(pk__in = product_ids,is_deleted=False)
+
+        except:
+
+            pop_products = None
+
+
+        if pop_products:
+
+
+            popular_products_serializer = ProductSerializer(pop_products,many=True)
+
+            popular = popular_products_serializer.data
+
+        else:
+
+            popular = {}
+
+    else:
+
+        popular = {}
+  
+    # data = [{'name':'New Arrivals','products':latest},{'name':'On Sale','products':discount},{'name':'Popular','products':popular},
+    # {'name':'group Product', 'products':group}]
+
+    if name == "New Arrivals":
+        data = [{'name': name,'products':latest}]
+
+    elif name == "On Sale":
+        data = [{'name': name,'products':discount}]
+
+    elif name == "Popular":
+        data = [{'name': name,'products':popular}]
+
+
+    elif name == "group Product":
+        data = [{'name': name,'products':group}]
+
+
+
+
+
+    return Response({
+                'success': True,
+                'message': 'The values are shown below',
+                'data': data 
+                })
 class ListReviewView(ListAPIView):
     queryset = Reviews.objects.all()
     serializer_class = ReviewsSerializer
