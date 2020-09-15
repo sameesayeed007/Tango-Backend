@@ -404,6 +404,8 @@ def show_more(request):
     elif name == "group Product":
         data = [{'name': name,'products':group}]
 
+  
+
 
 
 
