@@ -97,6 +97,9 @@ CORS_ORIGIN_WHITELIST = [
     'http://tes.com.bd:49000',
     'https://front-end-134.herokuapp.com',
     'https://tangoadmin.herokuapp.com',
+    'http://localhost:8080',
+    'http://localhost:8081',
+
 ]
 
 ROOT_URLCONF = 'Tango.urls'
