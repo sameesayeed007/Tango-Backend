@@ -6,7 +6,7 @@ from rest_framework import status
 import datetime
 from Intense.models import Category,Sub_Category,Sub_Sub_Category,Product
 
-from .serializers import CategorySerializer,Sub_CategorySerializer,Sub_Sub_CategorySerializer
+from .serializers import CategorySerializer,CategorySerializerz,Sub_CategorySerializer,Sub_Sub_CategorySerializer
 from Product_details.serializers import ProductImpressionSerializer
 from rest_framework.decorators import api_view 
 from django.views.decorators.csrf import csrf_exempt
@@ -362,6 +362,42 @@ def allcategories(request):
 # 	return JsonResponse({'success':True})
 
 
+@api_view(['GET',])
+def categories(request):
+
+
+	try:
+
+
+		categories = Category.objects.all()
+
+	except:
+
+		categories = None 
+
+
+	if categories:
+
+		products_serializers = CategorySerializerz(categories,many=True)
+		return JsonResponse({'success':True,'data':products_serializers.data},safe=False)
 
 
 
+@api_view(['GET',])
+def sub_categories(request):
+
+
+	try:
+
+
+		categories = Sub_Category.objects.all()
+
+	except:
+
+		categories = None 
+
+
+	if categories:
+
+		products_serializers = Sub_CategorySerializer(categories,many=True)
+		return JsonResponse({'success':True,'data':products_serializers.data},safe=False)

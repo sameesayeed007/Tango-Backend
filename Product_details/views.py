@@ -189,7 +189,57 @@ def show_specification(request,product_id):
 		return JsonResponse(productserializer.data,safe=False)
 
 
+@api_view(['POST',])
+def add_spec(request,product_id):
 
+    spec = ProductSpecification.objects.create(product_id=product_id)
+
+    if request.method == 'POST':
+        pointserializer = ProductSpecificationSerializer(spec,data=request.data)
+
+        if pointserializer.is_valid():
+            pointserializer.save()
+            return JsonResponse(pointserializer.data, status=status.HTTP_201_CREATED)
+        return Response (pointserializer.errors)
+
+
+@api_view(['POST',])
+def edit_spec(request,specification_id):
+
+
+    try:
+
+        spec = ProductSpecification.objects.get(id=specification_id)
+
+    except:
+        spec = None 
+
+    if spec:
+        pointserializer = ProductSpecificationSerializer(spec,data=request.data)
+
+        if pointserializer.is_valid():
+            pointserializer.save()
+            return JsonResponse(pointserializer.data, status=status.HTTP_201_CREATED)
+        return Response (pointserializer.errors)
+
+
+
+@api_view(['POST',])
+def delete_spec(request,specification_id):
+
+
+    try:
+
+        spec = ProductSpecification.objects.get(id=specification_id)
+
+    except:
+        spec = None 
+
+    if spec:
+        spec.delete()
+        return JsonResponse({'success':True,'message': 'The product specification have been deleted'})
+    else:
+        return JsonResponse({'success':False,'message': 'The product specification could not be deleted'})
 
 
 @api_view(['GET',])

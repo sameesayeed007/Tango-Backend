@@ -50,13 +50,46 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 
+class CategorySerializerz(serializers.ModelSerializer):
+
+    children = serializers.SerializerMethodField(method_name='get_cat')
+  
+    class Meta:
+        model = Category
+        fields = ('id','category_id','title','active','level','children')
+
+    def get_cat(self,instance):
+
+        details = Sub_Category.objects.filter(category_id=instance.id).order_by('timestamp').values()
+        list_result = [entry for entry in details]
+
+    
+
+        return list_result
+
+
+            
+
+
+
 # --------------------- Product Discount ---------------------
 
 class Sub_CategorySerializer(serializers.ModelSerializer):
+    children = serializers.SerializerMethodField(method_name='get_cat')
     class Meta:
         model = Sub_Category
-        fields = "__all__"
+        fields = ('id','category_id','title','active','level','children')
         #fields=("name", "email")
+
+    def get_cat(self,instance):
+
+        details = Sub_Sub_Category.objects.filter(sub_category_id=instance.id).order_by('timestamp').values()
+        list_result = [entry for entry in details]
+
+    
+
+        return list_result
+
 
 
 

@@ -80,7 +80,7 @@ from django.db.models import Q
 from django.utils import timezone
 from django.db import transaction
 from Intense.Integral_apis import (
-    product_data_upload,product_price_data_upload,
+    product_data_upload,category_data_upload,product_price_data_upload,
     product_specification_data_upload,product_point_data_upload,
     create_product_code,product_discount_data_upload,product_image_data_upload,product_data_update,price_data_update,
     discount_data_update,point_data_update,specification_data_update,group_product_data_update,group_product_data_modification
@@ -1281,51 +1281,62 @@ def product_insertion_admin(request):
   
     product_data_value ={
 
-            'category_id': '1',
-            'title': 'Rabby',
-            'brand': 'maggi',
-            'description': 'World famous maggi noodles',
-            'key_featues': 'all are special',
+            
+            'title': request.data.get('title'),
+            'brand': request.data.get('brand'),
+            'description': request.data.get('description'),
+            'key_features': request.data.get('key_features'),
             'is_deleted': False,
             'properties': True
         }
 
+    category_data_value ={
+
+            
+            'category': request.data.get('category'),
+            'sub_category': request.data.get('sub_category'),
+            'sub_sub_category': request.data.get('sub_sub_category')
+
+        }
+
+
    
     product_price ={
-        'price' : '25',
-        'currency_id': '1'
+        'price' : request.data.get('price'),
+        #'currency_id': request.data.get('currency_id')
     }
 
-    product_specification= [
-        {
-		"weight": '17',
-		"color":'red',
-		"size":'small',
-        'quantity': 10
-       },
-        {
-		
-		"color":'Green',
-		"size":'Large',
-        'quantity': 20
-       },
-        {
-		
-		"color":'Blue',
-		"size":'XXL',
-        'quantity': 7
-       }
-    ]
+  #   product_specification= [
+  #       {
+        # "weight": request.data.get('weight'),
+        # "color":request.data.get('color'),
+        # "size":request.data.get('size'),
+  #       'quantity': request.data.get('quantity')
+  #      },
+  #       {
+        
+        # "color":'Green',
+        # "size":'Large',
+  #       'quantity': 20
+  #      },
+  #       {
+        
+        # "color":'Blue',
+        # "size":'XXL',
+  #       'quantity': 7
+  #      }
+  #   ]
 
     product_point ={
-        'point': '150'
+        'point': request.data.get('point'),
+        'end_date': request.data.get('point_end_date')
     }
 
     product_discount ={
 
-        'amount': 10,
-        'start_date' : '2020-09-05',
-        'end_date' : '2020-09-25'
+        'amount': request.data.get('amount'),
+        #'start_date' : '2020-09-05',
+        'end_date' : request.data.get('discount_end_date')
     }
 
     product_image=[
@@ -1337,6 +1348,15 @@ def product_insertion_admin(request):
 
     if request.method == 'POST':
         try:
+            #print("dbcudbfdbcducbducbducbducbd")
+            category_values= category_data_upload (category_data_value)
+            #print(category_values)
+            category_data = category_values.json()
+            #print(category_data)
+            category_id = category_data['category']
+            sub_category_id = category_data['sub_category']
+            sub_sub_category_id = category_data['sub_sub_category']
+            product_data_value.update( {'category_id' : category_id,'sub_category_id' : sub_category_id,'sub_sub_category_id' : sub_sub_category_id} )
             product_values= product_data_upload (product_data_value)
             product_data= product_values.json()
             product_id = product_data['id']
@@ -1355,16 +1375,16 @@ def product_insertion_admin(request):
                 img_data= product_image_data_upload(data)
                 product_img.append(img_data.json())
 
-            for spec in product_specification:
-                spec.update({'product_id' : product_id})            
-                product_sp = product_specification_data_upload (spec)
-                product_spec.append(product_sp.json())
+            # for spec in product_specification:
+            #     spec.update({'product_id' : product_id})            
+            #     product_sp = product_specification_data_upload (spec)
+            #     product_spec.append(product_sp.json())
         
             return Response({
                 'success': True,
                 'product_data': product_data,
                 'price_values': price_values.json(),
-                'product_specification': product_spec,
+                #'product_specification': product_spec,
                 'product_point': point_values.json(),
                 'product_code': product_code.json(),
                 'product_discount': discount_data.json(),
@@ -1388,9 +1408,9 @@ def product_insertion_admin(request):
             if product_point.exists():
                 product_point.delete()
 
-            product_specification = ProductSpecification.objects.filter(product_id = product_id)
-            if product_specification.exists():
-                product_specification.delete()
+            # product_specification = ProductSpecification.objects.filter(product_id = product_id)
+            # if product_specification.exists():
+            #     product_specification.delete()
             
             product_image = ProductImage.objects.filter(product_id = product_id)
             if product_image.exists():
@@ -1404,6 +1424,7 @@ def product_insertion_admin(request):
                 'success': False,
                 'message': 'Product insertion could not be completed'
                 })
+
             
 
 

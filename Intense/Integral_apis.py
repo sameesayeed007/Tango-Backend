@@ -35,6 +35,12 @@ def product_data_upload(data):
     data = requests.post(url = url,data = data) 
     return data
 
+
+def category_data_upload(data):
+    url = site_path + "category/insert/"
+    data = requests.post(url = url,data = data) 
+    return data
+
 def product_image_data_upload(data):
     url = site_path + "product/insert_product_image/"
     data = requests.post(url = url,data = data) 
