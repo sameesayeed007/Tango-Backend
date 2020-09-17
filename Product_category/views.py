@@ -401,3 +401,24 @@ def sub_categories(request):
 
 		products_serializers = Sub_CategorySerializer(categories,many=True)
 		return JsonResponse({'success':True,'data':products_serializers.data},safe=False)
+
+
+
+@api_view(['GET',])
+def sub_sub_categories(request,sub_category_id):
+
+
+	try:
+
+
+		categories = Sub_Sub_Category.objects.filter(sub_category_id = sub_category_id)
+
+	except:
+
+		categories = None 
+
+
+	if categories:
+
+		products_serializers = Sub_Sub_CategorySerializer(categories,many=True)
+		return JsonResponse({'success':True,'data':products_serializers.data},safe=False)

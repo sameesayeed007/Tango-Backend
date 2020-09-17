@@ -10,5 +10,6 @@ urlpatterns = [
     path('allcategories/', views.allcategories),
     path('categories/', views.categories),
     path('subcategories/', views.sub_categories),
+    path('subsubcategories/<int:sub_category_id>/', views.sub_sub_categories),
 
 ]
