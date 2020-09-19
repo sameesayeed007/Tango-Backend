@@ -109,52 +109,40 @@ def update_CompanyInfos(request):
         Calling  http://127.0.0.1:8000/site/update_info will invoke this Api.
         
     '''
-    if request.method == 'GET':
-        try:
-            queryset = CompanyInfo.objects.all()
+   
+    try:
+        queryset = CompanyInfo.objects.all().last()
         
-        except :
-            queryset = None
-
-        if queryset:
-
+    except:
+        queryset = None
         
-            serializers = CompanyInfoSerializer (queryset,many = False)
-            return JsonResponse({
-            'success': True,
-            'message': 'The data is shown below',
-            'data':serializers.data
-        })
 
-        else:
 
-            return JsonResponse({
-            'success': False,
-            'message': 'No data is available',
-            'data': {}
-        })  
+
+
  
-    elif request.method == "POST" :
+    if queryset:
+        
 
-        try:
-            serializers = CompanyInfoSerializer (queryset, data= request.data)
-            if(serializers.is_valid()):
-                serializers.save()
-                return Response({
-                'success': True,
-                'message': 'Data has been retrived successfully',
-                'data': serializers.data
-            }, status=status.HTTP_201_CREATED)
-            return Response (serializers.errors)
-        except:
-
-
+       
+        serializers = CompanyInfoSerializer (queryset, data= request.data)
+        if(serializers.is_valid()):
+            serializers.save()
             return Response({
             'success': True,
-            'message': 'No data is available',
-            'data': {}
+            'message': 'Data has been retrived successfully',
+            'data': serializers.data
         }, status=status.HTTP_201_CREATED)
-        
+        return Response (serializers.errors)
+  
+
+
+        return Response({
+        'success': True,
+        'message': 'No data is available',
+        'data': {}
+    }, status=status.HTTP_201_CREATED)
+    
 
         
 @api_view(['POST','GET'])
@@ -342,6 +330,7 @@ def Banner_Insertion(request):
                 link = data['images[0][link]']
                 image = data['images[0][image]']
                 content = (data['images[0][content]'])
+                parser_classes = (FileUploadParser,)
                 print(type(link))
                 print(type(image))
                 print(type(content))
