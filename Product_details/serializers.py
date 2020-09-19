@@ -32,7 +32,7 @@ class ProductSpecificationSerializer(serializers.ModelSerializer):
     #hexcolor = serializers.SerializerMethodField(method_name='get_color')
     class Meta:
         model = ProductSpecification
-        fields = ('id','product_id','color','size','unit','weight') 
+        fields = ('id','product_id','color','size','unit','weight','quantity') 
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
