@@ -122,7 +122,7 @@ def update_CompanyInfos(request):
 
  
     if queryset:
-        
+
 
        
         serializers = CompanyInfoSerializer (queryset, data= request.data)
@@ -330,7 +330,7 @@ def Banner_Insertion(request):
                 link = data['images[0][link]']
                 image = data['images[0][image]']
                 content = (data['images[0][content]'])
-                parser_classes = (FileUploadParser,)
+                #parser_classes = (FileUploadParser,)
                 print(type(link))
                 print(type(image))
                 print(type(content))
