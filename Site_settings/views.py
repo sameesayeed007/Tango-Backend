@@ -8,7 +8,6 @@ from rest_framework import status
 from Intense.utils import get_image,get_roles_id
 import datetime
 from django.http.response import JsonResponse
-import json,base64
 # Create your views here.
 
 @api_view (["GET","POST"])
@@ -109,41 +108,107 @@ def update_CompanyInfos(request):
         Calling  http://127.0.0.1:8000/site/update_info will invoke this Api.
         
     '''
-   
-    try:
-        queryset = CompanyInfo.objects.all().last()
+    if request.method == 'GET':
+        try:
+            queryset = CompanyInfo.objects.all()
         
-    except:
-        queryset = None
+        except :
+            queryset = None
+
+        if queryset:
+
         
+            serializers = CompanyInfoSerializer (queryset,many = False)
+            return JsonResponse({
+            'success': True,
+            'message': 'The data is shown below',
+            'data':serializers.data
+        })
 
+        else:
 
-
-
+            return JsonResponse({
+            'success': False,
+            'message': 'No data is available',
+            'data': {}
+        })  
  
-    if queryset:
+    elif request.method == "POST" :
+
+        try:
+            serializers = CompanyInfoSerializer (queryset, data= request.data)
+            if(serializers.is_valid()):
+                serializers.save()
+                return Response({
+                'success': True,
+                'message': 'Data has been retrived successfully',
+                'data': serializers.data
+            }, status=status.HTTP_201_CREATED)
+            return Response (serializers.errors)
+        except:
 
 
-       
-        serializers = CompanyInfoSerializer (queryset, data= request.data)
-        if(serializers.is_valid()):
-            serializers.save()
             return Response({
             'success': True,
-            'message': 'Data has been retrived successfully',
-            'data': serializers.data
+            'message': 'No data is available',
+            'data': {}
         }, status=status.HTTP_201_CREATED)
-        return Response (serializers.errors)
-  
+        
+
+@api_view(['POST','GET'])
+def update_CompanyInfo(request):
+    '''
+        This Api is for update a particular company information. It is assumes that, for a particular company there will be exactly one information.
+        In case of multiple information, always it will retrive last added information and will be availabe for update. 
+        Calling  http://127.0.0.1:8000/site/update_info will invoke this Api.
+        
+    '''
+    if request.method == 'GET':
+        try:
+            queryset = CompanyInfo.objects.all()
+        
+        except :
+            queryset = None
+
+        if queryset:
+
+        
+            serializers = CompanyInfoSerializer (queryset,many = False)
+            return JsonResponse({
+            'success': True,
+            'message': 'The data is shown below',
+            'data':serializers.data
+        })
+
+        else:
+
+            return JsonResponse({
+            'success': False,
+            'message': 'No data is available',
+            'data': {}
+        })  
+ 
+    elif request.method == "POST" :
+
+        try:
+            serializers = CompanyInfoSerializer (queryset, data= request.data)
+            if(serializers.is_valid()):
+                serializers.save()
+                return Response({
+                'success': True,
+                'message': 'Data has been retrived successfully',
+                'data': serializers.data
+            }, status=status.HTTP_201_CREATED)
+            return Response (serializers.errors)
+        except:
 
 
-        return Response({
-        'success': True,
-        'message': 'No data is available',
-        'data': {}
-    }, status=status.HTTP_201_CREATED)
-    
-
+            return Response({
+            'success': True,
+            'message': 'No data is available',
+            'data': {}
+        }, status=status.HTTP_201_CREATED)
+        
         
 @api_view(['POST','GET'])
 def delete_CompanyInfos(request,info_id):
@@ -272,37 +337,30 @@ def Banner_Insertion(request):
 
     if request.method == "POST":
         try:
+            api_banner_data = {'count': '2', 
+                            'set_time': '3', 
+                            'images': [
+                                {
+                                    'link': "abc.link", 
+                                    'content': "content"
+                                },
+                                { 
+                                    'link': "efg.link",
+                                     'content': "nothing"
+                                }
+                                ]}
+
+
+            banner_data = {'count': api_banner_data['count'], 'set_time': api_banner_data['set_time']}
             data = request.data
-            api_banner_data = {'count': data['count'], 
-                            'set_time': data['set_time']
-                             } 
-
-            #print(api_banner_data)
-                            
-
-                            # 'images': [
-                            #     {
-                            #         'link': "abc.link", 
-                            #         'content': "content"
-                            #     },
-                            #     { 
-                            #         'link': "efg.link",
-                            #          'content': "nothing"
-                            #     }
-                            #     ]
-
-
-            #banner_data = {'count': api_banner_data['count'], 'set_time': api_banner_data['set_time']}
-            #data = request.data
             #myDict = dict(data.iterlists())
-            #print(data)
-            # print("fwhbefuwhefuwehfuwehuwehweuhweuhfuwerhfwuehf")
-            # print(data['images[0][link]'])
-            # print(data['images[0][content]'])
-            # print(data['images[0][image]'])
-            # print(data['count'])
-            count = int(data['count'])
-            #print(type(count))
+            print(data)
+            print("fwhbefuwhefuwehfuwehuwehweuhweuhfuwerhfwuehf")
+            print(data['images[0][link]'])
+            print(data['images[0][content]'])
+            print(data['images[0][image]'])
+            print(data['count'])
+            count = data['count']
             # <QueryDict: {'images[0][link]': ['dedsd'], 'images[0][content]': ['sdsadasd'], 'count': ['1'], 'set_time': ['1'], 'images[0][image]': [<InMemoryUploadedFile: banner1.jpeg (image/jpeg)>]}>
             #print(myDict)
             # print(request.data.get('count'))
@@ -310,46 +368,21 @@ def Banner_Insertion(request):
             # print(request.data.get('images'))
             #print("###############################")
             # print(request.data.get('count'))
-            i=0
-            #link = str(images[i][link])
-            # print("fnweufnweufwerufhnweufh")
-            # print('fwejfhjwerfuwbfubfubwubfuyb')
-            # i = 0 
-            # box = 'images'+'['+i+']'+'[link]'
-            # print(box)
-            # linkz = images[i][link]
-            # link = str(linkz)
-            # #link = 'images[0][link]'
-            # print(data[link])
-            #print(data['link'])
-            serializers = BannerSerializer (data= api_banner_data)
+
+
+            serializers = BannerSerializer (data= request.data)
             if(serializers.is_valid()):
                 serializers.save()
-                #print("saved")
-                banner_id = Banner.objects.latest('id')
-                link = data['images[0][link]']
-                image = data['images[0][image]']
-                content = (data['images[0][content]'])
-                #parser_classes = (FileUploadParser,)
-                print(type(link))
-                print(type(image))
-                print(type(content))
-                #print(banner_id.id)
-                for i in range(count):
-                    #print("fhndwufhbdufbdsufbh")
-                    #link = 'images['+i+'][link]'
-                    # link = images[0][link]
-                    # print(data['link'])
-                    banner_image = BannerImage.objects.create(Banner_id = banner_id.id,image=image,link=link,content=content)
-                    print(banner_image)
-                    banner_serializers = BannerImageSerializer (banner_image,data=request.data)
-                    if banner_serializers.is_valid():
-                        banner_serializers.save()
-          
-                        return Response ({
-                        'success': True,
-                        'message': 'Value successfully added',
-                        })
+            banner_id = Banner.objects.latest('id')
+            for val in request.data.get('image'):
+                val.update( {'Banner_id' : banner_id.pk} )
+                banner_serializers = BannerImageSerializer (data= val)
+                if(banner_serializers.is_valid()):
+                    banner_serializers.save()  
+            return Response ({
+                'success': True,
+                'message': 'Value successfully added',
+                })
         except:
              return Response ({
                  'success': False,

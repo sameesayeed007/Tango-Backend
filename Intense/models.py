@@ -201,9 +201,9 @@ class CompanyInfo(models.Model):
     '''
     # company_id = models.AutoField(primary_key = True, auto_created = True, unique=True)
     name = models.CharField(max_length=500 , blank=True, null=True,default="")
-    logo = models.ImageField(upload_to='Logo', null = True)
+    logo = models.ImageField(upload_to='Logo', null = True,blank = True,default="")
     address = models.TextField(max_length=1500,blank=True, null=True,default="" )
-    icon = models.ImageField(upload_to='Icon', null = True)
+    icon = models.ImageField(upload_to='Icon', null = True,blank=True,default="")
     Facebook = models.CharField(max_length=264 , blank=True, null=True,default="")
     twitter = models.CharField(max_length=264 , blank=True, null=True,default="")
     linkedin = models.CharField(max_length=264 , blank=True, null=True,default="")

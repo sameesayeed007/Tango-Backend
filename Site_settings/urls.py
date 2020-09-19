@@ -3,7 +3,8 @@ from . import views
 
 urlpatterns = [
     path('info/', views.CompanyInfos), # this url for company Info API
-    path('update_info/', views.update_CompanyInfos), #*********
+    path('update_info/', views.update_CompanyInfos),
+    path('update/', views.update_CompanyInfo), #*********
     path('delete_info/<int:info_id>/', views.delete_CompanyInfos), # this url is for specific roles update**
     path('banner/', views.get_specific_Banners), # this url for Banner API
     path('banner_insert/', views.Banner_Insertion), 
