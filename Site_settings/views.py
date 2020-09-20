@@ -385,6 +385,8 @@ def Banner_Insertion(request):
                 banner_image = Banner_Image.objects.create(Banner_id=bannerid,link = link,content = content,image= image)
                 banner_image.save()
                 banner_image_serializer = BannerImageSerializer(banner_image,data=banner_image_data)
+                if(banner_image_serializer.is_valid()):
+                    banner_image_serializer.save()
         # for val in request.data.get('image'):
         #     val.update( {'Banner_id' : banner_id.pk} )
         #     banner_serializers = BannerImageSerializer (data= val)

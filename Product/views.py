@@ -1222,6 +1222,20 @@ def upload_product(request):
         
     #     }
 
+    # data = request.data
+    # title = data['title']
+    # description = data['description']
+    # brand = data['brand']
+    # key_feature = data['key_feature']
+
+
+    # product = Product.objects.create(title=title,description=description,brand=brand)
+
+    # product.save()
+    # product.
+
+
+
     product_serializer = CreateProductSerializer(data=request.data)
     if product_serializer.is_valid():
         product_serializer.save()
@@ -1278,14 +1292,44 @@ def all_product_detail(request):
 
 @api_view(['POST','GET'])
 def product_insertion_admin(request):
+
+    print(request.data)
+
+    data = request.data
+
+    # im = data['images']
+
+    print(len(data))
+
+    count = len(data)-12
+
+    key_features = data['key_features']
+    # print(key_features)
+
+    
+    # li = list(key_features.split(",")) 
+    # print(li)
+    
+    # key_feature = key_features.split(",")
+    # features = []
+    # for i in range(len(key_feature)):
+    #     print(key_feature[i])
+    #     features.append(key_feature[i])
+   
+    date = "2020-09-28"
+    print(key_features)
+    print(type(key_features))
+
+    
+
   
     product_data_value ={
 
             
-            'title': request.data.get('title'),
-            'brand': request.data.get('brand'),
-            'description': request.data.get('description'),
-            'key_features': request.data.get('key_features'),
+            'title': data['title'],
+            'brand': data['brand'],
+            'description': data['description'],
+            'key_features':data['key_features'],
             'is_deleted': False,
             'properties': True
         }
@@ -1293,56 +1337,61 @@ def product_insertion_admin(request):
     category_data_value ={
 
             
-            'category': request.data.get('category'),
-            'sub_category': request.data.get('sub_category'),
-            'sub_sub_category': request.data.get('sub_sub_category')
+            'category': data['category'],
+            'sub_category': data['sub_category'],
+            'sub_sub_category': data['sub_sub_category']
 
         }
 
 
    
     product_price ={
-        'price' : request.data.get('price'),
+        'price' : data['price'],
         #'currency_id': request.data.get('currency_id')
     }
 
-  #   product_specification= [
-  #       {
-        # "weight": request.data.get('weight'),
-        # "color":request.data.get('color'),
-        # "size":request.data.get('size'),
-  #       'quantity': request.data.get('quantity')
-  #      },
-  #       {
+    product_specification= [
+        {
+        "weight": request.data.get('weight'),
+        "color":request.data.get('color'),
+        "size":request.data.get('size'),
+        'quantity': request.data.get('quantity')
+       },
+        {
         
-        # "color":'Green',
-        # "size":'Large',
-  #       'quantity': 20
-  #      },
-  #       {
+        "color":'Green',
+        "size":'Large',
+        'quantity': 20
+       },
+        {
         
-        # "color":'Blue',
-        # "size":'XXL',
-  #       'quantity': 7
-  #      }
-  #   ]
+        "color":'Blue',
+        "size":'XXL',
+        'quantity': 7
+       }
+    ]
+
+
+
 
     product_point ={
-        'point': request.data.get('point'),
-        'end_date': request.data.get('point_end_date')
+        'point': data['point'],
+        # 'end_date': data['point_end_date']
+        'end_date': date
     }
 
     product_discount ={
 
-        'amount': request.data.get('amount'),
+        'amount': data['amount'],
         #'start_date' : '2020-09-05',
-        'end_date' : request.data.get('discount_end_date')
+        #'end_date' : data['discount_end_date']
+        'end_date':date
     }
 
-    product_image=[
+    # product_image=[
         
-             'This is image 1', 'This is image 2', 'This is image 3', 'This is image 4'
-    ]
+    #          'This is image 1', 'This is image 2', 'This is image 3', 'This is image 4'
+    # ]
 
  
 
@@ -1367,13 +1416,23 @@ def product_insertion_admin(request):
             product_code = create_product_code({'product_id' : product_id})
             product_discount.update({'product_id' : product_id})
             discount_data = product_discount_data_upload(product_discount)
-            product_img =[]
-            product_spec=[]
-            for img in product_image:
-                data = {'content':img}
-                data.update({'product_id' : product_id})
-                img_data= product_image_data_upload(data)
-                product_img.append(img_data.json())
+
+            for i in range(int(count)):
+                image = data['images['+str(i)+']']
+                image_data = {'img':image}
+                product_image = ProductImage.objects.create(product_image=image,product_id=product_id)
+                product_image.save()
+                product_image_serializer = ProductImageSerializer(product_image,data=image_data)
+                if product_image_serializer.is_valid():
+                    product_image_serializer.save()
+            #product_img =[]
+            #product_spec=[]
+            # for img in product_image:
+            #     data = {'content':img}
+            #     data.update({'product_id' : product_id})
+            #     img_data= product_image_data_upload(data)
+            #     product_img.append(img_data.json())
+
 
             # for spec in product_specification:
             #     spec.update({'product_id' : product_id})            
@@ -1388,7 +1447,7 @@ def product_insertion_admin(request):
                 'product_point': point_values.json(),
                 'product_code': product_code.json(),
                 'product_discount': discount_data.json(),
-                'product_image': product_img
+                # 'product_image': product_img
             }) 
         except:
 
