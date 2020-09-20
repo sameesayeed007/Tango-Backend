@@ -93,6 +93,7 @@ from PIL import Image
 import PIL
 from django.conf import settings
 import os
+from django.utils import timezone
 
 # -------------------- Product -----------------------
 
@@ -1316,7 +1317,7 @@ def product_insertion_admin(request):
     #     print(key_feature[i])
     #     features.append(key_feature[i])
    
-    date = "2020-09-28"
+    date = timezone.now().date()
     print(key_features)
     print(type(key_features))
 
