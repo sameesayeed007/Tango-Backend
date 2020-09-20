@@ -88,7 +88,10 @@ def CompanyInfos(request):
         Info_Api_data = {'name': "intense", 'address': "Glafasha Plaza", 'Facebook': "facebook.com", 'twitter': "twitter.com",
         'linkedin': "linkedin.com", 'youtube': "youtube.com", 'email': "abc@gmail.com", 'phone': "017494",'help_center': "+880", 'About': "we are", 
         'policy': ["some", "policies"], 'terms_condition': ["terms", "conditions"], 'role_id': "1", 'slogan': "Some slogan", 'cookies': "cookis"}
-        
+        est = request.data.get('logo')
+        print(request.data)
+        print(est)
+        print(type(est))
         serializers = CompanyInfoSerializer (data= request.data)
         if(serializers.is_valid()):
             serializers.save()
@@ -334,60 +337,79 @@ def Banner_Insertion(request):
     }
 
     '''
-
+    data = request.data
+    banner_data = {'count': data['count'], 'set_time': data['set_time']}
+    count = data['count']
     if request.method == "POST":
+       
+        #banner_data = {'count': api_banner_data['count'], 'set_time': api_banner_data['set_time']}
+
+        #banner_image_data = {'link': data['images[0][link]'], 'content': data['images[0][content]'],'image': data['images[0][image]']} 
+
+        #myDict = dict(data.iterlists())
+        #print(data)
+        # print("fwhbefuwhefuwehfuwehuwehweuhweuhfuwerhfwuehf")
+        # print(data['images[0][link]'])
+        # print(data['images[0][content]'])
+        # print(data['images[0][image]'])
+        # print(data['count'])
+        
+
+
+        # <QueryDict: {'images[0][link]': ['dedsd'], 'images[0][content]': ['sdsadasd'], 'count': ['1'], 'set_time': ['1'], 'images[0][image]': [<InMemoryUploadedFile: banner1.jpeg (image/jpeg)>]}>
+        #print(myDict)
+        # print(request.data.get('count'))
+        # print(request.data.get('set_time'))
+        # print(request.data.get('images'))
+        #print("###############################")
+        # print(request.data.get('count')
+
         try:
-            api_banner_data = {'count': '2', 
-                            'set_time': '3', 
-                            'images': [
-                                {
-                                    'link': "abc.link", 
-                                    'content': "content"
-                                },
-                                { 
-                                    'link': "efg.link",
-                                     'content': "nothing"
-                                }
-                                ]}
 
+            banner = Banner.objects.create(count=data['count'],set_time=data['set_time'])
+            banner_serializer = BannerSerializer(banner,data = banner_data)
+            if(banner_serializer.is_valid()):
 
-            banner_data = {'count': api_banner_data['count'], 'set_time': api_banner_data['set_time']}
-            data = request.data
-            #myDict = dict(data.iterlists())
-            print(data)
-            print("fwhbefuwhefuwehfuwehuwehweuhweuhfuwerhfwuehf")
-            print(data['images[0][link]'])
-            print(data['images[0][content]'])
-            print(data['images[0][image]'])
-            print(data['count'])
-            count = data['count']
-            # <QueryDict: {'images[0][link]': ['dedsd'], 'images[0][content]': ['sdsadasd'], 'count': ['1'], 'set_time': ['1'], 'images[0][image]': [<InMemoryUploadedFile: banner1.jpeg (image/jpeg)>]}>
-            #print(myDict)
-            # print(request.data.get('count'))
-            # print(request.data.get('set_time'))
-            # print(request.data.get('images'))
-            #print("###############################")
-            # print(request.data.get('count'))
+                banner_serializer.save()
 
-
-            serializers = BannerSerializer (data= request.data)
-            if(serializers.is_valid()):
-                serializers.save()
             banner_id = Banner.objects.latest('id')
-            for val in request.data.get('image'):
-                val.update( {'Banner_id' : banner_id.pk} )
-                banner_serializers = BannerImageSerializer (data= val)
-                if(banner_serializers.is_valid()):
-                    banner_serializers.save()  
+            bannerid = banner_id.id
+            #print(bannerid)
+            for i in range(int(count)):
+
+                link = data['images['+str(i)+'][link]']
+
+                content = data['images['+str(i)+'][content]']
+                image = data['images['+str(i)+'][image]']
+                banner_image_data = {'link':link, 'content': content,'image':image} 
+                banner_image = Banner_Image.objects.create(Banner_id=bannerid,link = link,content = content,image= image)
+                banner_image.save()
+                banner_image_serializer = BannerImageSerializer(banner_image,data=banner_image_data)
+        # for val in request.data.get('image'):
+        #     val.update( {'Banner_id' : banner_id.pk} )
+        #     banner_serializers = BannerImageSerializer (data= val)
+        #     if(banner_serializers.is_valid()):
+        #         banner_serializers.save()  
             return Response ({
                 'success': True,
                 'message': 'Value successfully added',
                 })
+
         except:
-             return Response ({
-                 'success': False,
-                 'message': 'Some internal problem occurs'
-                 })
+            banner_image = Banner_image.objects.filter(Banner_id = bannerid)
+            if banner_image.exists():
+                banner_image.delete()
+
+
+            banner = Banner.objects.filter(id= bannerid)
+            if banner.exists():
+                banner.delete()
+
+
+            return Response({
+                'success': False,
+                'message': 'Banner insertion could not be completed'
+                })
 
 
 @api_view (["GET","POST"])
