@@ -1,7 +1,8 @@
 import requests
 
 
-site_path = "http://127.0.0.1:8000/"
+#site_path = "http://127.0.0.1:8000/"
+site_path = "https://tango99.herokuapp.com/"
 
 def get_email_config():
     url = site_path+ "email/config_value"

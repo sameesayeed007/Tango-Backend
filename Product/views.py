@@ -1619,26 +1619,26 @@ def group_product_insertion_admin(request):
         'currency_id': '1'
     }
 
-    product_specification= [
-        {
-		"weight": '17',
-		"color":'red',
-		"size":'small',
-        'quantity': 10
-       },
-        {
+  #   product_specification= [
+  #       {
+		# "weight": '17',
+		# "color":'red',
+		# "size":'small',
+  #       'quantity': 10
+  #      },
+  #       {
 		
-		"color":'Green',
-		"size":'Large',
-        'quantity': 20
-       },
-        {
+		# "color":'Green',
+		# "size":'Large',
+  #       'quantity': 20
+  #      },
+  #       {
 		
-		"color":'Blue',
-		"size":'XXL',
-        'quantity': 7
-       }
-    ]
+		# "color":'Blue',
+		# "size":'XXL',
+  #       'quantity': 7
+  #      }
+  #   ]
 
     product_point ={
         'point': '80'
