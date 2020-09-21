@@ -98,9 +98,18 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
 
             p_discount = product_discount.amount
-            start_date = product_discount.start_date
-            end_date = product_discount.end_date
             current_date = timezone.now().date()
+            if product_discount.start_date:
+                start_date = product_discount.start_date
+            else:
+                start_date = current_date
+
+            if product_discount.end_date:
+                end_date = product_discount.end_date
+
+            else:
+                end_date = current_date
+            
 
             if(current_date >= start_date) and (current_date <= end_date):
                 discounted_price = p_price - p_discount
