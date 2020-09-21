@@ -1321,6 +1321,9 @@ def product_insertion_admin(request):
     print(key_features)
     print(type(key_features))
 
+    key_features = data['key_features']
+    features = key_features.split(",")
+
     
 
   
@@ -1330,7 +1333,7 @@ def product_insertion_admin(request):
             'title': data['title'],
             'brand': data['brand'],
             'description': data['description'],
-            'key_features':data['key_features'],
+            'key_features':features,
             'is_deleted': False,
             'properties': True
         }
@@ -1554,12 +1557,12 @@ def specific_product_hidden_delete(request, product_id):
 @api_view(['POST','GET'])
 def modify_specific_product(request, product_id):
     data = request.data
-    product_values = {'title':'puffed rice'}
-    price_values = {'price': 150}
-    discount_values = {'amount': 30}
-    point_values = {'point': 20}
-    specification_values = {
-            'color': 'blue'}
+    # product_values = {'title':'puffed rice'}
+    # price_values = {'price': 150}
+    # discount_values = {'amount': 30}
+    # point_values = {'point': 20}
+    # specification_values = {
+    #         'color': 'blue'}
 
     product_data_value ={
 
@@ -1588,26 +1591,26 @@ def modify_specific_product(request, product_id):
         #'currency_id': request.data.get('currency_id')
     }
 
-    product_specification= [
-        {
-        "weight": request.data.get('weight'),
-        "color":request.data.get('color'),
-        "size":request.data.get('size'),
-        'quantity': request.data.get('quantity')
-       },
-        {
+    # product_specification= [
+    #     {
+    #     "weight": request.data.get('weight'),
+    #     "color":request.data.get('color'),
+    #     "size":request.data.get('size'),
+    #     'quantity': request.data.get('quantity')
+    #    },
+    #     {
         
-        "color":'Green',
-        "size":'Large',
-        'quantity': 20
-       },
-        {
+    #     "color":'Green',
+    #     "size":'Large',
+    #     'quantity': 20
+    #    },
+    #     {
         
-        "color":'Blue',
-        "size":'XXL',
-        'quantity': 7
-       }
-    ]
+    #     "color":'Blue',
+    #     "size":'XXL',
+    #     'quantity': 7
+    #    }
+    # ]
 
 
 
@@ -1635,7 +1638,7 @@ def modify_specific_product(request, product_id):
         
         try:
             
-            product_data = product_data_update(product_id, product_values)
+            product_data = product_data_update(product_id, product_data_value)
             price_data = price_data_update (product_id, price_values)
             discount_data = discount_data_update (product_id,discount_values)
             point_data = point_data_update (product_id,point_values)
