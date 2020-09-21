@@ -13,6 +13,9 @@ from django.http.response import JsonResponse
 @api_view (["GET","POST"])
 def CompanyInfos(request):
 
+
+
+
     '''
     This is Compnay Info API.
     This api will be invoked after calling url : localhost:8000/site/info
@@ -57,6 +60,9 @@ def CompanyInfos(request):
         cookies: CharField
 
     '''
+
+    data = request.data 
+
     if(request.method == "GET"):
         try:
             queryset = CompanyInfo.objects.all()
@@ -79,21 +85,43 @@ def CompanyInfos(request):
             'data': {}
         })
 
+
+
+
+
+
+
+
            
   
 
     elif(request.method == "POST"):
 
+        print(data['terms_condition'])
+
+        terms = data['terms_condition']
+        term = terms.split(",")
+        print(term)
+        #terms = ['fuhfuyhew','fhweyfgewyfgew']
+
+        policy = data['policy']
+        policies = policy.split(",")
+        print(policies)
+        #policies = ['fuhfuyhew','fhweyfgewyfgew']
+
         # This data will come from frontend API
-        Info_Api_data = {'name': "intense", 'address': "Glafasha Plaza", 'Facebook': "facebook.com", 'twitter': "twitter.com",
-        'linkedin': "linkedin.com", 'youtube': "youtube.com", 'email': "abc@gmail.com", 'phone': "017494",'help_center': "+880", 'About': "we are", 
-        'policy': ["some", "policies"], 'terms_condition': ["terms", "conditions"], 'role_id': "1", 'slogan': "Some slogan", 'cookies': "cookis"}
-        est = request.data.get('logo')
-        print(request.data)
-        print(est)
-        print(type(est))
-        serializers = CompanyInfoSerializer (data= request.data)
+        Info_Api_data = {'name': data['name'], 'address': data['address'], 'Facebook':data['Facebook'], 'twitter': data['twitter'],
+        'linkedin': data['linkedin'], 'youtube': data['youtube'], 'email': data['email'], 'phone': data['phone'],'help_center': data['help_center'], 'About': data['About'], 
+        'policy': policies, 'terms_condition':term,'role_id': 1,'slogan': data['slogan'],'cookies': 'fdfdfd'}
+        # est = request.data.get('logo')
+        # print(request.data)
+        # print(est)
+        # print(type(est))
+        # print(Info_Api_data)
+        serializers = CompanyInfoSerializer (data= Info_Api_data)
+        # print(serializers)
         if(serializers.is_valid()):
+            print("Hochche")
             serializers.save()
             return Response({
                 'success': True,
