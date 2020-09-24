@@ -519,7 +519,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
     def order_details(self,instance):
-        details = OrderDetails.objects.filter(order_id=instance.id,is_removed=False).values()
+        details = OrderDetails.objects.filter(order_id=instance.id,is_removed=False).order_by('date_added').values()
         list_result = [entry for entry in details]
         for i in range(len(list_result)):
             product_id = list_result[i]['product_id']
