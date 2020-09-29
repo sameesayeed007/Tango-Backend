@@ -1294,17 +1294,24 @@ def all_product_detail(request):
 @api_view(['POST','GET'])
 def product_insertion_admin(request):
 
-    print(request.data)
-
+    # print(request.data)
     data = request.data
+    # data = request.body
+    
+
+
+
+    
 
     # im = data['images']
 
     print(len(data))
 
-    count = len(data)-12
+    count = len(data)-13
+    print(count)
 
-    key_features = data['key_features']
+    # key_features = data['key_features']
+    # print(key_features)
     # print(key_features)
 
     
@@ -1318,11 +1325,14 @@ def product_insertion_admin(request):
     #     features.append(key_feature[i])
    
     date = timezone.now().date()
-    print(key_features)
-    print(type(key_features))
 
-    key_features = data['key_features']
-    features = key_features.split(",")
+    # print(request.data['brand'])
+  
+
+
+    
+    # features = key_features.split(",")
+    # print(features)
 
     
 
@@ -1330,10 +1340,10 @@ def product_insertion_admin(request):
     product_data_value ={
 
             
-            'title': data['title'],
-            'brand': data['brand'],
-            'description': data['description'],
-            'key_features':features,
+            'title': request.data.get("title"),
+            'brand': request.data.get("brand"),
+            'description':request.data.get("description"),
+            'key_features':request.data.get("key_features"),
             'is_deleted': False,
             'properties': True
         }
@@ -1341,52 +1351,51 @@ def product_insertion_admin(request):
     category_data_value ={
 
             
-            'category': data['category'],
-            'sub_category': data['sub_category'],
-            'sub_sub_category': data['sub_sub_category']
-
+            'category': request.data.get("category"),
+            'sub_category': request.data.get("sub_category"),
+            'sub_sub_category': request.data.get("sub_sub_category")
         }
 
 
    
     product_price ={
-        'price' : data['price'],
+        'price' : request.data.get("price"),
         #'currency_id': request.data.get('currency_id')
     }
 
-    product_specification= [
-        {
-        "weight": request.data.get('weight'),
-        "color":request.data.get('color'),
-        "size":request.data.get('size'),
-        'quantity': request.data.get('quantity')
-       },
-        {
+    # product_specification= [
+    #     {
+    #     "weight": request.data.get('weight'),
+    #     "color":request.data.get('color'),
+    #     "size":request.data.get('size'),
+    #     'quantity': request.data.get('quantity')
+    #    },
+    #     {
         
-        "color":'Green',
-        "size":'Large',
-        'quantity': 20
-       },
-        {
+    #     "color":'Green',
+    #     "size":'Large',
+    #     'quantity': 20
+    #    },
+    #     {
         
-        "color":'Blue',
-        "size":'XXL',
-        'quantity': 7
-       }
-    ]
+    #     "color":'Blue',
+    #     "size":'XXL',
+    #     'quantity': 7
+    #    }
+    # ]
 
 
 
 
     product_point ={
-        'point': data['point'],
+        'point': request.data.get("point"),
         # 'end_date': data['point_end_date']
         'end_date': date
     }
 
     product_discount ={
 
-        'amount': data['amount'],
+        'amount': request.data.get("amount"),
         #'start_date' : '2020-09-05',
         #'end_date' : data['discount_end_date']
         'end_date':date
@@ -1400,35 +1409,53 @@ def product_insertion_admin(request):
  
 
     if request.method == 'POST':
+        
         try:
             #print("dbcudbfdbcducbducbducbducbd")
             category_values= category_data_upload (category_data_value)
+            print("1")
             #print(category_values)
             category_data = category_values.json()
+            print("2")
             #print(category_data)
             category_id = category_data['category']
             sub_category_id = category_data['sub_category']
             sub_sub_category_id = category_data['sub_sub_category']
             product_data_value.update( {'category_id' : category_id,'sub_category_id' : sub_category_id,'sub_sub_category_id' : sub_sub_category_id} )
+            print("3")
             product_values= product_data_upload (product_data_value)
+            print("4")
             product_data= product_values.json()
             product_id = product_data['id']
             product_price.update( {'product_id' : product_id} )
+            print("5")
             price_values = product_price_data_upload (product_price)
             product_point.update ({'product_id' : product_id})
+            print("6")
             point_values = product_point_data_upload(product_point)
             product_code = create_product_code({'product_id' : product_id})
+            print("7")
             product_discount.update({'product_id' : product_id})
             discount_data = product_discount_data_upload(product_discount)
+            print("8")
 
             for i in range(int(count)):
-                image = data['images['+str(i)+']']
-                image_data = {'img':image}
+                print(i)
+                dataz = request.data
+                image = dataz['images['+str(i)+']']
+                print("aaaaaaaaaaaaaaaaaaa")
+                print(image)
+                image_data = {'product_image':image}
+                
                 product_image = ProductImage.objects.create(product_image=image,product_id=product_id)
                 product_image.save()
+                print(product_image)
                 product_image_serializer = ProductImageSerializer(product_image,data=image_data)
+
                 if product_image_serializer.is_valid():
                     product_image_serializer.save()
+                    print("saved")
+                    
             #product_img =[]
             #product_spec=[]
             # for img in product_image:
@@ -1444,6 +1471,7 @@ def product_insertion_admin(request):
             #     product_spec.append(product_sp.json())
         
             return Response({
+                
                 'success': True,
                 'product_data': product_data,
                 'price_values': price_values.json(),

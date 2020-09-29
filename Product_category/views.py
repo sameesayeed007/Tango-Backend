@@ -381,6 +381,10 @@ def categories(request):
 		products_serializers = CategorySerializerz(categories,many=True)
 		return JsonResponse({'success':True,'data':products_serializers.data},safe=False)
 
+	else:
+		return JsonResponse({'success':False,'data':{}})
+
+
 
 
 @api_view(['GET',])
@@ -402,6 +406,10 @@ def sub_categories(request):
 		products_serializers = Sub_CategorySerializer(categories,many=True)
 		return JsonResponse({'success':True,'data':products_serializers.data},safe=False)
 
+	else:
+		return JsonResponse({'success':False,'data':{}})
+
+
 
 
 @api_view(['GET',])
@@ -422,3 +430,7 @@ def sub_sub_categories(request,sub_category_id):
 
 		products_serializers = Sub_Sub_CategorySerializer(categories,many=True)
 		return JsonResponse({'success':True,'data':products_serializers.data},safe=False)
+
+	else:
+
+		return JsonResponse({'success':False,'data':{}})

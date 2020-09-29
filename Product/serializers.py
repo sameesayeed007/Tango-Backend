@@ -22,8 +22,8 @@ import requests
 host_prefix = "https://"
 host_name = host_prefix+settings.ALLOWED_HOSTS[0]
 
-site_path = "https://tango99.herokuapp.com/"
-#site_path = "http://127.0.0.1:8000/"
+#site_path = "https://tango99.herokuapp.com/"
+site_path = "http://127.0.0.1:8000/"
 
 #------------------------ product---------------------------
 
