@@ -105,19 +105,19 @@ def add_cart(request,productid):
 	if product_discount is not None:
 		p_discount = product_discount.amount
 		current_date = timezone.now().date()
-		# discount_start_date = product_discount.start_date
-		# discount_end_date = product_discount.end_date
+		discount_start_date = current_date
+		discount_end_date = current_date
 		if product_discount.start_date:
 
-			start_date = product_discount.start_date
+			discount_start_date = product_discount.start_date
 		else:
-			start_date = current_date
+			discount_start_date = current_date
 
 		if product_discount.end_date:
-			end_date = product_discount.end_date
+			discount_end_date = product_discount.end_date
 
 		else:
-			end_date = current_date
+			discount_end_date = current_date
 
 		
 
@@ -414,17 +414,17 @@ def increase_quantity(request,productid):
 
 	if product_point is not None:
 		p_point = product_point.point
-		# start_date = product_point.start_date
-		# end_date = product_point.end_date
+		start_date = product_point.start_date
+		end_date = product_point.end_date
 		current_date = timezone.now().date()
 
-		if product_discount.start_date:
-			start_date = product_discount.start_date
+		if product_point.start_date:
+			start_date = product_point.start_date
 		else:
 			start_date = current_date
 
-		if product_discount.end_date:
-			end_date = product_discount.end_date
+		if product_point.end_date:
+			end_date = product_point.end_date
 
 		else:
 
@@ -466,21 +466,21 @@ def increase_quantity(request,productid):
 
 	if product_discount is not None:
 		p_discount = product_discount.amount
-		# discount_start_date = product_discount.start_date
-		# discount_end_date = product_discount.end_date
+		discount_start_date = product_discount.start_date
+		discount_end_date = product_discount.end_date
 		current_date = timezone.now().date()
 
 		if product_discount.start_date:
-			start_date = product_discount.start_date
+			discount_start_date = product_discount.start_date
 		else:
-			start_date = current_date
+			discount_start_date = current_date
 
 		if product_discount.end_date:
-			end_date = product_discount.end_date
+			discount_end_date = product_discount.end_date
 
 		else:
 
-			end_date = current_date
+			discount_end_date = current_date
 
 		if (current_date >= discount_start_date) and (current_date <= discount_end_date):
 			total_discount = p_discount * quantity
@@ -642,17 +642,17 @@ def decrease_quantity(request,productid):
 
 	if product_point is not None:
 		p_point = product_point.point
-		# start_date = product_point.start_date
-		# end_date = product_point.end_date
+		start_date = product_point.start_date
+		end_date = product_point.end_date
 		current_date = timezone.now().date()
 
-		if product_discount.start_date:
-			start_date = product_discount.start_date
+		if product_point.start_date:
+			start_date = product_point.start_date
 		else:
 			start_date = current_date
 
-		if product_discount.end_date:
-			end_date = product_discount.end_date
+		if product_point.end_date:
+			end_date = product_point.end_date
 
 		else:
 
@@ -694,21 +694,21 @@ def decrease_quantity(request,productid):
 
 	if product_discount is not None:
 		p_discount = product_discount.amount
-		# discount_start_date = product_discount.start_date
-		# discount_end_date = product_discount.end_date
+		discount_start_date = product_discount.start_date
+		discount_end_date = product_discount.end_date
 		current_date = timezone.now().date()
 
 		if product_discount.start_date:
-			start_date = product_discount.start_date
+			discount_start_date = product_discount.start_date
 		else:
-			start_date = current_date
+			discount_start_date = current_date
 
 		if product_discount.end_date:
-			end_date = product_discount.end_date
+			discount_end_date = product_discount.end_date
 
 		else:
 
-			end_date = current_date
+			discount_end_date = current_date
 
 		if (current_date >= discount_start_date) and (current_date <= discount_end_date):
 			total_discount = p_discount * quantity
