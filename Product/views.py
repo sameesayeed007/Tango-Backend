@@ -1310,7 +1310,7 @@ def product_insertion_admin(request):
     count = len(data)-13
     print(count)
 
-    # key_features = data['key_features']
+    key_features = request.data.get("key_features")
     # print(key_features)
     # print(key_features)
 
@@ -1331,7 +1331,7 @@ def product_insertion_admin(request):
 
 
     
-    # features = key_features.split(",")
+    features = key_features.split(",")
     # print(features)
 
     
@@ -1343,7 +1343,7 @@ def product_insertion_admin(request):
             'title': request.data.get("title"),
             'brand': request.data.get("brand"),
             'description':request.data.get("description"),
-            'key_features':request.data.get("key_features"),
+            'key_features':features,
             'is_deleted': False,
             'properties': True
         }
