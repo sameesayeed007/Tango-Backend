@@ -102,7 +102,33 @@ class Sub_Sub_CategorySerializer(serializers.ModelSerializer):
 
 
 
+class CatSerializer(serializers.ModelSerializer):
 
+    #children = serializers.SerializerMethodField(method_name='get_cat')
+
+    print("coming here")
+  
+    class Meta:
+        model = Category
+        fields = ('id','title')
+
+
+class SubCatSerializer(serializers.ModelSerializer):
+
+    #children = serializers.SerializerMethodField(method_name='get_cat')
+  
+    class Meta:
+        model = Sub_Category
+        fields = ('id','category_id','title')
+
+
+class SubSubCatSerializer(serializers.ModelSerializer):
+
+    #children = serializers.SerializerMethodField(method_name='get_cat')
+  
+    class Meta:
+        model = Sub_Sub_Category
+        fields = ('id','sub_category_id','title')
 
    
    

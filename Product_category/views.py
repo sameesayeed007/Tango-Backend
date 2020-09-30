@@ -6,7 +6,7 @@ from rest_framework import status
 import datetime
 from Intense.models import Category,Sub_Category,Sub_Sub_Category,Product
 
-from .serializers import CategorySerializer,CategorySerializerz,Sub_CategorySerializer,Sub_Sub_CategorySerializer
+from .serializers import CategorySerializer,CategorySerializerz,Sub_CategorySerializer,Sub_Sub_CategorySerializer,CatSerializer,SubCatSerializer,SubSubCatSerializer
 from Product_details.serializers import ProductImpressionSerializer
 from rest_framework.decorators import api_view 
 from django.views.decorators.csrf import csrf_exempt
@@ -378,23 +378,28 @@ def categories(request):
 
 	if categories:
 
-		products_serializers = CategorySerializerz(categories,many=True)
-		return JsonResponse({'success':True,'data':products_serializers.data},safe=False)
+		cats = list(categories.values_list('title',flat=True).distinct())
+
+		#products_serializers = CatSerializer(categories,many=True)
+		return JsonResponse(cats,safe=False)
 
 	else:
-		return JsonResponse({'success':False,'data':{}})
+		return JsonResponse([])
 
 
 
 
-@api_view(['GET',])
+@api_view(['POST',])
 def sub_categories(request):
 
 
+	category = request.data.get('name')
+
+
 	try:
 
 
-		categories = Sub_Category.objects.all()
+		categories = Category.objects.filter(title=category)
 
 	except:
 
@@ -403,34 +408,74 @@ def sub_categories(request):
 
 	if categories:
 
-		products_serializers = Sub_CategorySerializer(categories,many=True)
-		return JsonResponse({'success':True,'data':products_serializers.data},safe=False)
+		cats = list(categories.values_list('id',flat=True).distinct())
+
+		try:
+		
+			subcats = Sub_Category.objects.filter(category_id__in = cats)
+
+		except:
+
+			subcats = None
+
+
+
+		subs = list(subcats.values_list('title',flat=True).distinct())
+
+		return JsonResponse(subs,safe=False)
+
+
+
+
 
 	else:
-		return JsonResponse({'success':False,'data':{}})
+		return JsonResponse([],safe=False)
 
 
 
 
-@api_view(['GET',])
-def sub_sub_categories(request,sub_category_id):
+@api_view(['POST',])
+def sub_sub_categories(request):
+
+
+	sub_category = request.data.get('name')
 
 
 	try:
 
 
-		categories = Sub_Sub_Category.objects.filter(sub_category_id = sub_category_id)
+		sub_categories = Sub_Category.objects.filter(title=sub_category)
 
 	except:
 
-		categories = None 
+		sub_categories = None 
 
 
-	if categories:
+	if sub_categories:
 
-		products_serializers = Sub_Sub_CategorySerializer(categories,many=True)
-		return JsonResponse({'success':True,'data':products_serializers.data},safe=False)
+		cats = list(sub_categories.values_list('id',flat=True).distinct())
+
+		try:
+		
+			subcats = Sub_Sub_Category.objects.filter(sub_category_id__in = cats)
+
+		except:
+
+			subcats = None
+
+
+
+		subs = list(subcats.values_list('title',flat=True).distinct())
+
+		return JsonResponse(subs,safe=False)
+
+
+
+
 
 	else:
+		return JsonResponse([],safe=False)
 
-		return JsonResponse({'success':False,'data':{}})
+
+
+
