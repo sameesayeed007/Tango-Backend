@@ -151,9 +151,15 @@ class ProductSerializer(serializers.ModelSerializer):
 
             if p_discount is not None:
 
-                discount = p_discount.amount
+
+                if p_discount.amount:
+                    discount = p_discount.amount
+                else:
+                    discount = 0
+
+                
                 current_date = timezone.now().date()
-                discount_start_date = p_discount.start_date
+                # discount_start_date = p_discount.start_date
 
                 if p_discount.end_date:
 

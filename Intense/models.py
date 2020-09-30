@@ -816,8 +816,8 @@ class discount_product(models.Model):
         ('WHOLESALE', 'Wholesale'),
     )
     discount_type = models.CharField(max_length=264, blank=True, null= True,choices=Sales_type)
-    amount = models.FloatField (blank = False, null = True, default =0)
-    start_date = models.DateField (blank = False, null = True)
+    amount = models.FloatField (blank = False, null = True, default =0.00)
+    start_date = models.DateField (auto_now_add=True,blank=True,null=True)
     end_date = models.DateField (blank = False, null = True)
     max_amount = models.FloatField (blank = False, null = True, default =0)
     group_product_id = models.IntegerField(blank=False, null=True)

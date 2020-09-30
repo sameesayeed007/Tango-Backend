@@ -51,7 +51,12 @@ def add_cart(request,productid):
 		product_point = None
 
 	if product_point is not None:
-		p_point = product_point.point
+
+		if product_point.point:
+			p_point = product_point.point
+
+		else:
+			p_point = 0
 		current_date = timezone.now().date()
 		start_date = current_date
 		end_date = current_date
@@ -103,7 +108,10 @@ def add_cart(request,productid):
 		product_discount = None
 
 	if product_discount is not None:
-		p_discount = product_discount.amount
+		if product_discount.amount:
+			p_discount = product_discount.amount
+		else:
+			p_discount = 0
 		current_date = timezone.now().date()
 		discount_start_date = current_date
 		discount_end_date = current_date
