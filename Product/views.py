@@ -101,10 +101,10 @@ from django.utils import timezone
 def display_products(request,number):
 
 
-    latest = {}
-    discount = {}
-    popular = {}
-    group={}
+    latest = []
+    discount = []
+    popular = []
+    group=[]
     current_date = timezone.now()
 
 
@@ -128,7 +128,7 @@ def display_products(request,number):
 
     else: 
 
-        latest = {}
+        latest = []
 
     
     try:
@@ -151,7 +151,7 @@ def display_products(request,number):
 
     else: 
 
-        group = {}
+        group = []
 
 
     try:
@@ -194,10 +194,10 @@ def display_products(request,number):
 
         else:
             
-            discount = {}
+            discount = []
 
     else:
-        discount = {}
+        discount = []
 
 
     try:
@@ -234,11 +234,11 @@ def display_products(request,number):
 
         else:
 
-            popular = {}
+            popular = []
 
     else:
 
-        popular = {}
+        popular = []
   
     data = [{'name':'New Arrivals','products':latest},{'name':'On Sale','products':discount},{'name':'Popular','products':popular},
     {'name':'group Product', 'products':group}]
@@ -1696,19 +1696,32 @@ def group_product_insertion_admin(request):
     This Api is for inserting all the group related information by using a single API. This will be for the admin. Calling 
     http://127.0.0.1:8000/product/group_product_insert/ will cause to invoke this Api. 
     '''
+
+    data = request.data 
   
     product_data_value ={
 
             
-            'title': 'Bundle Offer',
-            'brand': 'mix',
-            'description': 'World famous product',
-            'key_featues': 'all are special',
-            'quantity': 10,
+            'title': data['title'],
+            'brand':  data['brand'],
+            'description': data['description'],
+            'key_featues': data['key_features'],
+            'quantity': data['quantity'],
             'is_deleted': False,
             'properties': True,
             'is_group':True
         }
+
+
+    category_data_value ={
+
+            
+            'category': data['category'],
+            'sub_category': data['sub_category'],
+            'sub_sub_category': data['sub_sub_category']
+        }
+
+
 
     group_product_values=   {
     
@@ -1718,7 +1731,7 @@ def group_product_insertion_admin(request):
         }
 
     product_price ={
-        'price' : '350',
+        'price' : data['price'],
         'currency_id': '1'
     }
 
@@ -1744,12 +1757,12 @@ def group_product_insertion_admin(request):
   #   ]
 
     product_point ={
-        'point': '80'
+        'point': data['point']
     }
 
     product_discount ={
 
-        'amount': 5,
+        'amount': data['point'],
         'start_date' : '2020-09-05',
         'end_date' : '2020-09-25'
     }
