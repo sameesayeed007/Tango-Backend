@@ -732,8 +732,8 @@ class GroupProduct(models.Model):
 	products_ids = ArrayField(models.IntegerField( null=True , blank=True),null=True , blank=True,default=list)
 	title = models.CharField(max_length=120, blank = True, null = True,default="")
 	#slug = models.SlugField(unique=True , blank=True)
-	startdate=models.DateTimeField(null=True , blank=True)
-	enddate=models.DateTimeField(null=True , blank=True)
+	startdate=models.DateField(auto_now_add=True,null=True , blank=True)
+	enddate=models.DateField(null=True , blank=True)
 	flashsellname = models.CharField(max_length=120, blank = True , null=True)
 	active = models.BooleanField(default=True)
 	timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
@@ -829,7 +829,7 @@ class discount_product(models.Model):
 class Cupons(models.Model):
     cupon_code = models.CharField(max_length= 264, blank = True, null = True)
     amount = models.FloatField (blank = True, null = True)
-    start_from = models.DateField( auto_now_add = True)
+    start_from = models.DateField(blank = True, null = True)
     valid_to = models.DateField(blank = True, null = True)
     is_active = models.BooleanField()
 

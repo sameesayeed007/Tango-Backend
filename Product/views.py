@@ -1,5 +1,6 @@
 import json
 import requests
+import datetime
 from rest_framework.decorators import api_view
 from django.contrib import auth
 from django.core.cache import cache
@@ -475,7 +476,53 @@ class ListProductView(ListAPIView):
             'data': serializer.data
         })
 
+
+
+@api_view (["GET","post"])
+def get_searched_product(request,name):
     
+    if 'brand' in request.GET:
+        print("yessssss")
+        my_brand = request.GET['brand']
+    else:
+        my_brand = ''
+    queryset = Product.objects.filter(title__icontains=name)
+    new_querys = queryset.filter(brand__icontains=my_brand)
+    product_serializers = SearchSerializer(new_querys , many = True)
+    response_data = product_serializers.data
+
+    reting_data = []
+    if 'ratings' in request.GET:
+        my_ratings = request.GET['ratings']
+        for pro in product_serializers.data:
+            for key, value in pro.items(): 
+                if(key=='ratings' and value):
+                    if(value['average_ratings']>= float(my_ratings)):
+                        reting_data.append(pro)
+        if(reting_data):
+            return Response ({
+                'success': True,
+                'message' : "data has been retrived successfully",
+                "data":reting_data
+                })
+        else:
+           return Response ({
+                'success': False,
+                'message' : "Your desired data could not be found"
+                }) 
+
+    else:
+        if(response_data):
+            return Response ({
+                'success': True,
+                'message' : "data has been retrived successfully",
+                "data": response_data
+                })
+        else:
+           return Response ({
+                'success': False,
+                'message' : "Your desired data could not be found"
+                })     
 
 
 @api_view (["GET","post"])
@@ -1592,6 +1639,8 @@ def modify_specific_product(request, product_id):
     # specification_values = {
     #         'color': 'blue'}
 
+
+
     product_data_value ={
 
             
@@ -1698,6 +1747,11 @@ def group_product_insertion_admin(request):
     '''
 
     data = request.data 
+
+    date = datetime.date.today()
+    print(date)
+    #data['key_features']=["red","blue","green"]
+    
   
     product_data_value ={
 
@@ -1706,7 +1760,7 @@ def group_product_insertion_admin(request):
             'brand':  data['brand'],
             'description': data['description'],
             'key_featues': data['key_features'],
-            'quantity': data['quantity'],
+            #'quantity': data['quantity'],
             'is_deleted': False,
             'properties': True,
             'is_group':True
@@ -1723,16 +1777,23 @@ def group_product_insertion_admin(request):
 
 
 
+
+
+
+
     group_product_values=   {
     
-            "products_ids": [1,2,3,4],
-            "title": "nothing to doesswer",
-            "product_id": 2
+            "products_ids": data['products_ids'],
+            "title": data['group_title'],
+            "startdate": date,
+            "enddate": date,
+            "flashsellname": data['flashsellname'],
+            
         }
 
     product_price ={
         'price' : data['price'],
-        'currency_id': '1'
+        # 'currency_id': '1'
     }
 
   #   product_specification= [
@@ -1757,28 +1818,37 @@ def group_product_insertion_admin(request):
   #   ]
 
     product_point ={
-        'point': data['point']
+        'point': data['point'],
+        'end_date' : date
+
     }
 
     product_discount ={
 
-        'amount': data['point'],
-        'start_date' : '2020-09-05',
-        'end_date' : '2020-09-25'
+        'amount': data['amount'],
+        'start_date' : date,
+        'end_date' : date
     }
 
-    product_image=[
+    # product_image=[
         
-             'This is image 1', 'This is image 2', 'This is image 3', 'This is image 4'
-    ]
+    #          'This is image 1', 'This is image 2', 'This is image 3', 'This is image 4'
+    # ]
 
     
 
     if request.method == 'POST':
         try:
+            category_values= category_data_upload (category_data_value)
+            category_data = category_values.json()
+            category_id = category_data['category']
+            sub_category_id = category_data['sub_category']
+            sub_sub_category_id = category_data['sub_sub_category']
+            product_data_value.update( {'category_id' : category_id,'sub_category_id' : sub_category_id,'sub_sub_category_id' : sub_sub_category_id} )
             product_values= product_data_upload (product_data_value)
             product_data= product_values.json()
             product_id = product_data['id']
+            print(product_id)
             
             group_product_values.update( {'product_id' : product_id} )
             group_values = group_product_data_update (group_product_values)
@@ -1792,27 +1862,27 @@ def group_product_insertion_admin(request):
             product_img =[]
             product_spec=[]
             
-            for img in product_image:
-                data = {'content':img}
-                data.update({'product_id' : product_id})
-                img_data= product_image_data_upload(data)
-                product_img.append(img_data.json())
+            # for img in product_image:
+            #     data = {'content':img}
+            #     data.update({'product_id' : product_id})
+            #     img_data= product_image_data_upload(data)
+            #     product_img.append(img_data.json())
             
-            for spec in product_specification:
-                spec.update({'product_id' : product_id})            
-                product_sp = product_specification_data_upload (spec)
-                product_spec.append(product_sp.json())
+            # for spec in product_specification:
+            #     spec.update({'product_id' : product_id})            
+            #     product_sp = product_specification_data_upload (spec)
+            #     product_spec.append(product_sp.json())
         
             return Response({
                 'success': True,
                 'product_data': product_data,
                 'group_values': group_values.json(),
                 'price_values': price_values.json(),
-                'product_specification': product_spec,
+                # 'product_specification': product_spec,
                 'product_point': point_values.json(),
                 'product_code': product_code.json(),
                 'product_discount': discount_data.json(),
-                'product_image': product_img
+                # 'product_image': product_img
             }) 
         except:
 

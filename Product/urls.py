@@ -67,5 +67,6 @@ urlpatterns = [
     path('group_product_insert/', views.group_product_insertion_admin),
     path('modify_group_product/<int:product_id>/', views.modify_specific_group_product),
     path('all_group_product/<int:number>/', views.get_all_detailed_group_product),
+    path('search/<str:name>/', views.get_searched_product),
     
 ]
