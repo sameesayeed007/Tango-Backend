@@ -1020,9 +1020,16 @@ def checkout(request):
 				print(order_colors[i])
 				print(order_units[i])
 				product = ProductSpecification.objects.filter(product_id = order_products[i],size=order_sizes[i],color=order_colors[i],unit=order_units[i]).last()
-				print(product.quantity)
+				if product:
+					product_quantity = product.quantity
 
-				product_quantity = product.quantity
+				else:
+					product_quantity = 0
+
+				
+
+				
+
 				print("Ashchi")
 				# print(product.title)
 				# print(product.quantity)
@@ -1113,7 +1120,11 @@ def checkout(request):
 			order_quantity = order_details.values_list('total_quantity',flat = True)
 			for i in range(len(order_products)):
 				product = ProductSpecification.objects.filter(product_id = order_products[i],size=order_sizes[i],color=order_colors[i],unit=order_units[i]).last()
-				product_quantity = product.quantity
+				if product:
+					product_quantity = product.quantity
+
+				else:
+					product_quantity = 0
 				# print(product.title)
 				# print(product.quantity)
 				product_name = order_names[i]
