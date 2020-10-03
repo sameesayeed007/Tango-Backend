@@ -486,6 +486,7 @@ def get_searched_product(request,name):
     #     my_brand = request.GET['brand']
     # else:
     #     my_brand = ''
+    response_data = []
     queryset = Product.objects.filter(title__icontains=name)
     product_brands = list(queryset.values_list('brand',flat=True).distinct())
 
@@ -494,43 +495,69 @@ def get_searched_product(request,name):
     else:
         my_brand =''
 
+    print(my_brand)
+
     new_querys = queryset.filter(brand__contains=my_brand)
     product_serializers = SearchSerializer(new_querys , many = True)
     response_data = product_serializers.data
 
     rating_data = []
     if 'ratings' in request.GET:
+        print("rating ey dhukse")
         my_ratings = request.GET['ratings']
         rating_list = [1,2,3,4,5]
-        for pro in product_serializers.data:
+        for pro in response_data:
             for key, value in pro.items(): 
                 if(key=='ratings' and value):
                     if(value['average_ratings']>= float(my_ratings)):
                         rating_data.append(pro)
-        if(reting_data):
-            return Response ({
-                'success': True,
-                'message' : "data has been retrived successfully",
-                "data":reting_data
-                })
-        else:
-           return Response ({
-                'success': False,
-                'message' : "Your desired data could not be found"
-                }) 
 
-    else:
-        if(response_data):
-            return Response ({
+
+        if (rating_data):
+            print("rating ase")
+
+            response_data = rating_data
+
+
+    price_data = []
+
+    if 'max_price' or 'min_price' in request.GET:
+        print("price ey dhukse")
+        if 'max_price' in request.GET:
+            max_price = request.GET['max_price']
+
+        else:
+            max_price = 100000000 
+
+        if 'min_price' in request.GET:
+            min_price = request.GET['min_price']
+
+        else:
+            min_price = 0
+
+
+        for pro in response_data:
+            for key, value in pro.items(): 
+                if(key=='new_price' and value):
+                    print(min_price)
+                    if((float(value) >= float(min_price)) and (float(value) <= float(max_price))):
+                        price_data.append(pro)
+
+
+        if (price_data):
+
+            print("price ase")
+
+            response_data = price_data
+
+
+    return Response ({
                 'success': True,
                 'message' : "data has been retrived successfully",
-                "data": response_data
+                'brand' : product_brands,
+                'data' : response_data
                 })
-        else:
-           return Response ({
-                'success': False,
-                'message' : "Your desired data could not be found"
-                })     
+ 
 
 
 @api_view (["GET","post"])
