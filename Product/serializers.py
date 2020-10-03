@@ -68,12 +68,13 @@ class ProductSerializer(serializers.ModelSerializer):
     new_price = serializers.SerializerMethodField(method_name='get_new_price')
     old_price = serializers.SerializerMethodField(method_name='get_old_price')
     specification = serializers.SerializerMethodField(method_name='get_specification')
+    quantity = serializers.SerializerMethodField(method_name='get_quantity')
 
 
     #comment_name = serializers.SerializerMethodField(method_name='get_name')
     class Meta:
         model = Product
-        fields = ('id','title','brand','old_price','new_price','images','unit','specification')
+        fields = ('id','title','brand','old_price','new_price','images','unit','specification','quantity')
 
     def get_images(self,instance):
         try:
@@ -232,6 +233,44 @@ class ProductSerializer(serializers.ModelSerializer):
         else:
 
             return arr
+
+
+    def get_quantity(self,instance):
+
+        #arr =  {'colors':[],'sizes':[],'units':[]}
+
+        total_sum = 0
+
+
+        
+        try:
+
+
+            p_spec = ProductSpecification.objects.filter(product_id = instance.id)
+
+        except:
+
+            p_spec = None 
+
+
+        if p_spec is not None:
+
+            quantities = list(p_spec.values_list('quantity',flat=True))
+
+            #total_sum = 0
+            for i in range(len(quantities)):
+
+                total_sum = total_sum + quantities[i]
+
+
+
+            
+
+            return total_sum
+
+        else:
+
+            return total_sum
 
 
 
