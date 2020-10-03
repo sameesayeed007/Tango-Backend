@@ -1494,22 +1494,22 @@ def product_insertion_admin(request):
             discount_data = product_discount_data_upload(product_discount)
             print("8")
 
-            for i in range(int(count)):
-                print(i)
-                dataz = request.data
-                image = dataz['images['+str(i)+']']
-                print("aaaaaaaaaaaaaaaaaaa")
-                print(image)
-                image_data = {'product_image':image}
+            # for i in range(int(count)):
+            #     print(i)
+            #     dataz = request.data
+            #     image = dataz['images['+str(i)+']']
+            #     print("aaaaaaaaaaaaaaaaaaa")
+            #     print(image)
+            #     image_data = {'product_image':image}
                 
-                product_image = ProductImage.objects.create(product_image=image,product_id=product_id)
-                product_image.save()
-                print(product_image)
-                product_image_serializer = ProductImageSerializer(product_image,data=image_data)
+            #     product_image = ProductImage.objects.create(product_image=image,product_id=product_id)
+            #     product_image.save()
+            #     print(product_image)
+            #     product_image_serializer = ProductImageSerializer(product_image,data=image_data)
 
-                if product_image_serializer.is_valid():
-                    product_image_serializer.save()
-                    print("saved")
+            #     if product_image_serializer.is_valid():
+            #         product_image_serializer.save()
+            #         print("saved")
                     
             #product_img =[]
             #product_spec=[]
