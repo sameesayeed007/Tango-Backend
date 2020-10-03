@@ -481,24 +481,32 @@ class ListProductView(ListAPIView):
 @api_view (["GET","post"])
 def get_searched_product(request,name):
     
+    # if 'brand' in request.GET:
+    #     print("yessssss")
+    #     my_brand = request.GET['brand']
+    # else:
+    #     my_brand = ''
+    queryset = Product.objects.filter(title__icontains=name)
+    product_brands = list(queryset.values_list('brand',flat=True).distinct())
+
     if 'brand' in request.GET:
-        print("yessssss")
         my_brand = request.GET['brand']
     else:
-        my_brand = ''
-    queryset = Product.objects.filter(title__icontains=name)
-    new_querys = queryset.filter(brand__icontains=my_brand)
+        my_brand =''
+
+    new_querys = queryset.filter(brand__contains=my_brand)
     product_serializers = SearchSerializer(new_querys , many = True)
     response_data = product_serializers.data
 
-    reting_data = []
+    rating_data = []
     if 'ratings' in request.GET:
         my_ratings = request.GET['ratings']
+        rating_list = [1,2,3,4,5]
         for pro in product_serializers.data:
             for key, value in pro.items(): 
                 if(key=='ratings' and value):
                     if(value['average_ratings']>= float(my_ratings)):
-                        reting_data.append(pro)
+                        rating_data.append(pro)
         if(reting_data):
             return Response ({
                 'success': True,

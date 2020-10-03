@@ -49,7 +49,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     question_answers = serializers.SerializerMethodField(method_name='get_comments')
     class Meta:
         model = Product
-        fields = ('id','title','description','quantity','key_features','old_price','new_price','unit','specification','ratings','reviews','question_answers','images','imagez')
+        fields = ('id','title','description','brand','quantity','key_features','old_price','new_price','unit','specification','ratings','reviews','question_answers','images','imagez')
 
     def get_price(self,instance):
         p_price = 0

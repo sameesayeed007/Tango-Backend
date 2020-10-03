@@ -73,7 +73,7 @@ class ProductSerializer(serializers.ModelSerializer):
     #comment_name = serializers.SerializerMethodField(method_name='get_name')
     class Meta:
         model = Product
-        fields = ('id','title','old_price','new_price','images','unit','specification')
+        fields = ('id','title','brand','old_price','new_price','images','unit','specification')
 
     def get_images(self,instance):
         try:
