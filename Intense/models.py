@@ -462,7 +462,7 @@ class BillingAddress(models.Model):
 class ProductSpecification(models.Model):
     product_id = models.IntegerField(default=-1)
     size = models.CharField(max_length=200, null = True, blank=True,default="")
-    unit = models.CharField(max_length=200, null = True, blank=True,default="")
+    #unit = models.CharField(max_length=200, null = True, blank=True,default="")
     weight = models.CharField(max_length = 255,blank=True,null=True,default="")
     #color = ArrayField(models.CharField(max_length=200,default="abc"),default=list,blank=True)
     color = models.CharField(max_length=200,null= True, blank=True,default="")
@@ -520,6 +520,7 @@ class Product(models.Model):
     is_deleted = models.BooleanField(default=False)
     properties= models.BooleanField(default=True)
     is_group = models.BooleanField(default=False)
+    unit = models.CharField(max_length=200, null = True, blank=True,default="")
 
 
 

@@ -22,8 +22,8 @@ import requests
 host_prefix = "https://"
 host_name = host_prefix+settings.ALLOWED_HOSTS[0]
 
-#site_path = "https://tango99.herokuapp.com/"
-site_path = "http://127.0.0.1:8000/"
+site_path = "https://tango99.herokuapp.com/"
+#site_path = "http://127.0.0.1:8000/"
 
 #------------------------ product---------------------------
 
@@ -73,7 +73,7 @@ class ProductSerializer(serializers.ModelSerializer):
     #comment_name = serializers.SerializerMethodField(method_name='get_name')
     class Meta:
         model = Product
-        fields = ('id','title','old_price','new_price','images','specification')
+        fields = ('id','title','old_price','new_price','images','unit','specification')
 
     def get_images(self,instance):
         try:
@@ -205,7 +205,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def get_specification(self,instance):
 
-        arr =  {'colors':[],'sizes':[],'units':[]}
+        arr =  {'colors':[],'sizes':[]}
 
 
         
@@ -223,9 +223,9 @@ class ProductSerializer(serializers.ModelSerializer):
 
             colors = list(p_spec.values_list('color',flat=True).distinct())
             sizes = list(p_spec.values_list('size',flat=True).distinct())
-            units = list(p_spec.values_list('unit',flat=True).distinct())
+            #units = list(p_spec.values_list('unit',flat=True).distinct())
 
-            arr =  {'colors':colors,'sizes':sizes,'units':units}
+            arr =  {'colors':colors,'sizes':sizes}
 
             return arr
 
@@ -248,7 +248,7 @@ class SearchSerializer(serializers.ModelSerializer):
     #comment_name = serializers.SerializerMethodField(method_name='get_name')
     class Meta:
         model = Product
-        fields = ('id','title','old_price','new_price','brand','images','specification','ratings')
+        fields = ('id','title','old_price','new_price','brand','unit','images','specification','ratings')
 
     def get_images(self,instance):
         try:
@@ -358,7 +358,7 @@ class SearchSerializer(serializers.ModelSerializer):
 
     def get_specification(self,instance):
 
-        arr =  {'colors':[],'sizes':[],'units':[]}
+        arr =  {'colors':[],'sizes':[]}
 
 
         
@@ -376,9 +376,9 @@ class SearchSerializer(serializers.ModelSerializer):
 
             colors = list(p_spec.values_list('color',flat=True).distinct())
             sizes = list(p_spec.values_list('size',flat=True).distinct())
-            units = list(p_spec.values_list('unit',flat=True).distinct())
+            #units = list(p_spec.values_list('unit',flat=True).distinct())
 
-            arr =  {'colors':colors,'sizes':sizes,'units':units}
+            arr =  {'colors':colors,'sizes':sizes}
 
             return arr
 

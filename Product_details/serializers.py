@@ -32,7 +32,7 @@ class ProductSpecificationSerializer(serializers.ModelSerializer):
     #hexcolor = serializers.SerializerMethodField(method_name='get_color')
     class Meta:
         model = ProductSpecification
-        fields = ('id','product_id','color','size','unit','weight','quantity') 
+        fields = ('id','product_id','color','size','weight','quantity') 
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
@@ -49,7 +49,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     question_answers = serializers.SerializerMethodField(method_name='get_comments')
     class Meta:
         model = Product
-        fields = ('id','title','description','quantity','key_features','old_price','specification','new_price','ratings','reviews','question_answers','images','imagez')
+        fields = ('id','title','description','quantity','key_features','old_price','new_price','unit','specification','ratings','reviews','question_answers','images','imagez')
 
     def get_price(self,instance):
         p_price = 0
@@ -176,7 +176,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
     def get_specification(self,instance):
 
-        arr =  {'colors':[],'sizes':[],'units':[]}
+        arr =  {'colors':[],'sizes':[]}
 
 
         
@@ -194,9 +194,9 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
             colors = list(p_spec.values_list('color',flat=True).distinct())
             sizes = list(p_spec.values_list('size',flat=True).distinct())
-            units = list(p_spec.values_list('unit',flat=True).distinct())
+            # units = list(p_spec.values_list('unit',flat=True).distinct())
 
-            arr =  {'colors':colors,'sizes':sizes,'units':units}
+            arr =  {'colors':colors,'sizes':sizes}
 
             return arr
 

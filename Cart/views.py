@@ -25,7 +25,7 @@ def add_cart(request,productid):
 	quantity = request.data.get('quantity')
 	color = request.data.get('color')
 	size = request.data.get('size')
-	unit = request.data.get('unit')
+	#unit = request.data.get('unit')
 	quantity = int(quantity)
 	if user_id is not None:
 		user_id = int(user_id)
@@ -217,7 +217,7 @@ def add_cart(request,productid):
 			
 			try:
 				#checking if the product exists in this order
-				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False,product_color=color,product_size=size,product_unit=unit)[0:1].get()
+				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False,product_color=color,product_size=size)[0:1].get()
 			except:
 				specific_order_product = None
 			
@@ -250,7 +250,7 @@ def add_cart(request,productid):
 				# product_size = [size]
 				# product_color = [unit]
 
-				orderdetails = OrderDetails.objects.create(order_id = order_id , product_id=productid,quantity=quantity,total_quantity=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size,product_unit=unit)
+				orderdetails = OrderDetails.objects.create(order_id = order_id , product_id=productid,quantity=quantity,total_quantity=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size)
 				
 				orderdetails.save()
 				orderdetailsserializer = OrderDetailsSerializer(orderdetails , data=request.data)
@@ -275,7 +275,7 @@ def add_cart(request,productid):
 
 			
 			#create a new order details for the specific product for the specific order
-			orderdetails = OrderDetails.objects.create(order_id = order.id , product_id=productid,quantity=quantity,total_quantity=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size,product_unit=unit)
+			orderdetails = OrderDetails.objects.create(order_id = order.id , product_id=productid,quantity=quantity,total_quantity=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size)
 		
 			orderdetails.save()
 			orderdetailserializer = OrderDetailsSerializer(orderdetails, data=request.data)
@@ -319,7 +319,7 @@ def add_cart(request,productid):
 			
 			try:
 				#checking if the product exists in this order
-				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False,product_color=color,product_size=size,product_unit=unit)[0:1].get()
+				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False,product_color=color,product_size=size)[0:1].get()
 			except:
 				specific_order_product = None
 			
@@ -345,7 +345,7 @@ def add_cart(request,productid):
 
 			else:
 				#create a new orderdetail for that order id if the product is bough for the first time 
-				orderdetails = OrderDetails.objects.create(order_id = order_id , product_id=productid,quantity=quantity,total_quantity=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size,product_unit=unit)
+				orderdetails = OrderDetails.objects.create(order_id = order_id , product_id=productid,quantity=quantity,total_quantity=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size)
 				
 				orderdetails.save()
 				orderdetailsserializer = OrderDetailsSerializer(orderdetails , data=request.data)
@@ -370,7 +370,7 @@ def add_cart(request,productid):
 
 			
 			#create a new order details for the specific product for the specific order
-			orderdetails = OrderDetails.objects.create(order_id = order.id , product_id=productid,quantity=quantity,total_quantity=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size,product_unit=unit)
+			orderdetails = OrderDetails.objects.create(order_id = order.id , product_id=productid,quantity=quantity,total_quantity=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size)
 		
 			orderdetails.save()
 			orderdetailserializer = OrderDetailsSerializer(orderdetails, data=request.data)
@@ -390,7 +390,7 @@ def increase_quantity(request,productid):
 	#values = {'user_id':'2', 'non_verified_user_id':''}
 	color = request.data.get('color')
 	size = request.data.get('size')
-	unit = request.data.get('unit')
+	#unit = request.data.get('unit')
 	user_id = request.data.get('user_id')
 	non_verified_user_id = request.data.get('non_verified_user_id')
 	#quantity = request.data.get('quantity')
@@ -554,7 +554,7 @@ def increase_quantity(request,productid):
 
 			try:
 				#checking if the product exists in this order
-				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False,product_color=color,product_size=size,product_unit=unit)[0:1].get()
+				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False,product_color=color,product_size=size)[0:1].get()
 
 			except:
 				specific_order_product = None
@@ -595,7 +595,7 @@ def increase_quantity(request,productid):
 
 			try:
 				#checking if the product exists in this order
-				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False,product_color=color,product_size=size,product_unit=unit)[0:1].get()
+				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False,product_color=color,product_size=size)[0:1].get()
 
 			except:
 				specific_order_product = None
@@ -631,7 +631,7 @@ def decrease_quantity(request,productid):
 
 	color = request.data.get('color')
 	size = request.data.get('size')
-	unit = request.data.get('unit')
+	#unit = request.data.get('unit')
 
 	p_price=0
 	p_discount=0
@@ -790,7 +790,7 @@ def decrease_quantity(request,productid):
 
 			try:
 				#checking if the product exists in this order
-				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False,product_color=color,product_size=size,product_unit=unit)[0:1].get()
+				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False,product_color=color,product_size=size)[0:1].get()
 
 			except:
 				specific_order_product = None
@@ -829,7 +829,7 @@ def decrease_quantity(request,productid):
 
 			try:
 				#checking if the product exists in this order
-				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False,product_color=color,product_size=size,product_unit=unit)[0:1].get()
+				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False,product_color=color,product_size=size)[0:1].get()
 
 			except:
 				specific_order_product = None
@@ -865,7 +865,7 @@ def delete_product(request,productid):
 
 	color = request.data.get('color')
 	size = request.data.get('size')
-	unit = request.data.get('unit')
+	#unit = request.data.get('unit')
 
 
 
@@ -908,7 +908,7 @@ def delete_product(request,productid):
 
 			try:
 				#checking if the product exists in this order
-				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False,product_color=color,product_size=size,product_unit=unit)[0:1].get()
+				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False,product_color=color,product_size=size)[0:1].get()
 
 			except:
 				specific_order_product = None
@@ -923,6 +923,9 @@ def delete_product(request,productid):
 				specific_order_product.is_removed = True
 				specific_order_product.save()
 				return JsonResponse({'success':True,'message':'The item has been removed from the cart'})
+
+			else:
+				return JsonResponse({'success': False,'message':'The item doesn not exist'})
 
 
 		else:
@@ -942,7 +945,7 @@ def delete_product(request,productid):
 
 			try:
 				#checking if the product exists in this order
-				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False,product_color=color,product_size=size,product_unit=unit)[0:1].get()
+				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False,product_color=color,product_size=size)[0:1].get()
 
 			except:
 				specific_order_product = None
@@ -1010,7 +1013,7 @@ def checkout(request):
 			order_products = order_details.values_list('product_id',flat = True)
 			order_colors = order_details.values_list('product_color',flat = True)
 			order_sizes = order_details.values_list('product_size',flat = True)
-			order_units = order_details.values_list('product_unit',flat = True)
+			#order_units = order_details.values_list('product_unit',flat = True)
 			order_names = order_details.values_list('product_name',flat = True)
 			order_quantity = order_details.values_list('total_quantity',flat = True)
 			print(order_ids)
@@ -1018,8 +1021,8 @@ def checkout(request):
 				print("dhuklam")
 				print(order_sizes[i])
 				print(order_colors[i])
-				print(order_units[i])
-				product = ProductSpecification.objects.filter(product_id = order_products[i],size=order_sizes[i],color=order_colors[i],unit=order_units[i]).last()
+				#print(order_units[i])
+				product = ProductSpecification.objects.filter(product_id = order_products[i],size=order_sizes[i],color=order_colors[i]).last()
 				if product:
 					product_quantity = product.quantity
 
@@ -1036,13 +1039,13 @@ def checkout(request):
 				product_name = order_names[i]
 				product_color = order_colors[i]
 				product_size = order_sizes[i]
-				product_unit = order_units[i]
+				#product_unit = order_units[i]
 				if order_quantity[i] > product_quantity:
 					current_quantity = product_quantity
 					current_name = product_name
 					current_color = product_color
 					current_size = product_size
-					current_unit = product_unit
+					#current_unit = product_unit
 					flag = False
 					break
 				else:
@@ -1070,7 +1073,7 @@ def checkout(request):
 				specific_order.save()
 
 				for i in range(len(order_products)):
-					product = ProductSpecification.objects.filter(product_id = order_products[i],size=order_sizes[i],color=order_colors[i],unit=order_units[i]).last()
+					product = ProductSpecification.objects.filter(product_id = order_products[i],size=order_sizes[i],color=order_colors[i]).last()
 					product_quantity = product.quantity
 					product.quantity -= order_quantity[i]
 					product.save()
@@ -1115,11 +1118,11 @@ def checkout(request):
 			order_products = order_details.values_list('product_id',flat = True)
 			order_colors = order_details.values_list('product_color',flat = True)
 			order_sizes = order_details.values_list('product_size',flat = True)
-			order_units = order_details.values_list('product_unit',flat = True)
+			#order_units = order_details.values_list('product_unit',flat = True)
 			order_names = order_details.values_list('product_name',flat = True)
 			order_quantity = order_details.values_list('total_quantity',flat = True)
 			for i in range(len(order_products)):
-				product = ProductSpecification.objects.filter(product_id = order_products[i],size=order_sizes[i],color=order_colors[i],unit=order_units[i]).last()
+				product = ProductSpecification.objects.filter(product_id = order_products[i],size=order_sizes[i],color=order_colors[i]).last()
 				if product:
 					product_quantity = product.quantity
 
@@ -1130,13 +1133,13 @@ def checkout(request):
 				product_name = order_names[i]
 				product_color = order_colors[i]
 				product_size = order_sizes[i]
-				product_unit = order_units[i]
+				#product_unit = order_units[i]
 				if order_quantity[i] > product_quantity:
 					current_quantity = product_quantity
 					current_name = product_name
 					current_color = product_color
 					current_size = product_size
-					current_unit = product_unit
+					#current_unit = product_unit
 					flag = False
 					break
 				else:
@@ -1161,7 +1164,7 @@ def checkout(request):
 				specific_order.save()
 
 				for i in range(len(order_products)):
-					product = ProductSpecification.objects.filter(product_id = order_products[i],size=order_sizes[i],color=order_colors[i],unit=order_units[i]).last()
+					product = ProductSpecification.objects.filter(product_id = order_products[i],size=order_sizes[i],color=order_colors[i]).last()
 					product_quantity = product.quantity
 					product.quantity -= order_quantity[i]
 					product.save()
