@@ -123,13 +123,15 @@ def delete_price(request,product_id):
 @api_view(['POST',])
 def add_specification(request):
 
-	if request.method == 'POST':
-		pointserializer = ProductSpecificationSerializer(data=request.data)
+    if request.method == 'POST':
+        pointserializer = ProductSpecificationSerializer(data=request.data)
 
-		if pointserializer.is_valid():
-			pointserializer.save()
-			return JsonResponse(pointserializer.data, status=status.HTTP_201_CREATED)
-		return Response (pointserializer.errors)
+        if pointserializer.is_valid():
+            pointserializer.save()
+            return JsonResponse({'success': True,'message': 'Data is shown below','data':pointserializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return JsonResponse({'success': False,'message': 'Data could not be inserted', 'data':{}})
+
 
 
 #This updates the latest product specification
@@ -173,20 +175,48 @@ def delete_specification(request,product_id):
 @api_view(['GET',])
 def show_specification(request,product_id):
 
-	try:
 
-		product = ProductSpecification.objects.filter(product_id=product_id)
+    try:
+        title = Product.objects.get(id=product_id)
+    except:
+        title = None
+    if title:
+        product_title = title.title
+    else:
+        product_title = ''
 
-	except:
 
-		product = None
 
-	if product is None:
-		return JsonResponse({})
+    try:
 
-	else:
-		productserializer = ProductSpecificationSerializerz(product,many=True)
-		return JsonResponse(productserializer.data,safe=False)
+        product = ProductSpecification.objects.filter(product_id=product_id)
+
+    except:
+
+        product = None
+
+    if product:
+
+        productserializer = ProductSpecificationSerializerz(product,many=True)
+        data = productserializer.data
+
+    else:
+
+        data = {}
+
+    return JsonResponse({
+    'success': True,
+    'message': 'Data is shown below',
+    'product_title': product_title,
+    'data': data
+
+    })
+
+
+		
+
+
+	
 
 
 @api_view(['POST',])
@@ -199,8 +229,10 @@ def add_spec(request,product_id):
 
         if pointserializer.is_valid():
             pointserializer.save()
-            return JsonResponse(pointserializer.data, status=status.HTTP_201_CREATED)
-        return Response (pointserializer.errors)
+            return JsonResponse({'success': True,'message': 'Data is shown below','data':pointserializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return JsonResponse({'success': False,'message': 'Data could not be inserted', 'data':{}})
+
 
 
 @api_view(['POST',])

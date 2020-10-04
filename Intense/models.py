@@ -145,6 +145,7 @@ class Profile(models.Model):
     # apartment_number = models.CharField(max_length = 264,blank=True, null=True)
     # user_id = models.IntegerField(blank = True, null = True,default=-1)
     address = models.TextField(blank = True, default="")
+    user_id = models.IntegerField (blank = True, null = True,default=-1)
 
 
 class user_relation (models.Model):
