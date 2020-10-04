@@ -135,7 +135,8 @@ class Profile(models.Model):
 
     name = models.CharField(max_length = 264, null = True, blank = True,default="")
     email = models.CharField(max_length = 64, null= True, blank = True,default="")
-    profile_picture = models.ImageField(upload_to='Profile_Img', blank=True)
+    profile_picture = models.ImageField(null=True, blank=True)
+    profile_picture_url = models.CharField(max_length=255,blank=True,null=True,default="")
     phone_number = models.CharField(max_length=100 ,  null=True,blank=True,default="")
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True,default="")
     # city = models.CharField(max_length=100, blank= True, null= True)
@@ -146,6 +147,23 @@ class Profile(models.Model):
     # user_id = models.IntegerField(blank = True, null = True,default=-1)
     address = models.TextField(blank = True, default="")
     user_id = models.IntegerField (blank = True, null = True,default=-1)
+
+
+    @property
+    def image(self):
+
+        #link ='/media/'+'Product/'+str(self.product_image)
+      
+        #print(self.product_image)
+        if self.profile_picture:
+            return "{0}{1}".format(host_name,self.profile_picture.url)
+        else:
+            return " "
+        
+    
+    def save(self, *args, **kwargs):
+          self.profile_picture_url = self.image
+          super(Profile, self).save(*args, **kwargs)
 
 
 class user_relation (models.Model):

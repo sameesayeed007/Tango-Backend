@@ -7,7 +7,7 @@ class TicketSerializer(serializers.ModelSerializer):
     replies = serializers.SerializerMethodField(method_name='all_replies')
     sender_name = serializers.SerializerMethodField(method_name='ticket_sender')
     attender_name= serializers.SerializerMethodField(method_name='ticket_attender')
-    sender_picture = serializers.SerializerMethodField(method_name='sender_picture')
+    sender_picture = serializers.SerializerMethodField(method_name='get_sender_picture')
     class Meta:
         model = Ticket
         fields = ('id','title','sender_id','sender_name','sender_picture','receiver_id','attender_name','department', 'status','complain','created', 'modified','is_active','replies')
@@ -39,7 +39,9 @@ class TicketSerializer(serializers.ModelSerializer):
             return {"message": "Attender is not decided yet"}
 
 
-    def sender_picture (self, obj):
+    def get_sender_picture (self, obj):
+
+        picture= ""
         try:
             sender = User.objects.get(id= obj.sender_id)
         except:
@@ -55,11 +57,20 @@ class TicketSerializer(serializers.ModelSerializer):
 
             if profile_pic:
 
-                picture = profile_pic.profile_picture
+                picture = profile_pic.profile_picture_url
 
             else:
 
                 picture = ""
+
+        else:
+
+            picture = ""
+
+
+        return picture
+
+         
 
 
 class TicketRepliesSerializer(serializers.ModelSerializer):
