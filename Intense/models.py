@@ -391,7 +391,7 @@ class Order(models.Model):
     user_id = models.IntegerField(blank=True,null=True,default=-1)
     ip_address = models.CharField(max_length = 255,blank=True,null=True,default="")
     checkout_status = models.BooleanField(default=False,blank=True,null=True)
-    ordered_date = models.DateTimeField(auto_now_add=True,blank=True,null=True)
+    ordered_date = models.DateField(auto_now_add=True,blank=True,null=True)
     non_verified_user_id = models.IntegerField(blank=True,null=True,default=-1)
     coupon = models.BooleanField(default=False,blank=True,null=True)
     coupon_code = models.CharField(max_length = 255,blank=True,null=True,default="")

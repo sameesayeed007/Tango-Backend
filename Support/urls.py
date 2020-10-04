@@ -13,5 +13,6 @@ urlpatterns = [
   path('receiver_ticket/<int:receiver_id>/', views.receiver_ticket),
   path('edit_reply/<int:reply_id>/', views.edit_ticketreply),
   path('delete_ticket/<int:ticket_id>/', views.delete_ticket),
+  path('dashboard/', views.dashboard),
 
 ]
