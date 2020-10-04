@@ -512,11 +512,13 @@ def get_searched_product(request,name):
                     if(value['average_ratings']>= float(my_ratings)):
                         rating_data.append(pro)
 
+        response_data = rating_data
 
-        if (rating_data):
-            print("rating ase")
 
-            response_data = rating_data
+        # if (rating_data):
+        #     print("rating ase")
+
+        #     response_data = rating_data
 
 
     price_data = []
@@ -543,12 +545,14 @@ def get_searched_product(request,name):
                     if((float(value) >= float(min_price)) and (float(value) <= float(max_price))):
                         price_data.append(pro)
 
+        response_data = price_data
 
-        if (price_data):
 
-            print("price ase")
+        # if (price_data):
 
-            response_data = price_data
+        #     print("price ase")
+
+        #     response_data = price_data
 
 
     return Response ({

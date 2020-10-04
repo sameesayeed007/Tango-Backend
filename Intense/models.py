@@ -521,6 +521,9 @@ class Product(models.Model):
     properties= models.BooleanField(default=True)
     is_group = models.BooleanField(default=False)
     unit = models.CharField(max_length=200, null = True, blank=True,default="")
+    warranty = models.CharField(max_length=200, null = True, blank=True,default="")
+    origin = models.CharField(max_length=200, null = True, blank=True,default="")
+    shipping_country = models.CharField(max_length=200, null = True, blank=True,default="")
 
 
 
