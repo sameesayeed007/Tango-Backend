@@ -46,6 +46,7 @@ from .serializers import (
         ScannerProductSerializer,
         AllGroupProductSerialyzer,
         SearchSerializer,
+        ProductAdminSerializer,
 
 		)
 
@@ -570,7 +571,7 @@ def get_all_product(request):
  #"This api is for view all Product informations"
     if (request.method == "GET"):
         queryset = Product.objects.all()
-        product_serializers = ProductSerializer(queryset , many = True)
+        product_serializers = ProductAdminSerializer(queryset , many = True)
         return Response (product_serializers.data)
 
 @api_view (["GET" , "POST"])

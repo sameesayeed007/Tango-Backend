@@ -6,7 +6,7 @@ from rest_framework import status
 import datetime
  
 from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,ProductSpecification,user_relation,Cupons,Comment,CommentReply,Reviews,discount_product
-from Product_details.serializers import ProductPriceSerializer,ProductPointSerializer,ProductSpecificationSerializer,ProductDetailSerializer,CupponSerializer,ProductDiscountSerializer
+from Product_details.serializers import ProductPriceSerializer,ProductPointSerializer,ProductSpecificationSerializer,ProductSpecificationSerializerz,ProductDetailSerializer,CupponSerializer,ProductDiscountSerializer
 from rest_framework.decorators import api_view 
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
@@ -185,7 +185,7 @@ def show_specification(request,product_id):
 		return JsonResponse({})
 
 	else:
-		productserializer = ProductSpecificationSerializer(product,many=True)
+		productserializer = ProductSpecificationSerializerz(product,many=True)
 		return JsonResponse(productserializer.data,safe=False)
 
 

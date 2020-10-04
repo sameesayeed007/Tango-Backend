@@ -35,6 +35,37 @@ class ProductSpecificationSerializer(serializers.ModelSerializer):
         fields = ('id','product_id','color','size','weight','quantity') 
 
 
+
+class ProductSpecificationSerializerz(serializers.ModelSerializer):
+    #hexcolor = serializers.SerializerMethodField(method_name='get_color')
+    product_title = serializers.SerializerMethodField(method_name='get_title')
+    class Meta:
+        model = ProductSpecification
+        fields = ('id','product_id','color','size','weight','quantity','product_title') 
+
+
+
+    def get_title(self,instance):
+
+        title = ""
+
+        try:
+
+            product = Product.objects.get(id=instance.product_id)
+
+        except:
+
+            product = None
+
+        if product:
+
+            title = product.title
+
+        return title
+
+
+
+
 class ProductDetailSerializer(serializers.ModelSerializer):
     old_price = serializers.SerializerMethodField(method_name='get_price')
     new_price = serializers.SerializerMethodField(method_name='get_discounted_price')
