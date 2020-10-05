@@ -252,7 +252,14 @@ def products_section(request):
 		if products:
 
 			products_serializers = ProductSerializer(products,many=True)
-			return JsonResponse({'success':True ,'data':products_serializers.data}, safe=False)
+			product_ids = []
+			# for i in range
+			#print(products_serializers.data[0]['id'])
+			for i in range(len(products_serializers.data)):
+				product_id = products_serializers.data[i]['id']
+				product_ids.append(product_id)
+
+			return JsonResponse({'success':True ,'data':products_serializers.data,'product_ids':product_ids}, safe=False)
 		else:
 			return JsonResponse({'success':False ,'data':[]})
 
@@ -269,7 +276,13 @@ def products_section(request):
 		if products:
 
 			products_serializers = ProductSerializer(products,many=True)
-			return JsonResponse({'success':True ,'data':products_serializers.data}, safe=False)
+			product_ids = []
+			# for i in range
+			#print(products_serializers.data[0]['id'])
+			for i in range(len(products_serializers.data)):
+				product_id = products_serializers.data[i]['id']
+				product_ids.append(product_id)
+			return JsonResponse({'success':True ,'data':products_serializers.data,'product_ids':product_ids}, safe=False)
 		else:
 			return JsonResponse({'success':False ,'data':[]})
 
@@ -287,7 +300,14 @@ def products_section(request):
 		if products:
 
 			products_serializers = ProductSerializer(products,many=True)
-			return JsonResponse({'success':True ,'data':products_serializers.data}, safe=False)
+			product_ids = []
+			# for i in range
+			#print(products_serializers.data[0]['id'])
+			for i in range(len(products_serializers.data)):
+				product_id = products_serializers.data[i]['id']
+				product_ids.append(product_id)
+
+			return JsonResponse({'success':True ,'data':products_serializers.data,'product_ids':product_ids}, safe=False)
 		else:
 			return JsonResponse({'success':False ,'data':[]})
 

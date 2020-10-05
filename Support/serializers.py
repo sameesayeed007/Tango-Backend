@@ -48,20 +48,32 @@ class TicketSerializer(serializers.ModelSerializer):
             sender = None
 
         if sender:
+            print("email_id ase")
             email_id = sender.email
 
+            print(email_id)
+
             try:
-                profile_pic = Profile.objects.filter(email=email_id).last()
+
+                profile_pic = Profile.objects.get(email=email_id)
             except:
                 profile_pic = None
 
+            print(profile_pic)
+
             if profile_pic:
+
+                print("profile picture ase")
 
                 picture = profile_pic.profile_picture_url
 
             else:
 
+                print("profile picture nai")
+
                 picture = ""
+
+            print(picture)
 
         else:
 
