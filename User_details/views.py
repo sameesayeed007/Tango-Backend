@@ -158,7 +158,7 @@ def dummy_login(request):
     email = data['email']
     password = data['password']
     user = authenticate(email=email, password=password)
-    print(user.id)
+    
 
     if user:
 
