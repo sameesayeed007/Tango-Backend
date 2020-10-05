@@ -269,12 +269,13 @@ def products_section(request,ids,level):
 
 			if 'brand' in request.GET:
 				my_brand = request.GET['brand']
+				queryset = queryset.filter(brand=my_brand)
 			else:
 				my_brand =''
 
-			new_querys = queryset.filter(brand=my_brand)
+			# new_querys = queryset.filter(brand=my_brand)
 
-			product_serializers = SearchSerializer(new_querys , many = True)
+			product_serializers = SearchSerializer(queryset , many = True)
 			response_data = product_serializers.data
 
 
@@ -360,12 +361,13 @@ def products_section(request,ids,level):
 
 			if 'brand' in request.GET:
 				my_brand = request.GET['brand']
+				queryset = queryset.filter(brand=my_brand)
 			else:
 				my_brand =''
 
-			new_querys = queryset.filter(brand=my_brand)
+			
 
-			product_serializers = SearchSerializer(new_querys , many = True)
+			product_serializers = SearchSerializer(queryset , many = True)
 			response_data = product_serializers.data
 
 
@@ -437,6 +439,8 @@ def products_section(request,ids,level):
 
 			products_serializers = SearchSerializer(products,many=True)
 			response_data = products_serializers.data
+			print("first")
+			print(response_data)
 			product_ids = []
 			# for i in range
 			#print(products_serializers.data[0]['id'])
@@ -445,20 +449,29 @@ def products_section(request,ids,level):
 				product_ids.append(product_id)
 
 
+
 			
 			queryset = Product.objects.filter(pk__in = product_ids)
+			print(queryset)
 			product_brands = list(queryset.values_list('brand',flat=True).distinct())
 
 
+
 			if 'brand' in request.GET:
+				print("brand ase")
 				my_brand = request.GET['brand']
+				queryset = queryset.filter(brand=my_brand)
 			else:
+				print("brand nai")
 				my_brand =''
 
-			new_querys = queryset.filter(brand=my_brand)
+			
 
-			product_serializers = SearchSerializer(new_querys , many = True)
+
+			product_serializers = SearchSerializer(queryset , many = True)
 			response_data = product_serializers.data
+			print("third")
+			print(response_data)
 
 
 			rating_data = []

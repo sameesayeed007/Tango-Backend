@@ -493,13 +493,14 @@ def get_searched_product(request,name):
 
     if 'brand' in request.GET:
         my_brand = request.GET['brand']
+        queryset = queryset.filter(brand=my_brand)
     else:
         my_brand =''
 
     print(my_brand)
 
-    new_querys = queryset.filter(brand=my_brand)
-    product_serializers = SearchSerializer(new_querys , many = True)
+    
+    product_serializers = SearchSerializer(queryset, many= True)
     response_data = product_serializers.data
 
     rating_data = []
