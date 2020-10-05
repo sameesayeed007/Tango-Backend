@@ -13,7 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 from datetime import timedelta  
 from django.utils import timezone
-from Product.serializers import ProductSerializer
+from Product.serializers import ProductSerializer,SearchSerializer
 
 @api_view(['POST',])
 def insert_category(request):
@@ -231,15 +231,16 @@ def insert_category(request):
 
 
 
-@api_view(['POST',])
-def products_section(request):
+@api_view(['GET',])
+def products_section(request,ids,level):
 
 
-	ids = request.data.get('id')
-	level = request.data.get('level')
+	#ids = request.data.get('id')
+	# level = request.data.get('level')
 	# sub_sub_category_id = request.data.get('sub_sub_category')
 
 	if level == "First":
+
 
 		try:
 
@@ -251,7 +252,8 @@ def products_section(request):
 
 		if products:
 
-			products_serializers = ProductSerializer(products,many=True)
+			products_serializers = SearchSerializer(products,many=True)
+			response_data = products_serializers.data
 			product_ids = []
 			# for i in range
 			#print(products_serializers.data[0]['id'])
@@ -259,9 +261,75 @@ def products_section(request):
 				product_id = products_serializers.data[i]['id']
 				product_ids.append(product_id)
 
-			return JsonResponse({'success':True ,'data':products_serializers.data,'product_ids':product_ids}, safe=False)
+
+			
+			queryset = Product.objects.filter(pk__in = product_ids)
+			product_brands = list(queryset.values_list('brand',flat=True).distinct())
+
+
+			if 'brand' in request.GET:
+				my_brand = request.GET['brand']
+			else:
+				my_brand =''
+
+			new_querys = queryset.filter(brand=my_brand)
+
+			product_serializers = SearchSerializer(new_querys , many = True)
+			response_data = product_serializers.data
+
+
+			rating_data = []
+			if 'ratings' in request.GET:
+				print("rating ey dhukse")
+				my_ratings = request.GET['ratings']
+				rating_list = [1,2,3,4,5]
+				for pro in response_data:
+					for key, value in pro.items(): 
+						if(key=='ratings' and value):
+							if(value['average_ratings']>= float(my_ratings)):
+								rating_data.append(pro)
+
+				response_data = rating_data
+
+
+        # if (rating_data):
+        #     print("rating ase")
+
+        #     response_data = rating_data
+
+
+			price_data = []
+
+			if 'max_price' or 'min_price' in request.GET:
+				print("price ey dhukse")
+				if 'max_price' in request.GET:
+					max_price = request.GET['max_price']
+
+				else:
+					max_price = 100000000 
+
+				if 'min_price' in request.GET:
+					min_price = request.GET['min_price']
+
+				else:
+					min_price = 0
+
+
+				for pro in response_data:
+					for key, value in pro.items(): 
+						if(key=='new_price' and value):
+							print(min_price)
+							if((float(value) >= float(min_price)) and (float(value) <= float(max_price))):
+								price_data.append(pro)
+
+				response_data = price_data
+
+
+			return JsonResponse({'success':True ,'data':response_data,'brands':product_brands}, safe=False)
 		else:
 			return JsonResponse({'success':False ,'data':[]})
+
+
 
 	elif level == "Second":
 
@@ -275,16 +343,84 @@ def products_section(request):
 
 		if products:
 
-			products_serializers = ProductSerializer(products,many=True)
+			products_serializers = SearchSerializer(products,many=True)
+			response_data = products_serializers.data
 			product_ids = []
 			# for i in range
 			#print(products_serializers.data[0]['id'])
 			for i in range(len(products_serializers.data)):
 				product_id = products_serializers.data[i]['id']
 				product_ids.append(product_id)
-			return JsonResponse({'success':True ,'data':products_serializers.data,'product_ids':product_ids}, safe=False)
+
+
+			
+			queryset = Product.objects.filter(pk__in = product_ids)
+			product_brands = list(queryset.values_list('brand',flat=True).distinct())
+
+
+			if 'brand' in request.GET:
+				my_brand = request.GET['brand']
+			else:
+				my_brand =''
+
+			new_querys = queryset.filter(brand=my_brand)
+
+			product_serializers = SearchSerializer(new_querys , many = True)
+			response_data = product_serializers.data
+
+
+			rating_data = []
+			if 'ratings' in request.GET:
+				print("rating ey dhukse")
+				my_ratings = request.GET['ratings']
+				rating_list = [1,2,3,4,5]
+				for pro in response_data:
+					for key, value in pro.items(): 
+						if(key=='ratings' and value):
+							if(value['average_ratings']>= float(my_ratings)):
+								rating_data.append(pro)
+
+				response_data = rating_data
+
+
+        # if (rating_data):
+        #     print("rating ase")
+
+        #     response_data = rating_data
+
+
+			price_data = []
+
+			if 'max_price' or 'min_price' in request.GET:
+				print("price ey dhukse")
+				if 'max_price' in request.GET:
+					max_price = request.GET['max_price']
+
+				else:
+					max_price = 100000000 
+
+				if 'min_price' in request.GET:
+					min_price = request.GET['min_price']
+
+				else:
+					min_price = 0
+
+
+				for pro in response_data:
+					for key, value in pro.items(): 
+						if(key=='new_price' and value):
+							print(min_price)
+							if((float(value) >= float(min_price)) and (float(value) <= float(max_price))):
+								price_data.append(pro)
+
+				response_data = price_data
+
+
+			return JsonResponse({'success':True ,'data':response_data,'brands':product_brands}, safe=False)
 		else:
 			return JsonResponse({'success':False ,'data':[]})
+
+
 
 
 	elif level == "Third":
@@ -299,7 +435,8 @@ def products_section(request):
 
 		if products:
 
-			products_serializers = ProductSerializer(products,many=True)
+			products_serializers = SearchSerializer(products,many=True)
+			response_data = products_serializers.data
 			product_ids = []
 			# for i in range
 			#print(products_serializers.data[0]['id'])
@@ -307,7 +444,71 @@ def products_section(request):
 				product_id = products_serializers.data[i]['id']
 				product_ids.append(product_id)
 
-			return JsonResponse({'success':True ,'data':products_serializers.data,'product_ids':product_ids}, safe=False)
+
+			
+			queryset = Product.objects.filter(pk__in = product_ids)
+			product_brands = list(queryset.values_list('brand',flat=True).distinct())
+
+
+			if 'brand' in request.GET:
+				my_brand = request.GET['brand']
+			else:
+				my_brand =''
+
+			new_querys = queryset.filter(brand=my_brand)
+
+			product_serializers = SearchSerializer(new_querys , many = True)
+			response_data = product_serializers.data
+
+
+			rating_data = []
+			if 'ratings' in request.GET:
+				print("rating ey dhukse")
+				my_ratings = request.GET['ratings']
+				rating_list = [1,2,3,4,5]
+				for pro in response_data:
+					for key, value in pro.items(): 
+						if(key=='ratings' and value):
+							if(value['average_ratings']>= float(my_ratings)):
+								rating_data.append(pro)
+
+				response_data = rating_data
+
+
+        # if (rating_data):
+        #     print("rating ase")
+
+        #     response_data = rating_data
+
+
+			price_data = []
+
+			if 'max_price' or 'min_price' in request.GET:
+				print("price ey dhukse")
+				if 'max_price' in request.GET:
+					max_price = request.GET['max_price']
+
+				else:
+					max_price = 100000000 
+
+				if 'min_price' in request.GET:
+					min_price = request.GET['min_price']
+
+				else:
+					min_price = 0
+
+
+				for pro in response_data:
+					for key, value in pro.items(): 
+						if(key=='new_price' and value):
+							print(min_price)
+							if((float(value) >= float(min_price)) and (float(value) <= float(max_price))):
+								price_data.append(pro)
+
+				response_data = price_data
+
+
+			return JsonResponse({'success':True ,'data':response_data,'brands':product_brands}, safe=False)
 		else:
 			return JsonResponse({'success':False ,'data':[]})
 

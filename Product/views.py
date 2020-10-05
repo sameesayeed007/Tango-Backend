@@ -498,7 +498,7 @@ def get_searched_product(request,name):
 
     print(my_brand)
 
-    new_querys = queryset.filter(brand__contains=my_brand)
+    new_querys = queryset.filter(brand=my_brand)
     product_serializers = SearchSerializer(new_querys , many = True)
     response_data = product_serializers.data
 
