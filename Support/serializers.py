@@ -10,7 +10,7 @@ class TicketSerializer(serializers.ModelSerializer):
     sender_picture = serializers.SerializerMethodField(method_name='get_sender_picture')
     class Meta:
         model = Ticket
-        fields = ('id','title','sender_id','sender_name','sender_picture','receiver_id','attender_name','department', 'status','complain','created', 'modified','is_active','replies')
+        fields = ('id','title','sender_id','sender_name','sender_picture','receiver_id','attender_name','department', 'status','complain','created', 'modified','is_active','is_attended','replies')
 
     def all_replies(self, obj):
         all_replies=[]

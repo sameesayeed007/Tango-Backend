@@ -322,6 +322,7 @@ class Ticket(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
+    is_attended = models.BooleanField(default=False)
 
     
 
@@ -344,6 +345,7 @@ class TicketReplies(models.Model):
     user_id = models.IntegerField(blank = True, null = True,default=-1)
     name = models.CharField(max_length=255,null=True)
     is_staff = models.BooleanField(default=False)
+
 
     def _str_(self):
         return str(self.reply)

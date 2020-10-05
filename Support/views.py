@@ -161,6 +161,7 @@ def ticket_list(request):
 	try:
 		tickets = Ticket.objects.all()
 		ticketserializer = TicketSerializer(tickets,many=True)
+		
 		return JsonResponse(
 			{
 				'success': True,
@@ -171,7 +172,51 @@ def ticket_list(request):
 	except Ticket.DoesNotExist:
 		return JsonResponse({
 			'success': False,
-			'message': 'The ticket does not exist'}, status=status.HTTP_404_NOT_FOUND)
+			'message': 'There are no tickets'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET',])
+def unattended_ticket_list(request):
+
+	ticket_count = 0
+
+	try:
+		tickets = Ticket.objects.filter(is_attended=False)
+
+	except:
+		tickets = None
+
+	if tickets:
+
+		ticket_lists = list(tickets.values_list('id',flat=True).distinct())
+
+		ticket_count = len(ticket_lists)
+
+		ticketserializer = TicketSerializer(tickets,many=True)
+		return JsonResponse(
+			{
+				'success': True,
+				'message': 'Data has been retrieved successfully',
+				'ticket_count': ticket_count ,
+				'data':ticketserializer.data
+			}, safe=False)
+
+
+	else:
+
+
+		return JsonResponse(
+			{
+				'success': False,
+				'message': 'No data is available',
+				'ticket_count': ticket_count ,
+				'data':{}
+			}, safe=False)
+
+
+
+
+
 
 
 #Shows the ticket by a specific id and its replies
