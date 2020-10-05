@@ -812,26 +812,37 @@ def delete_group_product_value(request, gp_id):
 @api_view(['GET',])
 def comments_product(request,product_id):
 
-     try:
+    try:
+        title = Product.objects.get(id=product_id)
+    except:
+        title = None
+    if title:
+        product_title = title.title
+    else:
+        product_title = ''
+
+
+    try:
+
         comments = Comment.objects.filter(product_id = product_id)
-        #this fetches all the comment ids
-        comment_ids = comments.values_list('id' , flat = True)
-        replies = []
-        for i in range(len(comment_ids)):
-            comment_data = CommentReply.objects.filter(comment_id=comment_ids[i])
-            replies += comment_data
 
-        if request.method == 'GET':
-            commentserializer = CommentSerializer(comments , many=True)
-            #replyserializer = CommentReplySerializer(replies , many = True)
-            #comments = [commentserializer.data,replyserializer.data]
-            return JsonResponse(commentserializer.data , safe=False)
+    except:
+
+        comments = None
 
 
+    if comments:
 
-        
-     except Comment.DoesNotExist:
-        return JsonResponse({'message': 'This comment does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        commentserializer = CommentSerializer(comments , many=True)
+        return JsonResponse({'success':True,'message':'Comment data is shown','product_title': product_title,'data':commentserializer.data}, safe=False)
+
+    else:
+
+        return JsonResponse({'success':False,'message':'Comment data cannot be shown','product_title': product_title,'data':{}}, safe=False)
+
+
+
+
 
 
 # @api_view(['GET',])
@@ -1011,19 +1022,34 @@ def delete_reply(request,reply_id):
 @api_view(['GET',])
 def reviews_product(request,product_id):
 
+
+    try:
+        title = Product.objects.get(id=product_id)
+    except:
+        title = None
+    if title:
+        product_title = title.title
+    else:
+        product_title = ''
+
     try:
         reviews = Reviews.objects.filter(product_id = product_id)
     except:
         reviews = None
 
-    if reviews is None:
+    if reviews:
+        reviewsserializer = ReviewsSerializer(reviews,many=True)
+        return JsonResponse({'success':True,'message':'Data is shown','product_title':product_title,'data':reviewsserializer.data}, safe=False)
 
-        return JsonResponse({})
+
+        
 
     else:
+        return JsonResponse({'success':False,'message':'Data is not available','product_title':product_title,'data':{}}, safe=False)
 
-        reviewsserializer = ReviewsSerializer(reviews,many=True)
-        return JsonResponse(reviewsserializer.data , safe=False)
+
+
+     
 
 
  
