@@ -821,6 +821,25 @@ def comments_product(request,product_id):
     else:
         product_title = ''
 
+    try:
+        product_images = ProductImage.objects.filter(product_id = product_id)
+
+    except:
+
+        product_images = None
+
+
+    if product_images:
+        print("ashtese")
+        images = list(product_images.values_list('image_url' , flat = True))
+            # images=[] 
+            # for i in range(len(image_ids)):
+            #     images += product_images.image
+
+
+    else:
+        images=[]
+
 
     try:
 
@@ -834,11 +853,11 @@ def comments_product(request,product_id):
     if comments:
 
         commentserializer = CommentSerializer(comments , many=True)
-        return JsonResponse({'success':True,'message':'Comment data is shown','product_title': product_title,'data':commentserializer.data}, safe=False)
+        return JsonResponse({'success':True,'message':'Comment data is shown','product_title': product_title,'images': images , 'data':commentserializer.data}, safe=False)
 
     else:
 
-        return JsonResponse({'success':False,'message':'Comment data cannot be shown','product_title': product_title,'data':{}}, safe=False)
+        return JsonResponse({'success':False,'message':'Comment data cannot be shown','product_title': product_title,'images': images ,'data':{}}, safe=False)
 
 
 
