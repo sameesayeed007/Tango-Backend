@@ -339,22 +339,86 @@ def edit_ticketinfo(request,ticket_id):
 #Creates a reply for a specific ticket reply
 def create_reply(request,ticket_id):
 
-	ticketreply = TicketReplies.objects.create(ticket_id=ticket_id)
+	reply_name = ""
+	staff = False
 
-	ticketreplies_serializer = TicketRepliesSerializer(ticketreply,data=request.data)
-	if ticketreplies_serializer.is_valid():
 
-		ticketreplies_serializer.save()
-		return JsonResponse({
+	user_id = request.data.get('user_id')
+
+	try:
+
+		names = User.objects.get(id=user_id)
+
+	except:
+
+		names = None
+
+	if names:
+
+		print("dhuksi")
+
+		if names.username:
+
+			reply_name = str(names.username)
+
+		else:
+
+			reply_name = ""
+
+
+		staff = names.is_staff
+
+
+
+
+
+		
+
+		ticketreply = TicketReplies.objects.create(ticket_id=ticket_id,user_id=user_id,name=reply_name,is_staff=staff)
+		ticketreplies_serializer = TicketRepliesSerializer(ticketreply,data=request.data)
+		if ticketreplies_serializer.is_valid():
+			ticketreplies_serializer.save()
+			return JsonResponse({
 			'success': True,
 			'message': 'Reply has been created successfully',
 			'data': ticketreplies_serializer.data
-		}, status=status.HTTP_201_CREATED)	
-	return JsonResponse({
-		'success': False,
-		'message': 'Reply could not be created',
-		'error': ticketreplies_serializer.errors
-	}, status=status.HTTP_400_BAD_REQUEST)
+				}, status=status.HTTP_201_CREATED)
+
+		else:
+
+			return JsonResponse({
+			'success': False,
+			'message': 'Reply could not be vreated',
+			'data': {}
+				})
+
+
+	else:
+
+		return JsonResponse({
+			'success': False,
+			'message': 'Reply could not be vreated',
+			'data': {}
+				})
+
+
+
+			
+
+
+
+
+
+
+
+	
+
+	
+	
+
+		
+
+
 
 
 @api_view(['POST',])

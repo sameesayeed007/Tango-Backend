@@ -342,6 +342,8 @@ class TicketReplies(models.Model):
     reply = models.TextField(blank=True,default="")
     created = models.DateTimeField(auto_now_add=True)
     user_id = models.IntegerField(blank = True, null = True,default=-1)
+    name = models.CharField(max_length=255,null=True)
+    is_staff = models.BooleanField(default=False)
 
     def _str_(self):
         return str(self.reply)
@@ -768,7 +770,7 @@ class GroupProduct(models.Model):
 #------------------------------------- Product_Comments--------------------------------
 class Comment(models.Model):
     comment = models.TextField(blank = True)
-    date_created = models.DateTimeField(auto_now_add=True)
+    date_created = models.DateField(auto_now_add=True)
     product_id = models.IntegerField(default=0)
 
     user_id = models.IntegerField(blank=True,null=True)
@@ -785,7 +787,7 @@ class Comment(models.Model):
 class CommentReply(models.Model):
     comment_id = models.IntegerField(blank = True,null=True)
     reply = models.TextField(blank = True)
-    date_created = models.DateTimeField(auto_now_add=True)
+    date_created = models.DateField(auto_now_add=True)
     user_id = models.IntegerField(blank=True,null=True)
     non_verified_user_id = models.IntegerField(blank=True,null=True)
     name = models.CharField(max_length=255,null=True)
@@ -812,7 +814,7 @@ class Reviews(models.Model):
         (5 , "Excellent"),
         )
     rating = models.IntegerField(choices=num_stars,blank=True,null=True)
-    date_created = models.DateTimeField(auto_now_add=True)
+    date_created = models.DateField(auto_now_add=True)
 
 
     def __str__(self):

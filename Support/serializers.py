@@ -89,7 +89,7 @@ class TicketRepliesSerializer(serializers.ModelSerializer):
     attender_name = serializers.SerializerMethodField(method_name='attender_reply')
     class Meta:
         model = TicketReplies
-        fields = ('id','ticket_id','reply','created','user_id','attender_name')
+        fields = ('id','ticket_id','reply','created','user_id','attender_name','name','is_staff')
 
     def attender_reply (self, obj):
         try:

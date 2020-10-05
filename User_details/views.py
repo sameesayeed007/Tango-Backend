@@ -4,6 +4,7 @@ from .serializers import RegisterSerializer, SetNewPasswordSerializer, UserBalan
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from Intense.models import User , user_relation,Settings,user_balance
+from django.contrib.auth import authenticate
 
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
@@ -93,6 +94,103 @@ class VerifyEmail(views.APIView):
             return Response({'error': 'Activation Expired'}, status=status.HTTP_400_BAD_REQUEST)
         except jwt.exceptions.DecodeError as identifier:
             return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view (["GET", "POST"])
+def dummy_user_signup(request):
+    '''
+    This is for user signup without Email varification. User will be able to signup using email and password. Signup will automatically create
+    corresponding user profile and balance. Calling http://127.0.0.1:8000/user/user_signup/ will cause to invoke this Api.
+    Response Type : Post
+    Required filed: email, password
+    Successful Post response:
+        {
+            "success": true,
+            "message": "A verification link has been sent to your email"
+        }
+    unsuccessful Post Response:
+        {
+            "success": false,
+            "message": "Some internal problem occurs"
+        }
+    '''
+    if request.method == 'POST':
+        try:
+            serializer_class = RegisterSerializer
+            user = request.data
+            serializer = serializer_class(data=user)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            user_data = serializer.data
+            user = User.objects.get(email=user_data['email'])
+            if not user.is_verified:
+                user.is_verified = True
+                user.save()
+            balance_values = {'user_id':user.id}
+            create_user_balance(balance_values)
+            profile_values ={'user_id':user.id,'email':user.email}
+            create_user_profile(profile_values)
+            return Response(
+                {
+                'success': True,
+                'message': 'You have been registered'
+                },
+                status=status.HTTP_201_CREATED
+                )
+        except:
+            return Response(
+                {
+                'success': False,
+                'message': 'Some internal problem occurs'
+                }
+                
+                )
+
+
+
+@api_view (["GET", "POST"])
+def dummy_login(request):
+
+
+
+    data = request.data
+    email = data['email']
+    password = data['password']
+    user = authenticate(email=email, password=password)
+    print(user.id)
+
+    if user:
+
+
+         return Response(
+        {
+        'success': True,
+        'message': 'You have been logged in',
+        'user' : {'user_email': user.email,'user_id': user.id}
+        
+        })
+
+
+    else:
+
+
+        return Response(
+        {
+        'success': False,
+        'message': 'You have entered the wrong username or password'
+        })
+
+
+
+
+
+
+
+
+
+
+
 
 @api_view (["GET", "POST"])
 def user_signup(request):
