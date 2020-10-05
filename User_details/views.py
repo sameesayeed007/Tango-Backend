@@ -462,14 +462,22 @@ def specific_user_profile(request, user_id):
 
     if request.method == 'GET':
         #print(request.META['HTTP_HOST'])
-        print(request.headers)
+       
         try:
 
             user_profile = Profile.objects.get(user_id = user_id)
-            user_profile_serializer = ProfileSerializer (user_profile, many = False)
-            return Response (user_profile_serializer.data)
+
         except:
-            return Response({'Message': 'Some internal problem to retrive data'})
+
+            user_profile = None
+
+        print(user_profile)
+        if user_profile:
+
+            user_profile_serializer = ProfileSerializer (user_profile, many = False)
+            return Response ({'success':True,'message':'Data is shown','data':user_profile_serializer.data})
+        else:
+            return Response({'success':True,'message':'Data is shown','data':{}})
 
 @api_view (["GET","POST"])
 def update_user_profile(request,user_id):
