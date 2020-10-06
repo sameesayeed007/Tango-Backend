@@ -230,10 +230,21 @@ def create_user(request):
         create_user_balance(balance_values)
         profile_values ={'user_id':user_id,'email':email}
         create_user_profile(profile_values)
+        try:
+            current_user = User.objects.get(id=user_id)
+        except:
+            current_user = None
+
+        if current_user:
+            new_serializer = UserSerializerz(new_user,many=False)
+            data = new_serializer.data
+        else:
+            data = {}
         return Response(
         {
         'success': True,
-        'message': 'User has been created'
+        'message': 'User has been created',
+        'data' : data
        
         })
     
@@ -243,17 +254,30 @@ def create_user(request):
         new_user.save()
         user_id = new_user.id
         email = new_user.email
-        # new_serializer = UserSerializerz(new_user,request.data)
-        # if new_serializer.is_valid():
-        #     new_serializer.save()
+
+        new_serializer = UserSerializerz(new_user,arr)
+        if new_serializer.is_valid():
+            new_serializer.save()
         balance_values = {'user_id':user_id}
         create_user_balance(balance_values)
         profile_values ={'user_id':user_id,'email':email}
         create_user_profile(profile_values)
+        try:
+            current_user = User.objects.get(id=user_id)
+        except:
+            current_user = None
+
+        if current_user:
+            new_serializer = UserSerializerz(new_user,many=False)
+            data = new_serializer.data
+        else:
+            data = {}
+
         return Response(
         {
         'success': True,
-        'message': 'User has been created'
+        'message': 'User has been created',
+        'data' : data
        
         })
     
@@ -497,6 +521,47 @@ def user_delete(request):
             return Response({'message': 'Users are deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
         except:
             return Response ({'message': 'There is no value'})
+
+
+
+@api_view (["GET","POST"])
+def delete_user(request,user_id):
+
+    try:
+   
+        users = User.objects.get(id=user_id)
+
+
+    except:
+
+        users = None
+
+
+    if users:
+        users.delete()
+        return Response ({
+                'success': True,
+                'message': 'The user has been deleted'
+                 })
+    else:
+
+        return Response ({
+                'success': False,
+                'message': 'The user down not exist'
+                 })
+
+
+    
+
+
+
+
+
+
+
+
+
+
 
 class LoginAPIView(generics.GenericAPIView):
     '''
