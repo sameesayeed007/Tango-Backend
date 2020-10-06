@@ -2307,12 +2307,34 @@ def show_address(request):
 				# district = existing_address.district
 				# road_number = existing_address.road_number
 				# building_number = existing_address.building_number
-				# apartment_number = existing_address.apartment_number
-				address = existing_address.address
-				phone_number = existing_address.phone_number
-				name = existing_address.name
-				area = existing_address.area
-				location = existing_address.location
+				# apartment_number = existing_address.apartment_numbe
+				if existing_address.address:
+					print("1")
+					address = existing_address.address
+				else:
+					address = ""
+				if existing_address.phone_number:
+					print("2")
+					phone_number = existing_address.phone_number
+				else:
+					phone_number = ""
+
+				if existing_address.name:
+					print("3")
+					name = existing_address.name
+				else:
+					name = ""
+				if existing_address.area:
+					print("4")
+					area = existing_address.area
+				else:
+					area= ""
+				if existing_address.location:
+					print("5")
+					location = existing_address.location
+
+				else:
+					location = ""
 				#create a billing address 
 				billing_address_obj = BillingAddress.objects.create(user_id=user_id,phone_number=phone_number,address=address,name=name,area=area,location=location)
 				billing_address_obj.save()

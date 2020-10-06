@@ -1727,6 +1727,10 @@ def modify_specific_product(request, product_id):
 
 
 
+    print(data)
+
+
+
     product_data_value ={
 
             
@@ -1737,6 +1741,8 @@ def modify_specific_product(request, product_id):
             'is_deleted': False,
             'properties': True
         }
+
+    print(product_data_value)
 
     category_data_value ={
 
