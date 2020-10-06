@@ -37,6 +37,8 @@ urlpatterns = [
     path('user_credential/', views.user_credentials_retrive), 
     path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('change_password/<int:user_id>/', views.user_password_change),
+    path('create_user/', views.create_user),
+    path('show_users/', views.show_users),
 
     
     

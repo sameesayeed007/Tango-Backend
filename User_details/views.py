@@ -1,6 +1,6 @@
 from django.shortcuts import render , redirect
 from rest_framework import generics, status, views
-from .serializers import RegisterSerializer, SetNewPasswordSerializer, UserBalanceSerializer, ResetPasswordEmailRequestSerializer, EmailVerificationSerializer,UserRelationSerializer, LoginSerializer,MyTokenObtainPairSerializer , UserSerializer , ProfileSerializer,GuestUserSerializer
+from .serializers import RegisterSerializer, SetNewPasswordSerializer, UserBalanceSerializer, ResetPasswordEmailRequestSerializer, EmailVerificationSerializer,UserRelationSerializer, LoginSerializer,MyTokenObtainPairSerializer , UserSerializer , ProfileSerializer,GuestUserSerializer,UserSerializerz
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from Intense.models import User , user_relation,Settings,user_balance
@@ -205,7 +205,123 @@ def dummy_logout(request):
         'message': 'You are already logged out'
        
         })
+
+
+
+
+#This is for the admin panel.Admin will use this to create a user
+@api_view (["POST",])
+def create_user(request):
+
+    email = request.data.get('email')
+    password = request.data.get('password')
+    role = request.data.get('role')
+
+    #Create an user 
+    if role == "Admin" or "Staff":
+
+        new_user = User.objects.create(email=email,password=password,role=role,is_staff=True)
+        new_user.save()
+        user_id = new_user.id
+        email = new_user.email
+        # new_serializer = UserSerializerz(new_user,request.data)
         
+        balance_values = {'user_id':user_id}
+        create_user_balance(balance_values)
+        profile_values ={'user_id':user_id,'email':email}
+        create_user_profile(profile_values)
+        return Response(
+        {
+        'success': True,
+        'message': 'User has been created'
+       
+        })
+    
+    elif role == "Seller":
+
+        new_user = User.objects.create(email=email,password=password,role=role,is_suplier=True)
+        new_user.save()
+        user_id = new_user.id
+        email = new_user.email
+        # new_serializer = UserSerializerz(new_user,request.data)
+        # if new_serializer.is_valid():
+        #     new_serializer.save()
+        balance_values = {'user_id':user_id}
+        create_user_balance(balance_values)
+        profile_values ={'user_id':user_id,'email':email}
+        create_user_profile(profile_values)
+        return Response(
+        {
+        'success': True,
+        'message': 'User has been created'
+       
+        })
+    
+
+    else:
+
+        return Response(
+            {
+            'success': False,
+            'message': 'Insert the correct role'
+           
+            })
+
+
+
+
+@api_view (["GET",])
+def show_users(request):
+
+    try:
+
+        users = User.objects.filter(is_staff=True)|User.objects.filter(is_suplier=True)
+
+    except:
+
+        users = None
+
+    if users:
+
+        user_serializer = UserSerializerz(users,many=True)
+
+        return Response(
+            {
+            'success': True,
+            'message': 'User details is shown',
+            'data': user_serializer.data
+           
+            })
+
+
+    else:
+
+
+        return Response(
+            {
+            'success': False,
+            'message': 'User details is not shown',
+            'data': {}
+           
+            })
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
     
 
 

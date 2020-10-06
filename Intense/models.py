@@ -84,6 +84,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     phone_number = models.CharField(max_length= 64,default="")
+    role = models.CharField(max_length= 64,default="")
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
