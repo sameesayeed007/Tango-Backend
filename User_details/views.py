@@ -292,6 +292,60 @@ def create_user(request):
             })
 
 
+@api_view (["POST",])
+def update_user(request,user_id):
+
+
+    print(request.data)
+
+
+    try:
+   
+        users = User.objects.get(id=user_id)
+
+
+    except:
+
+        users = None
+
+
+    if users:
+
+        user_serializer = UserSerializerz(users,data=request.data)
+        print(user_serializer.is_valid())
+        if user_serializer.is_valid():
+            print("ashterse")
+            user_serializer.save()
+            return Response(            {
+            'success': True,
+            'message': 'User details have been updated',
+            'data': user_serializer.data
+           
+            })
+
+        else:
+            print(user_serializer.errors)
+            return Response(            {
+            'success': False,
+            'message': 'User details could not be updated',
+            'data': {}
+           
+            })
+
+    else:
+
+        return Response(            {
+            'success': False,
+            'message': 'This user does not exist',
+            'data': {}
+           
+            })
+
+
+
+
+
+
 
 
 @api_view (["GET",])
@@ -551,7 +605,7 @@ def delete_user(request,user_id):
                  })
 
 
-    
+
 
 
 

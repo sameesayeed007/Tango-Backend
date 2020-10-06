@@ -75,7 +75,7 @@ class UserManager(BaseUserManager):
  
 
 class User(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=255, db_index=True)
+    username = models.CharField(max_length=255, db_index=True,null=True,blank=True)
     email = models.EmailField(max_length=255,unique=True, db_index=True)
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
