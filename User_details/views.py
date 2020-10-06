@@ -149,7 +149,7 @@ def dummy_user_signup(request):
 
 
 
-@api_view (["GET", "POST"])
+@api_view (["POST",])
 def dummy_login(request):
 
 
@@ -162,8 +162,12 @@ def dummy_login(request):
 
     if user:
 
+        request.session['user_id'] = user.id
+        request.session['user_email'] = user.email
+        
 
-         return Response(
+
+        return Response(
         {
         'success': True,
         'message': 'You have been logged in',
@@ -182,6 +186,27 @@ def dummy_login(request):
         })
 
 
+@api_view (["POST",])
+def dummy_logout(request):
+    try:
+        del request.session['user_id']
+        del request.session['user_email']
+        return Response(
+        {
+        'success': True,
+        'message': 'You have been logged out'
+       
+        })
+    except KeyError:
+
+        return Response(
+        {
+        'success': False,
+        'message': 'You are already logged out'
+       
+        })
+        
+    
 
 
 
