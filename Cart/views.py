@@ -1480,7 +1480,7 @@ def orders(request):
 	# if non_verified_user_id == 0:
 
 	try:
-		specific_order = Order.objects.filter(checkout_status=True,admin_status="Confirmed")
+		specific_order = Order.objects.filter(checkout_status=True,admin_status="Confirmed")|Order.objects.filter(checkout_status=True,admin_status="Cancelled")
 	except:
 		specific_order = None
 
