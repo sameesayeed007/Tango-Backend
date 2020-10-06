@@ -217,6 +217,8 @@ def create_user(request):
     password = request.data.get('password')
     role = request.data.get('role')
 
+
+
     #Create an user 
     if role == "Admin" or "Staff":
 
@@ -224,30 +226,33 @@ def create_user(request):
         new_user.save()
         user_id = new_user.id
         email = new_user.email
-        # new_serializer = UserSerializerz(new_user,request.data)
+        new_serializer = UserSerializerz(new_user,request.data)
+        if new_serializer.is_valid():
+            new_serializer.save()
         
-        balance_values = {'user_id':user_id}
-        create_user_balance(balance_values)
-        profile_values ={'user_id':user_id,'email':email}
-        create_user_profile(profile_values)
-        try:
-            current_user = User.objects.get(id=user_id)
-        except:
-            current_user = None
-
-        if current_user:
-            new_serializer = UserSerializerz(new_user,many=False)
+            balance_values = {'user_id':user_id}
+            create_user_balance(balance_values)
+            profile_values ={'user_id':user_id,'email':email}
+            create_user_profile(profile_values)
             data = new_serializer.data
-        else:
-            data = {}
-        return Response(
-        {
-        'success': True,
-        'message': 'User has been created',
-        'data' : data
-       
-        })
-    
+        # try:
+        #     current_user = User.objects.get(id=user_id)
+        # except:
+        #     current_user = None
+
+        # if current_user:
+        #     new_serializer = UserSerializerz(new_user,many=False)
+        #     data = new_serializer.data
+        # else:
+        #     data = {}
+            return Response(
+            {
+            'success': True,
+            'message': 'User has been created',
+            'data' : data
+           
+            })
+        
     elif role == "Seller":
 
         new_user = User.objects.create(email=email,password=password,role=role,is_suplier=True)
@@ -258,29 +263,30 @@ def create_user(request):
         new_serializer = UserSerializerz(new_user,arr)
         if new_serializer.is_valid():
             new_serializer.save()
-        balance_values = {'user_id':user_id}
-        create_user_balance(balance_values)
-        profile_values ={'user_id':user_id,'email':email}
-        create_user_profile(profile_values)
-        try:
-            current_user = User.objects.get(id=user_id)
-        except:
-            current_user = None
-
-        if current_user:
-            new_serializer = UserSerializerz(new_user,many=False)
+            balance_values = {'user_id':user_id}
+            create_user_balance(balance_values)
+            profile_values ={'user_id':user_id,'email':email}
+            create_user_profile(profile_values)
             data = new_serializer.data
-        else:
-            data = {}
+        # try:
+        #     current_user = User.objects.get(id=user_id)
+        # except:
+        #     current_user = None
 
-        return Response(
-        {
-        'success': True,
-        'message': 'User has been created',
-        'data' : data
-       
-        })
-    
+        # if current_user:
+        #     new_serializer = UserSerializerz(new_user,many=False)
+        #     data = new_serializer.data
+        # else:
+        #     data = {}
+
+            return Response(
+            {
+            'success': True,
+            'message': 'User has been created',
+            'data' : data
+           
+            })
+        
 
     else:
 
