@@ -146,7 +146,10 @@ class Profile(models.Model):
     # apartment_number = models.CharField(max_length = 264,blank=True, null=True)
     # user_id = models.IntegerField(blank = True, null = True,default=-1)
     address = models.TextField(blank = True, default="")
+    area = models.CharField(max_length=255,blank=True,null=True,default="")
+    location = models.CharField(max_length=255,blank=True,null=True,default="")
     user_id = models.IntegerField (blank = True, null = True,default=-1)
+
 
 
     @property
@@ -470,6 +473,7 @@ class BillingAddress(models.Model):
     non_verified_user_id = models.IntegerField(blank=True,null=True,default=-1)
     ip_address = models.CharField(max_length = 255,blank=True,null=True,default="")
     phone_number = models.CharField(max_length=100 ,  null=True,default="")
+    name = models.CharField(max_length = 255,blank=True,null=True,default="")
     #gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)
     # city = models.CharField(max_length=100, blank= True, null= True,default="")
     # district = models.CharField(max_length=100, blank= True, null= True,default="")
@@ -477,6 +481,8 @@ class BillingAddress(models.Model):
     # building_number = models.CharField(max_length = 264,blank=True, null=True,default="")
     # apartment_number = models.CharField(max_length = 264,blank=True, null=True,default="")
     address = models.TextField(blank = True, default="")
+    area = models.CharField(max_length=255,blank=True,null=True,default="")
+    location = models.CharField(max_length=255,blank=True,null=True,default="")
 
     def __str__(self):
         return str(self.id)

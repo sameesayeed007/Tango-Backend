@@ -335,7 +335,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         #fields ='__all__'
-        fields = ('id','date_created','order_status','delivery_status','user_id','non_verified_user_id','ip_address','checkout_status','price_total','coupon_code','coupon_percentage','point_total','ordered_date','orders')
+        fields = ('id','date_created','order_status','delivery_status','admin_status','user_id','non_verified_user_id','ip_address','checkout_status','price_total','coupon_code','coupon_percentage','point_total','ordered_date','orders')
 
 
     #This method is to calculate the total price

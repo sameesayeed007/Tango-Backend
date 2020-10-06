@@ -1480,7 +1480,7 @@ def orders(request):
 	# if non_verified_user_id == 0:
 
 	try:
-		specific_order = Order.objects.all()
+		specific_order = Order.objects.filter(checkout_status=True,admin_status="Confirmed")
 	except:
 		specific_order = None
 
@@ -1520,6 +1520,64 @@ def orders(request):
 	# 		return JsonResponse({'success':False,'message': 'You have no orders'})
 
 
+
+#This is for the admin panel. Shows all the orders not approved by the admin
+@api_view(['GET',])
+def orders_pending(request):
+
+
+
+	# user_id = request.data.get('user_id')
+	# non_verified_user_id = request.data.get('non_verified_user_id')
+	# if user_id is not None:
+	# 	user_id = int(user_id)
+	# 	non_verified_user_id =0
+
+	# else:
+	# 	non_verified_user_id = int(non_verified_user_id)
+	# 	user_id = 0
+
+	# if non_verified_user_id == 0:
+
+	try:
+		specific_order = Order.objects.filter(checkout_status=True,admin_status="Processing")
+	except:
+		specific_order = None
+
+
+	if specific_order:
+
+
+		
+		orderserializer = OrderSerializer(specific_order, many = True)
+		#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
+
+		#orders = [orderserializer.data , orderdetailserializer.data]
+		return JsonResponse({'success':True,'message':'The products in your order are shown','data':orderserializer.data}, safe=False)
+
+	else:
+		return JsonResponse({'success':False,'message': 'You have no orders'})
+
+	
+
+	# else:
+
+	# 	try:
+	# 		specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True)
+	# 	except:
+	# 		specific_order = None
+
+
+	# 	if specific_order:
+	
+	# 		orderserializer = OrderSerializer(specific_order, many = True)
+	# 		#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
+
+	# 		#orders = [orderserializer.data , orderdetailserializer.data]
+	# 		return JsonResponse({'success':True,'message':'The products in your orders are shown','data':orderserializer.data},safe=False)
+
+	# 	else:
+	# 		return JsonResponse({'success':False,'message': 'You have no orders'})
 
 
 
@@ -2052,6 +2110,70 @@ def cancel_cart(request):
 
 		else:
 			return JsonResponse({'success':False,'message': 'This cart does not exist'})
+
+
+# Admin Approval
+@api_view(['GET',])
+def admin_approval(request,order_id):
+
+
+		
+
+	try:
+		specific_order = Order.objects.get(id=order_id)
+		
+	except:
+		specific_order = None
+
+	if specific_order is not None:
+
+
+		specific_order.admin_status = "Confirmed"
+
+		orderserializer = OrderSerializer(specific_order,request.data)
+		if orderserializer.is_valid():
+			orderserializer.save()
+			return JsonResponse({'success':True,'message': 'This order has been approved'})
+
+		else:
+			return JsonResponse({'success':False,'message': 'This order does not exist'})
+
+	else:
+		return JsonResponse({'success':False,'message': 'This order does not exist'})
+
+
+
+
+# Admin Approval
+@api_view(['GET',])
+def admin_cancellation(request,order_id):
+
+
+		
+
+	try:
+		specific_order = Order.objects.get(id=order_id)
+		
+	except:
+		specific_order = None
+
+	if specific_order is not None:
+
+
+		specific_order.admin_status = "Cancelled"
+
+		orderserializer = OrderSerializer(specific_order,request.data)
+		if orderserializer.is_valid():
+			orderserializer.save()
+			return JsonResponse({'success':True,'message': 'This order has been cancelled'})
+
+		else:
+			return JsonResponse({'success':False,'message': 'This order does not exist'})
+
+	else:
+		return JsonResponse({'success':False,'message': 'This order does not exist'})
+
+
 
 
 
