@@ -2256,7 +2256,10 @@ def show_address(request):
         "non_verified_user_id": num,
         "ip_address": "",
         "phone_number": "",
-        "address": ""
+        "address": "",
+        "area": "",
+        "location": ""
+    
     }
 
 	user_id = request.data.get('user_id')
@@ -2307,8 +2310,11 @@ def show_address(request):
 				# apartment_number = existing_address.apartment_number
 				address = existing_address.address
 				phone_number = existing_address.phone_number
+				name = existing_address.name
+				area = existing_address.area
+				location = existing_address.location
 				#create a billing address 
-				billing_address_obj = BillingAddress.objects.create(user_id=user_id,phone_number=phone_number,address=address)
+				billing_address_obj = BillingAddress.objects.create(user_id=user_id,phone_number=phone_number,address=address,name=name,area=area,location=location)
 				billing_address_obj.save()
 				billing_serializer = BillingAddressSerializer(billing_address_obj,data=request.data)
 				if billing_serializer.is_valid():
