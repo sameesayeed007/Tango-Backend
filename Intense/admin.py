@@ -1,5 +1,5 @@
 from django.contrib import admin
-from Intense.models import User,Profile,user_balance,user_relation,FAQ,Guest_user,Advertisement,ProductImpression,ProductImage,discount_product,Comment,CommentReply,Reviews,Category,Sub_Category,Sub_Sub_Category,ProductCode,Cupons,GroupProduct
+from Intense.models import User,Profile,user_balance,user_relation,FAQ,Guest_user,Advertisement,ProductImpression,ProductImage,discount_product,Comment,CommentReply,Reviews,Category,Sub_Category,Sub_Sub_Category,ProductCode,Cupons,GroupProduct,Guest_user
 
 # Register your models here.
 admin.site.register(User)
@@ -20,5 +20,6 @@ admin.site.register(Sub_Sub_Category)
 admin.site.register(ProductCode)
 admin.site.register(Cupons)
 admin.site.register(GroupProduct)
+
 
 

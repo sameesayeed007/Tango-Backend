@@ -188,6 +188,33 @@ class user_balance(models.Model):
 class Guest_user(models.Model):
     ip_address = models.CharField(max_length = 64, blank = False, null = True,default="")
     Date = models.DateField (auto_now_add=True)
+    non_verified_user_id = models.IntegerField(blank=False, null=True,default=-1)
+
+    @property
+    def sub(self):
+
+
+        if self.id: 
+
+            non_id = self.id
+
+
+        else:
+
+            non_id = 0 
+
+        return non_id
+
+            
+
+
+    def save(self, *args, **kwargs):
+
+        self.non_verified_user_id = self.sub
+        super(Guest_user, self).save(*args, **kwargs)
+
+
+
 # ------------------------- Advertisement ---------------------
 
 class Advertisement(models.Model):

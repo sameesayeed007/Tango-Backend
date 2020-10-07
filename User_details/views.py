@@ -1,6 +1,6 @@
 from django.shortcuts import render , redirect
 from rest_framework import generics, status, views
-from .serializers import RegisterSerializer, SetNewPasswordSerializer, UserBalanceSerializer, ResetPasswordEmailRequestSerializer, EmailVerificationSerializer,UserRelationSerializer, LoginSerializer,MyTokenObtainPairSerializer , UserSerializer , ProfileSerializer,GuestUserSerializer,UserSerializerz
+from .serializers import RegisterSerializer, RelationSerializer,SetNewPasswordSerializer, UserBalanceSerializer, ResetPasswordEmailRequestSerializer, EmailVerificationSerializer,UserRelationSerializer, LoginSerializer,MyTokenObtainPairSerializer , UserSerializer , ProfileSerializer,GuestUserSerializer,UserSerializerz,GuestSerializer
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from Intense.models import User , user_relation,Settings,user_balance
@@ -171,7 +171,7 @@ def dummy_login(request):
         {
         'success': True,
         'message': 'You have been logged in',
-        'user' : {'user_email': user.email,'user_id': user.id}
+        'user' : {'user_email': user.email,'user_id': user.id,'role':user.role}
         
         })
 
@@ -298,6 +298,9 @@ def create_user(request):
             })
 
 
+
+
+
 @api_view (["POST",])
 def update_user(request,user_id):
 
@@ -359,7 +362,7 @@ def show_users(request):
 
     try:
 
-        users = User.objects.filter(is_staff=True)|User.objects.filter(is_suplier=True)
+        users = User.objects.filter(role="Admin")|User.objects.filter(role="Staff")|User.objects.filter(role="Seller")
 
     except:
 
@@ -392,7 +395,111 @@ def show_users(request):
 
 
 
+@api_view (["GET",])
+def get_client_ip(request):
+    user_data = {'non_verified_user_id':-1 , 'ip_address':""}
+    if 'HTTP_X_FORWARDED_FOR' in request.META:
+        print("astese2")
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        ip = x_forwarded_for.split(',')[0]
 
+        try:
+
+            guest_user = Guest_user.objects.get(ip_address=ip)
+        except:
+
+            guest_user = None
+
+        if guest_user is None:
+            #Create a guest_user
+            g_user = Guest_user.objects.create(ip_address=ip)
+            g_user.save()
+
+
+            guest_serializer = GuestSerializer(g_user,data=request.data)
+            if guest_serializer.is_valid():
+                guest_serializer.save()
+                ip_addr = guest_serializer.data['id']
+                ip_address_no = guest_serializer.data['ip_address']
+
+                non_verified_user_id = ip_addr
+                ip_address = ip_address_no
+                # Inserting the user into the user relation table
+                data = {'non_verified_user_id': non_verified_user_id}
+                #relation = user_relation.objects.create(non_verified_user_id=non_verified_user_id)
+                relation = RelationSerializer(data=data)
+                if relation.is_valid():
+                    relation.save()
+
+
+
+
+            else:
+                ip_address = ""
+                non_verified_user_id = -1
+                
+               
+
+        else:
+            
+            non_verified_user_id = guest_user.non_verified_user_id
+            ip_address = guest_user.ip_address
+
+
+
+        user_data = {'non_verified_user_id': non_verified_user_id , 'ip_address':ip_address}
+    else:
+        
+        ip = request.META.get('REMOTE_ADDR')
+        #checking to see if the guest user already exists
+        #ip = '121.0.0.1'
+        try:
+            guest_user = Guest_user.objects.get(ip_address=ip)
+        except:
+            guest_user = None
+        if guest_user is None:
+            #Create a guest_user
+            g_user = Guest_user.objects.create(ip_address=ip)
+            g_user.save()
+
+
+            guest_serializer = GuestSerializer(g_user,data=request.data)
+            if guest_serializer.is_valid():
+                guest_serializer.save()
+                ip_addr = guest_serializer.data['id']
+                ip_address_no = guest_serializer.data['ip_address']
+
+                non_verified_user_id = ip_addr
+                ip_address = ip_address_no
+                # Inserting the user into the user relation table
+                data = {'non_verified_user_id': non_verified_user_id}
+                #relation = user_relation.objects.create(non_verified_user_id=non_verified_user_id)
+                relation = RelationSerializer(data=data)
+                if relation.is_valid():
+                    relation.save()
+
+
+
+
+            else:
+                ip_address = ""
+                non_verified_user_id = -1
+                
+               
+
+        else:
+            
+            non_verified_user_id = guest_user.non_verified_user_id
+            ip_address = guest_user.ip_address
+
+
+
+        user_data = {'non_verified_user_id': non_verified_user_id , 'ip_address':ip_address}
+
+
+
+
+    return Response(user_data)
 
 
 

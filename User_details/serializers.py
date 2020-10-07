@@ -36,6 +36,20 @@ class UserSerializerz(serializers.ModelSerializer):
         model = User
         fields = "__all__"
 
+class GuestSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Guest_user
+        fields = "__all__"
+
+
+
+class RelationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = user_relation
+        fields = "__all__"
+
 
 class EmailVerificationSerializer(serializers.ModelSerializer):
     token = serializers.CharField(max_length=555)

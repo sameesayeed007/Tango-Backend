@@ -41,6 +41,7 @@ urlpatterns = [
     path('change_password/<int:user_id>/', views.user_password_change),
     path('create_user/', views.create_user),
     path('show_users/', views.show_users),
+    path('get_ip/', views.get_client_ip),
 
     
     
