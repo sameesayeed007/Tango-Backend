@@ -41,6 +41,7 @@ from django.db import transaction
 from Intense.Integral_apis import create_user_balance,create_user_profile
 # from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from django.contrib.auth.hashers import make_password
 
 
 class RegisterView(generics.GenericAPIView):
@@ -155,6 +156,7 @@ def dummy_login(request):
 
 
     data = request.data
+    print(request.data)
     email = data['email']
     password = data['password']
     user = authenticate(email=email, password=password)
@@ -216,17 +218,22 @@ def create_user(request):
     email = request.data.get('email')
     password = request.data.get('password')
     role = request.data.get('role')
+    password = make_password(password)
+    print(password)
 
 
 
     #Create an user 
     if role == "Admin" or "Staff":
 
-        new_user = User.objects.create(email=email,password=password,role=role,is_staff=True)
+        new_user = User.objects.create(email=email,password=password,role=role,is_staff=True,is_verified=True,is_active=True)
         new_user.save()
         user_id = new_user.id
         email = new_user.email
-        new_serializer = UserSerializerz(new_user,request.data)
+        print(new_user)
+        data = {'email':email,'password':password,'role':role,'is_staff':True,'is_verified':True,'is_active':True}
+        new_serializer = UserSerializerz(new_user,data=data)
+
         if new_serializer.is_valid():
             new_serializer.save()
         
@@ -245,6 +252,7 @@ def create_user(request):
         #     data = new_serializer.data
         # else:
         #     data = {}
+
             return Response(
             {
             'success': True,
@@ -252,13 +260,25 @@ def create_user(request):
             'data' : data
            
             })
+
+        else:
+            print(new_serializer.errors)
+            return Response(
+            {
+            'success': False,
+            'message': 'Could not create user',
+            
+           
+            })
+
         
     elif role == "Seller":
 
-        new_user = User.objects.create(email=email,password=password,role=role,is_suplier=True)
+        new_user = User.objects.create(email=email,password=password,role=role,is_suplier=True,is_staff=True,is_verified=True,is_active=True)
         new_user.save()
         user_id = new_user.id
         email = new_user.email
+        data = {'email':email,'password':password,'role':role,'is_staff':True,'is_verified':True,'is_active':True,'is_suplier':True}
 
         new_serializer = UserSerializerz(new_user,arr)
         if new_serializer.is_valid():
@@ -286,6 +306,17 @@ def create_user(request):
             'data' : data
            
             })
+
+        else:
+            print(new_serializer.errors)
+            return Response(
+            {
+            'success': False,
+            'message': 'Could not create user',
+            
+           
+            })
+
         
 
     else:

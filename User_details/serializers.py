@@ -16,7 +16,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
-        max_length=68, min_length=6, write_only=True)
+        max_length=568, min_length=6, write_only=True)
+    print(password)
 
     class Meta:
         model = User
@@ -31,6 +32,9 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UserSerializerz(serializers.ModelSerializer):
+
+    password = serializers.CharField(
+        max_length=568, min_length=6, write_only=True)
 
     class Meta:
         model = User
@@ -62,7 +66,7 @@ class EmailVerificationSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=255, min_length=3)
     password = serializers.CharField(
-        max_length=68, min_length=6, write_only=True)
+        max_length=568, min_length=6, write_only=True)
     tokens = serializers.CharField(max_length=68, min_length=6, read_only=True)
 
     class Meta:
@@ -131,7 +135,7 @@ class ResetPasswordEmailRequestSerializer(serializers.Serializer):
 
 class SetNewPasswordSerializer(serializers.Serializer):
     password = serializers.CharField(
-        min_length=6, max_length=68, write_only=True)
+        min_length=6, max_length=600, write_only=True)
     token = serializers.CharField(
         min_length=1, write_only=True)
     uidb64 = serializers.CharField(
