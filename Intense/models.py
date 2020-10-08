@@ -83,7 +83,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_suplier  = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    phone_number = models.CharField(max_length= 64,default="")
+    phone_number = models.CharField(max_length= 64,default="",blank=True)
     role = models.CharField(max_length= 64,default="",blank=True)
     pwd = models.CharField(max_length= 568,default="")
 
