@@ -226,12 +226,12 @@ def create_user(request):
     #Create an user 
     if role == "Admin" or "Staff":
 
-        new_user = User.objects.create(email=email,password=pwd,role=role,is_staff=True,is_verified=True,is_active=True)
+        new_user = User.objects.create(email=email,password=pwd,pwd=password,role=role,is_staff=True,is_verified=True,is_active=True)
         new_user.save()
         user_id = new_user.id
         email = new_user.email
         print(new_user)
-        data = {'email':email,'password':pwd,'role':role,'is_staff':True,'is_verified':True,'is_active':True}
+        data = {'email':email,'password':pwd,'pwd':password,'role':role,'is_staff':True,'is_verified':True,'is_active':True}
         new_serializer = UserSerializerz(new_user,data=data)
 
         if new_serializer.is_valid():
@@ -277,11 +277,11 @@ def create_user(request):
         
     elif role == "Seller":
 
-        new_user = User.objects.create(email=email,password=pwd,role=role,is_suplier=True,is_staff=True,is_verified=True,is_active=True)
+        new_user = User.objects.create(email=email,pwd=password,password=pwd,role=role,is_suplier=True,is_staff=True,is_verified=True,is_active=True)
         new_user.save()
         user_id = new_user.id
         email = new_user.email
-        data = {'email':email,'password':pwd,'role':role,'is_staff':True,'is_verified':True,'is_active':True,'is_suplier':True}
+        data = {'email':email,'password':pwd,'pwd':password,'role':role,'is_staff':True,'is_verified':True,'is_active':True,'is_suplier':True}
 
         new_serializer = UserSerializerz(new_user,arr)
         if new_serializer.is_valid():
@@ -482,7 +482,7 @@ def get_client_ip(request):
 
 
 
-        user_data = {'success':True,'non_verified_user_id': non_verified_user_id , 'ip_address':ip_address}
+        user_data = {'success':True,'non_verified_user_id': non_verified_user_id}
     else:
         
         ip = request.META.get('REMOTE_ADDR')
@@ -529,7 +529,7 @@ def get_client_ip(request):
 
 
 
-        user_data = {'success':True,'non_verified_user_id': non_verified_user_id , 'ip_address':ip_address}
+        user_data = {'success':True,'non_verified_user_id': non_verified_user_id}
 
 
 

@@ -85,6 +85,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     updated_at = models.DateTimeField(auto_now=True)
     phone_number = models.CharField(max_length= 64,default="")
     role = models.CharField(max_length= 64,default="",blank=True)
+    pwd = models.CharField(max_length= 568,default="")
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
