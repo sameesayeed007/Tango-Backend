@@ -275,36 +275,42 @@ def active_ticket(request):
 #Shows all the tickets of a specific user
 @api_view(['GET',])
 def sender_ticket(request,sender_id):
-	user = User.objects.filter(id=sender_id)
-	if user.exists():
-		try:
-			tickets = Ticket.objects.filter(sender_id=sender_id)
-			ticketid = tickets.values_list('id' , flat = True)
-			replies = []
-			for i in range(len(ticketid)):
-				ticketreplies = TicketReplies.objects.filter(ticket_id=ticketid[i])
-				replies += ticketreplies
 
-			
-			ticketserializer = TicketSerializer(tickets,many=True)
-			ticketrepliesserializer = TicketRepliesSerializer(replies,many=True)
-			return JsonResponse({
-				'success': True,
-				'message': "data has been retrived successfully",
-				'data':ticketrepliesserializer.data
-			}, safe=False)
 
-		except Ticket.DoesNotExist:
-			return JsonResponse({
-				'success': False,
-				'message': 'The ticket does not exist'
-				}, status=status.HTTP_404_NOT_FOUND)
+
+	try:
+		tickets = Ticket.objects.filter(sender_id=sender_id)
+		# ticketid = tickets.values_list('id' , flat = True)
+		# replies = []
+		# for i in range(len(ticketid)):
+		# 	ticketreplies = TicketReplies.objects.filter(ticket_id=ticketid[i])
+		# 	replies += ticketreplies
+
+	except:
+
+		tickets = None
+
+	if tickets:
+
+
+		
+		ticketserializer = TicketSerializer(tickets,many=True)
+		#ticketrepliesserializer = TicketRepliesSerializer(replies,many=True)
+		return JsonResponse({
+			'success': True,
+			'message': "data has been retrived successfully",
+			'data':ticketserializer.data
+		}, safe=False)
 
 	else:
+
 		return JsonResponse({
-				'success': False,
-				'message': 'This user does not have any ticket'
-				}, status=status.HTTP_404_NOT_FOUND)
+			'success': False,
+			'message': 'The user does not have any tickets'
+			}, status=status.HTTP_404_NOT_FOUND)
+
+
+
 
 #Shows all the tickets handled by a specific receiver
 @api_view(['GET',])
