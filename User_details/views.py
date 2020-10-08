@@ -1072,6 +1072,41 @@ def specific_user_balace_value(request,user_id):
         return Response (balance_serializers.data)
 
 
+
+@api_view (["GET",])
+def specific_user_balance_value(request,user_id):
+
+
+    try:
+
+        balance = user_balance.objects.get(user_id=user_id)
+
+    except:
+
+        balance = None
+
+
+    if balance:
+
+        balance_serializer = UserBalanceSerializer(balance,many=False)
+
+        return Response({'success':True ,'message': 'Data is shown below','data':balance_serializer.data})
+
+    else:
+
+        return Response({'success':True ,'message': 'Data is not shown below','data':{}})
+
+
+
+    # if(request.method == "GET"):
+    #     queryset = user_balance.objects.get(user_id=user_id)
+    #     balance_serializers = UserBalanceSerializer (queryset,many = False)
+    #     return Response (balance_serializers.data)
+
+
+
+
+
 @api_view (["GET","POST"])
 @transaction.atomic
 def add_wallet_value(request):
