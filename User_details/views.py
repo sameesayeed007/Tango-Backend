@@ -346,12 +346,33 @@ def create_user(request):
 def update_user(request,user_id):
 
 
-    print(request.data)
+    email = request.data.get('email')
+    password = request.data.get('password')
+    username = request.data.get('username')
+    role = request.data.get('role')
+    is_verified = request.data.get('is_verified')
+    is_active = request.data.get('is_active')
+    is_staff = request.data.get('is_staff')
+    is_suplier = request.data.get('is_suplier')
+    phone_number = request.data.get('phone_number')
+    
+
+
+    
+    if username is None:
+        username = ""
+    if phone_number is None:
+        phone_number = ""
+
+
 
 
     try:
    
         users = User.objects.get(id=user_id)
+        
+        
+       
 
 
     except:
@@ -361,26 +382,57 @@ def update_user(request,user_id):
 
     if users:
 
-        user_serializer = UserSerializerz(users,data=request.data)
-        print(user_serializer.is_valid())
-        if user_serializer.is_valid():
-            print("ashterse")
-            user_serializer.save()
-            return Response(            {
+        # user_serializer = UserSerializerz(users,data=data)
+        # print(user_serializer.is_valid())
+        # if user_serializer.is_valid():
+        #     print("ashterse")
+        #     user_serializer.save()
+
+        if username is None:
+            username = users.username
+
+        if role is None:
+            role = users.role
+
+        if phone_number is None:
+            phone_number = users.phone_number
+
+        if is_verified is None:
+            is_verified = users.is_verified
+
+        if is_staff is None:
+            is_staff = users.is_staff
+
+        if is_active is None:
+            is_active = users.is_active
+
+        if is_suplier is None:
+            is_suplier = users.is_suplier
+
+
+        #userz = User.objects.get(id=user_id).update(username = username, role=role , phone_number=phone_number,is_verified=is_verified,is_staff=is_staff,is_active=is_active,is_suplier=is_suplier)
+        users.username = username
+        users.role = role
+        users.phone_number = phone_number
+        users.is_verified = is_verified
+        users.is_suplier = is_suplier
+        users.is_staff = is_staff
+        users.is_active = is_active
+        users.save()
+
+        user_serializer = UserSerializerz(users,many=False)
+        data = user_serializer.data
+        
+
+
+        return Response(            {
             'success': True,
             'message': 'User details have been updated',
-            'data': user_serializer.data
-           
+            'data' : data
+            
             })
 
-        else:
-            print(user_serializer.errors)
-            return Response(            {
-            'success': False,
-            'message': 'User details could not be updated',
-            'data': {}
-           
-            })
+ 
 
     else:
 

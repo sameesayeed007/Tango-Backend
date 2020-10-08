@@ -1737,7 +1737,8 @@ def modify_specific_product(request, product_id):
             'title': data['title'],
             'brand': data['brand'],
             'description': data['description'],
-            'key_features':data['key_features'],
+            #'key_features':data['key_features'],
+            'shipping_country': data['shipping_country'],
             'is_deleted': False,
             'properties': True
         }
