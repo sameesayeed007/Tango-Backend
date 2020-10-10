@@ -12,7 +12,7 @@ urlpatterns = [
     path("create/", views.insert_specific_product_value),
     path('delete/<int:product_id>/', views.delete_product_value),
     path('edit/<int:product_id>/', views.get_update_product_value),
-    path('products_detail/', views.get_all_product),
+    path('get_product_using_barcode`tail/', views.get_all_product),
     path('category_detail/', views.get_all_product_category),
     path('category/create/', views.insert_specific_category_value),
     path('category/edit/<int:category_id>', views.get_update_category_value),
@@ -72,4 +72,5 @@ urlpatterns = [
     path('pending/<int:user_id>/', views.pending_products),
     path('cancelled/<int:user_id>/', views.cancelled_products),
     path('all/<int:user_id>/', views.all_products),
+    path('get_product_info/<int:product_id>/', views.get_product_info),
 ]

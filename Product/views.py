@@ -700,6 +700,42 @@ def get_all_product(request):
         return Response (product_serializers.data)
 
 
+@api_view (["GET",])
+def get_product_info(request,product_id):
+
+
+    try:
+
+        product = Product.objects.get(id=product_id)
+
+    except:
+
+        product = None 
+
+
+    if product:
+
+        product_serializers = ProductAdminSerializer(product, many = False)
+
+        return JsonResponse({'success':True,'message':'data is shown below','data':product_serializers.data})
+
+
+    else:
+
+
+        return JsonResponse({'success':False,'message':'This product does not exist','data':[]})
+
+
+
+
+
+
+
+
+
+        
+       
+
 
 
 
