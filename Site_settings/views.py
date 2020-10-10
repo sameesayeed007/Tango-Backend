@@ -131,7 +131,7 @@ def CompanyInfos(request):
         return Response (serializers.errors)
             
        
-@api_view(['POST','GET'])
+@api_view(['POST',])
 def update_CompanyInfos(request):
     '''
         This Api is for update a particular company information. It is assumes that, for a particular company there will be exactly one information.
@@ -139,17 +139,22 @@ def update_CompanyInfos(request):
         Calling  http://127.0.0.1:8000/site/update_info will invoke this Api.
         
     '''
-    if request.method == 'GET':
-        try:
-            queryset = CompanyInfo.objects.all()
-        
-        except :
-            queryset = None
+   
+    try:
+        print("hdwfubgyubfgbguyb")
+        queryset = CompanyInfo.objects.all().last()
+        print(queryset)
+        print("hdwfubgyubfgbguyb")
+    
+    except :
+        queryset = None
 
-        if queryset:
+    if queryset:
 
-        
-            serializers = CompanyInfoSerializer (queryset,many = False)
+    
+        serializers = CompanyInfoSerializer (queryset,data=request.data)
+        if serializers.is_valid():
+            serializers.save()
             return JsonResponse({
             'success': True,
             'message': 'The data is shown below',
@@ -163,27 +168,19 @@ def update_CompanyInfos(request):
             'message': 'No data is available',
             'data': {}
         })  
- 
-    elif request.method == "POST" :
-
-        try:
-            serializers = CompanyInfoSerializer (queryset, data= request.data)
-            if(serializers.is_valid()):
-                serializers.save()
-                return Response({
-                'success': True,
-                'message': 'Data has been retrived successfully',
-                'data': serializers.data
-            }, status=status.HTTP_201_CREATED)
-            return Response (serializers.errors)
-        except:
 
 
-            return Response({
-            'success': True,
-            'message': 'No data is available',
-            'data': {}
-        }, status=status.HTTP_201_CREATED)
+
+
+    else:
+
+        return JsonResponse({
+        'success': False,
+        'message': 'No data is available',
+        'data': {}
+    })  
+
+
         
 
 @api_view(['POST','GET'])

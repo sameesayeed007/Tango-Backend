@@ -1291,18 +1291,18 @@ def create_review(request):
 
             if flag == True:
                 
-                return JsonResponse({'message': 'You cant review this product because you din not buy it'})
+                return JsonResponse({'success':False,'message': 'You cant review this product because you din not buy it'})
 
             else:
                 
                 reviewserializer = ReviewsSerializer(data=request.data)
                 if reviewserializer.is_valid():
                     reviewserializer.save()
-                return JsonResponse(reviewserializer.data)
+                return JsonResponse({'success': True, 'data':reviewserializer.data})
 
 
         else:
-            return JsonResponse({'message': 'You cant review this product because you din not buy it'})
+            return JsonResponse({'success':False,'message': 'You cant review this product because you din not buy it'})
 
     else:   
 
@@ -1332,10 +1332,10 @@ def create_review(request):
                 reviewserializer = ReviewsSerializer(data=request.data)
                 if reviewserializer.is_valid():
                     reviewserializer.save()
-                return JsonResponse(reviewserializer.data)
+                return JsonResponse({'success': True, 'data':reviewserializer.data})
 
         else:
-            return JsonResponse({'message': 'You cant review this product because you din not buy it'})
+            return JsonResponse({'success':False,'message': 'You cant review this product because you din not buy it'})
 
 
         
