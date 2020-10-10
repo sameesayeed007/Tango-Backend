@@ -2350,14 +2350,14 @@ def show_address(request):
 				
 
 				
-				billing_address_obj = BillingAddress.objects.create(user_id=user_id)
-				billing_address_obj.save()
-				billing_serializer = BillingAddressSerializer(billing_address_obj,data=request.data)
-				if billing_serializer.is_valid():
-					billing_serializer.save()
-					return JsonResponse({'success':True,'data':billing_serializer.data})
-				else:
-					return JsonResponse(billing_serializer.errors)
+				# billing_address_obj = BillingAddress.objects.create(user_id=user_id)
+				# billing_address_obj.save()
+				# billing_serializer = BillingAddressSerializer(billing_address_obj,data=request.data)
+				# if billing_serializer.is_valid():
+				# 	billing_serializer.save()
+				return JsonResponse({'success':False,'data':[arr]})
+				# else:
+				# 	return JsonResponse(billing_serializer.errors)
 
 	else:
 		print("Coming HERE")
@@ -2373,7 +2373,7 @@ def show_address(request):
 
 		if address is None:
 			#print("Yessssss")
-			return JsonResponse({'success':False,'data':arr})
+			return JsonResponse({'success':False,'data':[arr]})
 			
 		else:
 			#print("Coming here")
@@ -2415,8 +2415,17 @@ def edit_address(request):
 			if billing_address_serializer.is_valid():
 				billing_address_serializer.save()
 				return JsonResponse({'success':True,'data':billing_address_serializer.data},safe=False)
+
 		else:
-			return JsonResponse({'success':False,'data':{}},safe=False)
+
+			#create a new billing address
+			billing_address_serializer = BillingAddressSerializer(data=request.data)
+			if billing_address_serializer.is_valid():
+				billing_address_serializer.save()
+				return JsonResponse({'success':True,'data':billing_address_serializer.data},safe=False)
+
+		# else:
+		# 	return JsonResponse({'success':False,'data':{}},safe=False)
 
 
 		
