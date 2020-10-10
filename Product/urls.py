@@ -71,5 +71,5 @@ urlpatterns = [
     path('approved/<int:user_id>/', views.approved_products),
     path('pending/<int:user_id>/', views.pending_products),
     path('cancelled/<int:user_id>/', views.cancelled_products),
-    
+    path('all/<int:user_id>/', views.all_products),
 ]

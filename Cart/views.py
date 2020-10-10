@@ -1472,7 +1472,8 @@ def specific_order(request,order_id):
 	# if non_verified_user_id == 0:
 
 	try:
-		specific_order = Order.objects.filter(id=order_id)
+		specific_order = Order.objects.get(id=order_id)
+		print(specific_order)
 	except:
 		specific_order = None
 
@@ -1481,7 +1482,7 @@ def specific_order(request,order_id):
 
 
 		
-		orderserializer = OrderSerializer(specific_order, many = True)
+		orderserializer = OrderSerializer(specific_order)
 		#orderdetailserializer = OrderDetailsSerializer(orderdetails , many= True)
 
 		#orders = [orderserializer.data , orderdetailserializer.data]
@@ -1629,7 +1630,7 @@ def orders_to_pay(request):
 	if non_verified_user_id == 0:
 
 		try:
-			specific_order = Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="To ship",order_status="Unpaid")
+			specific_order = Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="To ship",order_status="Unpaid",admin_status="Confirmed")
 		except:
 			specific_order = None
 
@@ -1652,7 +1653,7 @@ def orders_to_pay(request):
 	else:
 
 		try:
-			specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True,delivery_status="To ship",order_status="Unpaid")
+			specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True,delivery_status="To ship",order_status="Unpaid",admin_status="Confirmed")
 		except:
 			specific_order = None
 
@@ -1689,7 +1690,7 @@ def orders_to_ship(request):
 	if non_verified_user_id == 0:
 
 		try:
-			specific_order = Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="To ship")
+			specific_order = Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="To ship",admin_status="Confirmed",order_status="Unpaid")|Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="To ship",admin_status="Confirmed",order_status="Paid")
 		except:
 			specific_order = None
 
@@ -1750,7 +1751,7 @@ def orders_received(request):
 	if non_verified_user_id == 0:
 
 		try:
-			specific_order = Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="Received",order_status="Paid")
+			specific_order = Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="Received",order_status="Paid",admin_status="Confirmed")
 		except:
 			specific_order = None
 
@@ -1773,7 +1774,7 @@ def orders_received(request):
 	else:
 
 		try:
-			specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True,delivery_status="Received",order_status="Paid")
+			specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=True,delivery_status="Received",order_status="Paid",admin_status="Confirmed")
 		except:
 			specific_order = None
 
@@ -1808,7 +1809,7 @@ def orders_cancelled(request):
 	if non_verified_user_id == 0:
 
 		try:
-			specific_order = Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="Cancelled",order_status="Cancelled")
+			specific_order = Order.objects.filter(user_id=user_id,checkout_status=True,delivery_status="Cancelled",order_status="Cancelled",admin_status="Cancelled")
 		except:
 			specific_order = None
 
@@ -2030,7 +2031,7 @@ def cancel_specific_order(request,order_id):
 
 	if specific_order is not None:
 
-		if (specific_order.delivery_status == "To pay") and (specific_order.order_status == "Unpaid") and (specific_order.admin_status == "Processing"):
+		if (specific_order.delivery_status == "To ship") and (specific_order.order_status == "Unpaid") and (specific_order.admin_status == "Processing"):
 
 
 			order_date = specific_order.ordered_date
@@ -2057,6 +2058,51 @@ def cancel_specific_order(request,order_id):
 
 	else:
 		return JsonResponse({'success':False,'message': 'This order does not exist'})
+
+
+
+
+
+
+
+@api_view(['POST',])
+def cancelorder(request,order_id):
+
+
+
+	try:
+		specific_order =Order.objects.get(id=order_id)
+	except:
+		specific_order = None
+
+
+	if specific_order is not None:
+
+		if specific_order.admin_status == "Processing":
+
+			specific_order.order_status = "Cancelled"
+			specific_order.delivery_status = "Cancelled"
+			specific_order.admin_status = "Cancelled"
+			specific_order.save()
+			orderserializer = OrderSerializer(specific_order,request.data)
+			if orderserializer.is_valid():
+				orderserializer.save()
+				return JsonResponse({'success':True,'message': 'This order has been cancelled'})
+
+			else:
+				return JsonResponse({'success':False,'message': 'This order cannot be cancelled now'})
+
+		else:
+			return JsonResponse({'success':False,'message': 'This order has already been cofirmed by the admin'})
+
+
+	else:
+		return JsonResponse({'success':False,'message': 'This order does not exist'})
+
+
+
+
+
 
 
 

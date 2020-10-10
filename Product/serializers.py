@@ -298,7 +298,7 @@ class ProductAdminSerializer(serializers.ModelSerializer):
     #comment_name = serializers.SerializerMethodField(method_name='get_name')
     class Meta:
         model = Product
-        fields = ('id','seller_name','title','brand','date','description','key_features','properties','unit','warranty','origin','shipping_country','old_price','new_price','discount_type','discount_amount','discount_start_date','discount_end_date','point','point_start_date','point_end_date','images','specification','quantity','category','sub_category','sub_sub_category')
+        fields = ('id','seller_name','product_admin_status','title','brand','date','description','key_features','properties','unit','warranty','origin','shipping_country','old_price','new_price','discount_type','discount_amount','discount_start_date','discount_end_date','point','point_start_date','point_end_date','images','specification','quantity','category','sub_category','sub_sub_category')
 
     def get_images(self,instance):
         try:
@@ -733,7 +733,7 @@ class ProductAdminSerializer(serializers.ModelSerializer):
 
         try:
 
-            username = User.objects.get(id=instance.seller.id)
+            username = User.objects.get(id=instance.seller)
 
         except:
 

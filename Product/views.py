@@ -652,6 +652,35 @@ def cancelled_products(request,user_id):
 
 
 
+@api_view (["GET",])
+def all_products(request,user_id):
+
+
+    try:
+
+        products = Product.objects.filter(seller=user_id)
+
+    except:
+
+        products = None
+
+
+    if products:
+
+        product_serializer = ProductAdminSerializer(products,many=True)
+
+        return JsonResponse({'success':True,'message':'Data is shown','data':product_serializer.data})
+
+
+    else:
+
+
+        return JsonResponse({'success':False,'message':'Data is not shown','data': []})
+
+
+
+
+
 
 
 

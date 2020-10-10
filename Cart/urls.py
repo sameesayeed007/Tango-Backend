@@ -31,6 +31,7 @@ urlpatterns = [
     path('show_address/', views.show_address),
     path('edit_address/', views.edit_address),
     path('check_coupon/', views.check_coupon),
+    path('cancelorder/<int:order_id>/', views.cancelorder),
     #path('addpoints/', views.add_points),
    
 
