@@ -4,7 +4,7 @@ from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
 from rest_framework import status
  
-from Intense.models import Ticket, TicketReplies,User,Order
+from Intense.models import Ticket, TicketReplies,User,Order,Product ,ProductImpression
 from .serializers import TicketSerializer ,TicketRepliesSerializer
 from rest_framework.decorators import api_view 
 from django.views.decorators.csrf import csrf_exempt
@@ -220,13 +220,14 @@ def unattended_ticket_list(request):
 
 
 @api_view(['GET',])
-def dashboard(request):
+def seller_dashboard(request,user_id):
 
 
 	total_sales = 0
 	total_customers = 0
 	current_products = 0
-	total_staff = 0
+	cancelled_products= 0
+	total_prods = 0
 
 
 
@@ -235,121 +236,97 @@ def dashboard(request):
 
 	try:
 
-		orders = Order.objects.filter(checkout_status=True,ordered_date=current_date)
+		products = Product.objects.filter(seller=user_id,product_admin_status="Confirmed")
+		
 
 	except:
 
-		orders = None
-
-	print(orders)
-
-	if orders:
-
-
-		print("ashtese")
+		products = None
 
 
 
-		order_list = list(orders.values_list('id',flat=True).distinct())
-		total_orders = len(order_list)
+	if products:
 
-
-	try:
-
-		orders_customers = Order.objects.filter(checkout_status=True)
-
-
-	except:
-
-		orders_customers = None 
-
-	
-
-
-	if orders_customers:
-
-		verified_customers = 0
-		non_verified_customers = 0
 
 		
 
-		customer_list = list(orders_customers.values_list('user_id',flat=True).distinct())
-		# print(customer_list)
-		if -1 in customer_list:
-			# print("customer eu minus")
-			verified_customers = len(customer_list)-1
-		else:
-			verified_customers = len(customer_list)
-
-		# print(verified_customers)
-		non_customer_list = list(orders_customers.values_list('non_verified_user_id',flat=True).distinct())
-		if -1 in non_customer_list:
-			# print("noncustomer eu minus")
-			non_verified_customers = len(non_customer_list)-1
-		else:
-			non_verified_customers = len(non_customer_list)
-
-		# print(non_verified_customers)
-		# print("dagwdufdfg")
-
-		# print(customer_list)
-		# print(non_customer_list)
-
-		# print(verfied_customers)
-		# print(non_verified_customers)
 
 
-		total_customers = verified_customers + non_verified_customers
+		product_list = list(products.values_list('id',flat=True).distinct())
+		total_products = int(len(product_list))
+		current_products = total_products
+	
+
+		for i in range(len(product_list)):
+
+			try:
+				p_imp =  ProductImpression.objects.filter(product_id=product_list[i]).last()
+				print(p_imp)
+
+			except:
+
+				p_imp = None 
+
+			if p_imp:
+
+				total_sales += p_imp.sales_count
+
+				total_verified_customers = len(p_imp.users)
+				total_non_customers = len(p_imp.non_verified_user)
+
+
+				total_customers += int(total_verified_customers) + int(total_non_customers)
+
+			else:
+
+				total_sales = total_sales
+				total_customers = total_customers
+
+
+
+
+
+
+	else:
+		print("ashteset na")
+
+		total_sales = 0
+		total_customers = 0
+		current_products= 0
+
+
 
 
 	try:
 
-		sellers = User.objects.filter(is_suplier=True)
+		product = Product.objects.filter(seller=user_id,product_admin_status="Cancelled")
+		
 
 	except:
 
-		sellers = None
-
-	if sellers:
-
-		sellers_list = list(sellers.values_list('id',flat=True).distinct())
-
-		total_sellers = len(sellers_list)
+		product = None
 
 
-	try:
 
-		staff = User.objects.filter(is_staff=True)
-
-
-	except:
-
-		staff = None
-
-	if staff:
-
-		staff_list = list(staff.values_list('id',flat=True).distinct())
-
-		total_staff = len(staff_list)
+	if product:
 
 
-	data = {
-				'orders': total_orders,
-				'total_customers': total_customers,
-				'total_sellers': total_sellers,
-				'total_staff': total_staff
+		product_lists = list(product.values_list('id',flat=True).distinct())
+		total_product = int(len(product_lists))
+		cancelled_products = total_product
 
-			}
+
+	else:
+
+		cancelled_products = 0
 
 
 
 
-	return JsonResponse(
-			{
-				'success': True,
-				'message': 'Data is shown below',
-				'data': data
-			}, safe=False)
+
+	data = {'total_sales':total_sales,'total_customers':total_customers,'current_products':current_products,'cancelled_products':cancelled_products}
+
+	return JsonResponse({'success':True,'message':'Info is shown below','data':data},safe=False)
 
 
 

@@ -68,5 +68,8 @@ urlpatterns = [
     path('modify_group_product/<int:product_id>/', views.modify_specific_group_product),
     path('all_group_product/<int:number>/', views.get_all_detailed_group_product),
     path('search/<str:name>/', views.get_searched_product),
+    path('approved/<int:user_id>/', views.approved_products),
+    path('pending/<int:user_id>/', views.pending_products),
+    path('cancelled/<int:user_id>/', views.cancelled_products),
     
 ]

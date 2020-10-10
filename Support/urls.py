@@ -15,5 +15,7 @@ urlpatterns = [
   path('edit_reply/<int:reply_id>/', views.edit_ticketreply),
   path('delete_ticket/<int:ticket_id>/', views.delete_ticket),
   path('dashboard/', views.dashboard),
+  path('seller_dashboard/<int:user_id>/', views.seller_dashboard),
+
 
 ]

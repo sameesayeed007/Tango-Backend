@@ -570,7 +570,7 @@ class Product(models.Model):
     ("Confirmed", "Confirmed"),
     ("Cancelled", "Cancelled"),
     )
-    seller = models.ForeignKey(User, on_delete=models.CASCADE , null=True)
+    seller = models.IntegerField(default=-1,blank=True)
     product_admin_status = models.CharField(choices=admin_approval, max_length=155, default="Processing",blank=True,null=True)
 
     category_id = models.IntegerField( blank=True , null=True,default=-1)

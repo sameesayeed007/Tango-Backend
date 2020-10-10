@@ -565,6 +565,101 @@ def get_searched_product(request,name):
                 })
  
 
+@api_view (["GET",])
+def approved_products(request,user_id):
+
+
+    try:
+
+        products = Product.objects.filter(seller=user_id,product_admin_status="Confirmed")
+
+    except:
+
+        products = None
+
+
+    if products:
+
+        product_serializer = ProductAdminSerializer(products,many=True)
+
+        return JsonResponse({'success':True,'message':'Data is shown','data':product_serializer.data})
+
+
+    else:
+
+
+        return JsonResponse({'success':False,'message':'Data is not shown','data': []})
+
+
+
+
+
+
+@api_view (["GET",])
+def pending_products(request,user_id):
+
+
+    try:
+
+        products = Product.objects.filter(seller=user_id,product_admin_status="Processing")
+
+    except:
+
+        products = None
+
+
+    if products:
+
+        product_serializer = ProductAdminSerializer(products,many=True)
+
+        return JsonResponse({'success':True,'message':'Data is shown','data':product_serializer.data})
+
+
+    else:
+
+
+        return JsonResponse({'success':False,'message':'Data is not shown','data': []})
+
+
+
+
+@api_view (["GET",])
+def cancelled_products(request,user_id):
+
+
+    try:
+
+        products = Product.objects.filter(seller=user_id,product_admin_status="Cancelled")
+
+    except:
+
+        products = None
+
+
+    if products:
+
+        product_serializer = ProductAdminSerializer(products,many=True)
+
+        return JsonResponse({'success':True,'message':'Data is shown','data':product_serializer.data})
+
+
+    else:
+
+
+        return JsonResponse({'success':False,'message':'Data is not shown','data': []})
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @api_view (["GET","post"])
 def get_all_product(request):
@@ -574,6 +669,13 @@ def get_all_product(request):
         queryset = Product.objects.all()
         product_serializers = ProductAdminSerializer(queryset , many = True)
         return Response (product_serializers.data)
+
+
+
+
+
+
+
 
 @api_view (["GET" , "POST"])
 #"This api is for view create  product.  "
