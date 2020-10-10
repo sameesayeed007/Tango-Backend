@@ -1082,6 +1082,23 @@ def checkout(request):
 					if productserializer.is_valid():
 						print("ffbwybwbfywefbweyfbefb")
 						productserializer.save()
+
+						sales_count = 0  
+						try:
+							product_impression = ProductImpression.objects.filter(product_id=order_products[i])[0:1].get()
+							print(product_impression)
+						except:
+							product_impression = None
+
+						if ProductImpression is None:
+							print("hochche na")
+							pass
+						else:
+							print("hochche")
+							product_impression.sales_count += order_quantity[i]
+							product_impression.save()
+
+							print(product_impression.sales_count)
 					else:
 						print("erroesssss")
 						return JsonResponse(productserializer.errors)
@@ -1173,6 +1190,20 @@ def checkout(request):
 					if productserializer.is_valid():
 						print("ffbwybwbfywefbweyfbefb")
 						productserializer.save()
+
+						sales_count = 0  
+						try:
+							product_impression = ProductImpression.objects.filter(product_id=order_products[i])[0:1].get()
+						except:
+							product_impression = None
+
+						if ProductImpression is None:
+							pass
+						else:
+							product_impression.sales_count += order_quantity[i]
+							product_impression.save()
+
+
 					else:
 						print("erroesssss")
 						return JsonResponse(productserializer.errors)
