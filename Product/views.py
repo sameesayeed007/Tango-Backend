@@ -681,6 +681,72 @@ def all_products(request,user_id):
 
 
 
+#This shows all the seller products
+@api_view (["GET","post"])
+def get_all_products(request):
+
+
+    try:
+
+        products = Product.objects.all()
+
+    except:
+
+        products = None 
+
+
+    if products:
+
+
+        seller_ids = list(products.values_list('seller',flat=True).distinct())
+
+        seller_ids.remove(-1)
+
+
+    else:
+
+        seller_ids = []
+
+
+    try:
+
+        seller_products = Product.objects.filter(seller__in=seller_ids)
+
+    except:
+
+        seller_products = None
+
+
+    if seller_products:
+
+
+        product_serializer = ProductAdminSerializer(seller_products,many=True)
+
+        return JsonResponse({'success':True,'message':'Data is shown','data':product_serializer.data})
+
+
+
+    else:
+
+
+        return JsonResponse({'success':True,'message':'Data is shown','data':[]})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
