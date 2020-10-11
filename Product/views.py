@@ -1597,7 +1597,7 @@ def product_insertion_admin(request):
     # print(request.data)
     data = request.data
     # data = request.body
-    
+    # print(data)
 
 
 
@@ -1605,12 +1605,19 @@ def product_insertion_admin(request):
 
     # im = data['images']
 
-    print(len(data))
+    # print(len(data))
 
-    count = len(data)-13
-    print(count)
+    count = len(data)-19
+    # print(count)
+
+    # print(request.data.get("Warranty"))
 
     key_features = request.data.get("key_features")
+    # print(key_features)
+    user_id = request.data.get("user_id")
+    user_role = request.data.get("user_role")
+
+
     # print(key_features)
     # print(key_features)
 
@@ -1634,19 +1641,55 @@ def product_insertion_admin(request):
     features = key_features.split(",")
     # print(features)
 
-    
+    if user_role == "Seller":
 
+        print("ami ekta seller")
   
-    product_data_value ={
+        product_data_value ={
 
             
+            'seller': request.data.get("user_id"),
+            'product_admin_status': 'Processing',
             'title': request.data.get("title"),
             'brand': request.data.get("brand"),
             'description':request.data.get("description"),
+            'warranty':request.data.get("Warranty"),
+            'origin':request.data.get("origin"),
+            'shipping_country':request.data.get("shipping_country"),
+            'unit':request.data.get("unit"),
             'key_features':features,
             'is_deleted': False,
             'properties': True
         }
+
+
+    else:
+
+        print("ami admin")
+
+
+        product_data_value ={
+
+            
+            
+            'product_admin_status': 'Confirmed',
+            'title': request.data.get("title"),
+            'brand': request.data.get("brand"),
+            'description':request.data.get("description"),
+            'warranty':request.data.get("Warranty"),
+            'origin':request.data.get("origin"),
+            'shipping_country':request.data.get("shipping_country"),
+            'unit':request.data.get("unit"),
+            'key_features':features,
+            'is_deleted': False,
+            'properties': True
+        }
+
+
+
+
+
+
 
     category_data_value ={
 
@@ -1690,7 +1733,7 @@ def product_insertion_admin(request):
     product_point ={
         'point': request.data.get("point"),
         # 'end_date': data['point_end_date']
-        'end_date': date
+        'end_date': request.data.get("point_end_date")
     }
 
     product_discount ={
@@ -1698,7 +1741,7 @@ def product_insertion_admin(request):
         'amount': request.data.get("amount"),
         #'start_date' : '2020-09-05',
         #'end_date' : data['discount_end_date']
-        'end_date':date
+        'end_date': request.data.get("discount_end_date")
     }
 
     # product_image=[
@@ -1739,22 +1782,26 @@ def product_insertion_admin(request):
             discount_data = product_discount_data_upload(product_discount)
             print("8")
 
-            # for i in range(int(count)):
-            #     print(i)
-            #     dataz = request.data
-            #     image = dataz['images['+str(i)+']']
-            #     print("aaaaaaaaaaaaaaaaaaa")
-            #     print(image)
-            #     image_data = {'product_image':image}
-                
-            #     product_image = ProductImage.objects.create(product_image=image,product_id=product_id)
-            #     product_image.save()
-            #     print(product_image)
-            #     product_image_serializer = ProductImageSerializer(product_image,data=image_data)
+            for i in range(int(count)):
 
-            #     if product_image_serializer.is_valid():
-            #         product_image_serializer.save()
-            #         print("saved")
+                dataz = request.data
+                image = dataz['images['+str(i)+']']
+                
+                print(image)
+                image_data = {'product_image':image,'product_id':product_id}
+                
+                product_image = ProductImage.objects.create(product_image=image,product_id=product_id)
+                #product_image.save()
+                print(product_image)
+                product_image_serializer = ProductImageSerializer(product_image,data=image_data)
+
+                if product_image_serializer.is_valid():
+                    
+                    product_image_serializer.save()
+                    
+
+                else:
+                    print(product_image_serializer.errors)
                     
             #product_img =[]
             #product_spec=[]
