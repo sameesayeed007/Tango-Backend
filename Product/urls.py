@@ -73,4 +73,5 @@ urlpatterns = [
     path('cancelled/<int:user_id>/', views.cancelled_products),
     path('all/<int:user_id>/', views.all_products),
     path('product_details/', views.get_all_product),
+    path('get_product_info/<int:product_id>/', views.get_product_info),
 ]
