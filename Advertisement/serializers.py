@@ -14,7 +14,7 @@ class AdvertisementSerializer(serializers.ModelSerializer):
 	image_url = serializers.SerializerMethodField(method_name='get_image')
 	class Meta: 
 		model = Advertisement
-		fields =('id','ad_link','image','image_url','content','click_count','view_count','total_click_count','total_view_count')
+		fields =('id','ad_link','priority','image','image_url','content','click_count','view_count','total_click_count','total_view_count')
     
 
 	def get_image(self,instance):

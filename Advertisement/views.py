@@ -50,26 +50,53 @@ def show_ad(request,ad_id):
 			}, status=status.HTTP_404_NOT_FOUND)
 
 
+
+
 #This shows all the ad
 @api_view(['GET',])
 def show_all_ads(request):
 
 	try:
-		ad = Advertisement.objects.all()
+		ad1 = Advertisement.objects.filter(priority=2)
+
+	except:
+
+		ad1 = None
+
+	if ad1:
 		
-		adserializer = AdvertisementSerializer(ad,many=True)
-		return JsonResponse({
-			'success': True,
-			'message': 'Data has been retrived successfully',
-			'data': adserializer.data
-		},safe=False)
+		adserializer = AdvertisementSerializer(ad1,many=True)
+		data = adserializer.data 
 
-	except Advertisement.DoesNotExist:
-		return JsonResponse({
-			'success': False,
-			'message': 'This Advertisement does not exist'}, status=status.HTTP_404_NOT_FOUND)
+	else:
+
+		data = [] 
+
+	try:
+		ad2 = Advertisement.objects.filter(priority=1)
+
+	except:
+
+		ad2 = None
+
+	if ad2:
+
+		adserializer1 = AdvertisementSerializer(ad2,many=True)
+		data1 = adserializer1.data
 
 
+	else:
+
+		data1 = []
+
+
+
+	return JsonResponse({
+		'success': True,
+		'message': 'Data has been retrived successfully',
+		'data': data,
+		'data1' : data1
+	},safe=False)
 
 #This updates the latest product specification
 @api_view(['POST',])

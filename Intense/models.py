@@ -227,6 +227,7 @@ class Advertisement(models.Model):
     view_count = models.IntegerField(default=0)
     total_click_count = models.IntegerField(default =0)
     total_view_count = models.IntegerField(default=0)
+    priority = models.IntegerField(default=-1)
     
     def __str__(self):
         return str(self.content)
