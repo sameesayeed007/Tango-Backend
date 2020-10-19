@@ -1345,7 +1345,106 @@ def delete_shop(request,shop_id):
 
 
 
+@api_view(["GET",])
+def get_inventory_lists(request, order_details_id):
 
+
+    try:
+
+        product = OrderDetails.objects.get(id=order_details_id)
+
+    except:
+
+        product = None 
+
+
+   
+
+
+    if product:
+
+
+        product_id = product.product_id
+        product_size = product.product_size
+        product_color = product.product_color
+
+
+
+        try:
+
+            spec = ProductSpecification.objects.get(
+                    product_id=product_id, size=product_size, color=product_color) 
+
+
+        except:
+
+            spec = None 
+
+
+        
+
+
+        if spec:
+
+            specification_id = spec.id 
+
+
+            try:
+
+                warehouses = WarehouseInfo.objects.filter(specification_id=specification_id)
+
+            except:
+
+                warehouses = None
+
+
+
+
+
+            if warehouses:
+
+                warehouse_ids = list()
+
+                warehouses_serializer = WareHouseSerializer(warehouses,many=True)
+                warehouse_data = warehouses_serializer.data
+
+            else:
+
+                warehouse_data = []
+
+
+
+            try:
+
+                warehouses = Shop.objects.filter(specification_id=specification_id)
+
+            except:
+
+                warehouses = None
+
+
+            if warehouses:
+
+                warehouses_serializer = ShopSerializer(warehouses,many=True)
+                shop_data = warehouses_serializer.data
+
+            else:
+
+                shop_data = []
+
+
+        else:
+            warehouse_data = []
+            shop_data = [] 
+
+
+    else:
+        warehouse_data = []
+        shop_data = []
+
+
+
+    return JsonResponse({'success':True,'message':'Data is shown below','warehouse_data':warehouse_data,'shop_data':shop_data})
 
 
 

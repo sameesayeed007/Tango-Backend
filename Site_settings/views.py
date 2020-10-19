@@ -474,37 +474,56 @@ def get_Banners(request):
         if queryset:
 
             serializers = BannerSerializer (queryset,many = True)
-            banner_ids = queryset.values_list('id' , flat = True)
+            banner_data = serializers.data
+            #banner_ids = queryset.values_list('id' , flat = True)
             
-            image_serializers = []
-            for i in range(len(banner_ids)):
-                try:
-                    banner_image = Banner_Image.objects.filter(Banner_id = banner_ids[i])
-                except:
-                    banner_image = None
-                if banner_image is not None:
-                    image_serializer = BannerImageSerializer (banner_image,many = True)
-                    image_serializers += image_serializer.data
+            #image_serializers = []
+            # for i in range(len(banner_ids)):
+            #     try:
+            #         banner_image = Banner_Image.objects.all()
+            #     except:
+            #         banner_image = None
+            #     if banner_image is not None:
+            #         image_serializer = BannerImageSerializer (banner_image,many = True)
+            #         image_serializers += image_serializer.data
 
-
-
-
-            
-            
-            #banner_data = [serializers.data,image_serializers.data]
-            return Response({
-                'success': True,
-                'message': 'The values are inserted below',
-                'banner_data': serializers.data ,
-                'images' : image_serializers
-                })
 
         else:
-            return Response({
-                'success': False,
-                'message': 'There are no values to show',
-                'data': ''
+
+            banner_data = []
+
+
+        try:
+
+            banner_image = Banner_Image.objects.all()
+
+
+        except:
+
+            banner_image = None
+
+        if banner_image:
+
+
+            image_serializers =  BannerImageSerializer (banner_image,many = True)
+            image_data = image_serializers.data
+
+
+        else:
+
+            image_data = []
+
+
+
+                    
+            #banner_data = [serializers.data,image_serializers.data]
+        return Response({
+                'success': True,
+                'message': 'The values are inserted below',
+                'banner_data': banner_data ,
+                'images' : image_data
                 })
+
 
 
 
@@ -558,37 +577,142 @@ def get_specific_Banners(request):
         if queryset:
 
             serializers = BannerSerializer (queryset,many = True)
-            banner_ids = queryset.values_list('id' , flat = True)
+            banner_data = serializers.data
+            #banner_ids = queryset.values_list('id' , flat = True)
             
-            image_serializers = []
-            for i in range(len(banner_ids)):
-                try:
-                    banner_image = Banner_Image.objects.filter(Banner_id = banner_ids[i],is_active=True)
-                except:
-                    banner_image = None
-                if banner_image is not None:
-                    image_serializer = BannerImageSerializer (banner_image,many = True)
-                    image_serializers += image_serializer.data
+            #image_serializers = []
+            # for i in range(len(banner_ids)):
+            #     try:
+            #         banner_image = Banner_Image.objects.all()
+            #     except:
+            #         banner_image = None
+            #     if banner_image is not None:
+            #         image_serializer = BannerImageSerializer (banner_image,many = True)
+            #         image_serializers += image_serializer.data
 
-
-
-
-            
-            
-            #banner_data = [serializers.data,image_serializers.data]
-            return Response({
-                'success': True,
-                'message': 'The values are inserted below',
-                'banner_data': serializers.data ,
-                'images' : image_serializers
-                })
 
         else:
-            return Response({
-                'success': False,
-                'message': 'There are no values to show',
-                'data': ''
+
+            banner_data = []
+
+
+        try:
+
+            banner_image = Banner_Image.objects.filter(is_active=True)
+
+
+        except:
+
+            banner_image = None
+
+        if banner_image:
+
+
+            image_serializers =  BannerImageSerializer (banner_image,many = True)
+            image_data = image_serializers.data
+
+
+        else:
+
+            image_data = []
+
+
+
+                    
+            #banner_data = [serializers.data,image_serializers.data]
+        return Response({
+                'success': True,
+                'message': 'The values are inserted below',
+                'banner_data': banner_data ,
+                'images' : image_data
                 })
+
+
+
+
+
+
+
+# @api_view (["GET","POST"])
+# def get_specific_Banners(request):
+
+#     '''
+#     This is for getting specific Banner. Site does have multiple banner and in each banner there will be multiple images. While performing the 
+#     Get request it will have following response. While calling this API, desired banner id must need to be sent. Calling http://127.0.0.1:8000/site/banner/14
+#     will cause to invoke this Api.
+
+#     Get Response:
+#         In get response it will send banner related information as an object and images as an array filed. Follwoing is the get response for tjis Api.
+
+#     [
+#         {
+#             "id": 14,
+#             "count": 2,
+#             "set_time": 3
+#         },
+#         [
+#             {
+#                 "id": 22,
+#                 "Banner_id": 14,
+#                 "image": null,
+#                 "link": "abc.link",
+#                 "content": "content"
+#             },
+#             {
+#                 "id": 23,
+#                 "Banner_id": 14,
+#                 "image": null,
+#                 "link": "efg.link",
+#                 "content": "nothing"
+#             }
+#         ]
+#     ]
+
+#     '''
+
+
+
+#     if(request.method == "GET"):
+#         try:
+#             queryset = Banner.objects.filter(is_active=True)
+#             print("banner er eikhane ashtese")
+#             print(queryset)
+#         except:
+#             queryset = None
+#         if queryset:
+
+#             serializers = BannerSerializer (queryset,many = True)
+#             banner_ids = queryset.values_list('id' , flat = True)
+            
+#             image_serializers = []
+#             for i in range(len(banner_ids)):
+#                 try:
+#                     banner_image = Banner_Image.objects.filter(Banner_id = banner_ids[i],is_active=True)
+#                 except:
+#                     banner_image = None
+#                 if banner_image is not None:
+#                     image_serializer = BannerImageSerializer (banner_image,many = True)
+#                     image_serializers += image_serializer.data
+
+
+
+
+            
+            
+        #     #banner_data = [serializers.data,image_serializers.data]
+        #     return Response({
+        #         'success': True,
+        #         'message': 'The values are inserted below',
+        #         'banner_data': serializers.data ,
+        #         'images' : image_serializers
+        #         })
+
+        # else:
+        #     return Response({
+        #         'success': False,
+        #         'message': 'There are no values to show',
+        #         'data': ''
+        #         })
 
             
         
