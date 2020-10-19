@@ -25,15 +25,15 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 #from rest_framework import filters
 from rest_framework import viewsets
-from Product_details.serializers import ProductDetailSerializer
+from Product_details.serializers import ProductDetailSerializer,ProductPriceSerializer,ProductPointSerializer,ProductDiscountSerializer
 
 
-from Intense.models import Category, Product, GroupProduct , Variation
+from Intense.models import Category, Product, GroupProduct , Variation,ProductPrice
 # from user_profile.models import User
 
 from .serializers import (
-		CategorySerializer, 
-		ProductSerializer,
+        CategorySerializer, 
+        ProductSerializer,
         VariationSerializer,
         GroupProductSerialyzer,
         CreateProductSerializer,
@@ -47,8 +47,9 @@ from .serializers import (
         AllGroupProductSerialyzer,
         SearchSerializer,
         ProductAdminSerializer,
+        InventorySerializer,
 
-		)
+        )
 
 
 from .decorators import time_calculator
@@ -68,6 +69,7 @@ from Intense.models import (
     ProductPrice,
     ProductPoint,
     ProductSpecification,
+    Inventory_Price,
 
     )
 
@@ -84,7 +86,7 @@ from django.db import transaction
 from Intense.Integral_apis import (
     product_data_upload,category_data_upload,product_price_data_upload,
     product_specification_data_upload,product_point_data_upload,
-    create_product_code,product_discount_data_upload,product_image_data_upload,product_data_update,price_data_update,
+    create_product_code,product_discount_data_upload,product_image_data_upload,product_data_update,price_update,
     discount_data_update,point_data_update,specification_data_update,group_product_data_update,group_product_data_modification
 )
 from io import BytesIO 
@@ -98,6 +100,91 @@ import os
 from django.utils import timezone
 
 # -------------------- Product -----------------------
+@api_view(['POST',])
+def insert_inventory(request,order_id):
+
+    flag = 1
+
+    try:
+
+        specific_order = Order.objects.get(id=order_id)
+
+    except:
+
+        specific_order = None
+
+    if specific_order:
+
+        orderid = specific_order.id
+
+        order_details = OrderDetails.objects.filter(order_id=orderid)
+        order_details_ids = list(order_details.values_list('id',flat=True).distinct())
+        print(order_details_ids)
+
+        for i in range(len(order_details_ids)):
+
+            print("ashtese")
+
+            try:
+                specific_order_details = OrderDetails.objects.get(id=order_details_ids[i])
+            except:
+                specific_order_details = None
+
+            if specific_order_details:
+                product_id = specific_order_details.product_id
+                quantity = specific_order_details.total_quantity
+                price = specific_order_details.unit_price
+                date = ""
+
+                product_color = specific_order_details.product_color
+                product_size = specific_order_details.product_size
+
+                try:
+                    specification = ProductSpecification.objects.get(color=product_color,size=product_size,product_id=product_id)
+
+                except:
+                    specification = None
+
+                if specification:
+                    specification_id = specification.id
+
+                else:
+                    specification_id = 0
+
+                data ={'product_id':product_id,'quantity':quantity,'price':price,'specification_id':specification_id,'date':'2020-09-05'}
+
+                price_serializer = InventorySerializer(data = data)
+                print(price_serializer)
+
+                if price_serializer.is_valid():
+                    price_serializer.save()
+                    flag = 0 
+
+                    
+
+                else:
+                    flag = 1
+                    print(price_serializer.errors)
+
+                    return JsonResponse({'success':False,'message':'Data could not be inserted'})
+
+
+            else:
+
+                return JsonResponse({'success':False,'message':'This product does not exist'})
+
+        if flag==0:
+
+            return JsonResponse({'success':True,'message':'Data has been inserted'})
+
+
+
+    else:
+
+        return JsonResponse({'success':False,'message':'This order does not exist'})
+
+
+
 
 @api_view(['GET',])
 def display_products(request,number):
@@ -821,17 +908,17 @@ def insert_specific_product_value(request):
 @api_view(["GET","POST"])
 def get_update_product_value(request , product_id):
 
-	try:
-		product = Product.objects.get(id=product_id)
-		if request.method == 'POST':
-			serializers = ProductSerializer(product , data=request.data )
-			if serializers.is_valid():
-				serializers.save()
-				return JsonResponse(serializers.data)
-			return JsonResponse(serializers.errors)
+    try:
+        product = Product.objects.get(id=product_id)
+        if request.method == 'POST':
+            serializers = ProductSerializer(product , data=request.data )
+            if serializers.is_valid():
+                serializers.save()
+                return JsonResponse(serializers.data)
+            return JsonResponse(serializers.errors)
 
-	except Product.DoesNotExist:
-		return JsonResponse({'message': 'This product does not exist'}, status=status.HTTP_404_NOT_FOUND)
+    except Product.DoesNotExist:
+        return JsonResponse({'message': 'This product does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
 
 
@@ -951,17 +1038,17 @@ def insert_specific_category_value(request):
 @api_view(["GET","POST"])
 def get_update_category_value(request, category_id):
 
-	try:
-		product = Category.objects.get(id=category_id)
-		if request.method == 'POST':
-			serializers = CategorySerializer(product , data=request.data )
-			if serializers.is_valid():
-				serializers.save()
-				return JsonResponse(serializers.data)
-			return JsonResponse(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        product = Category.objects.get(id=category_id)
+        if request.method == 'POST':
+            serializers = CategorySerializer(product , data=request.data )
+            if serializers.is_valid():
+                serializers.save()
+                return JsonResponse(serializers.data)
+            return JsonResponse(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
 
-	except Product.DoesNotExist:
-		return JsonResponse({'message': 'This Category does not exist'}, status=status.HTTP_404_NOT_FOUND)
+    except Product.DoesNotExist:
+        return JsonResponse({'message': 'This Category does not exist'}, status=status.HTTP_404_NOT_FOUND)
 @api_view(['POST','GET'])
 def delete_category_value(request , category_id):
 
@@ -1019,7 +1106,7 @@ def get_update_group_product_value(request , product_id):
             return JsonResponse(serializers.data)
         return JsonResponse(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
 
-	
+    
 
 
 @api_view(['POST','GET'])
@@ -1653,8 +1740,8 @@ def all_product_detail(request):
     return JsonResponse({'success':True,'message':'The data is shown below','data':product_serializer.data},safe=False)
     
 
-	# else:
-	# 	return JsonResponse({'success':False,'message':'This product does not exist','data':''}, status=status.HTTP_404_NOT_FOUND)
+    # else:
+    #   return JsonResponse({'success':False,'message':'This product does not exist','data':''}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST','GET'])
@@ -2009,35 +2096,59 @@ def modify_specific_product(request, product_id):
 
     print(data)
 
+    key_features = request.data.get("key_features")
+    features = key_features.split(",")
 
 
     product_data_value ={
 
             
-            'title': data['title'],
-            'brand': data['brand'],
-            'description': data['description'],
-            #'key_features':data['key_features'],
-            'shipping_country': data['shipping_country'],
+            
+            #'product_admin_status': 'Confirmed',
+            'title': request.data.get("title"),
+            #'title': 'XYZ',
+            'brand': request.data.get("brand"),
+            #'brand': 'Samsung',
+            'description':request.data.get("description"),
+            #'description':'xxx',
+            'warranty':request.data.get("Warranty"),
+            #'warranty':'gffggfg',
+            'origin':request.data.get("origin"),
+            #'origin':'USA',
+            'shipping_country':request.data.get("shipping_country"),
+            #'shipping_country':'dwhfeuhefh',
+            'unit':request.data.get("unit"),
+            #'unit':'fhdufhdufhdufh',
+            'key_features':features,
             'is_deleted': False,
             'properties': True
         }
 
-    print(product_data_value)
 
-    category_data_value ={
+
+
+
+    
+
+    # category_data_value ={
 
             
-            'category': data['category'],
-            'sub_category': data['sub_category'],
-            'sub_sub_category': data['sub_sub_category']
+    #         'category': data['category'],
+    #         'category': 'ffgdsfdsf',
+    #         'sub_category': data['sub_category'],
+    #         'sub_category': data['sub_category'],
 
-        }
+    #         'sub_sub_category': data['sub_sub_category'],
+    #         'sub_sub_category': data['sub_sub_category']
+
+    #     }
 
 
    
     product_price ={
-        'price' : data['price'],
+        #'price' : data['price'],
+        #'price' : '1000',
+        'price' : request.data.get("price"),
         #'currency_id': request.data.get('currency_id')
     }
 
@@ -2066,17 +2177,24 @@ def modify_specific_product(request, product_id):
 
 
     product_point ={
-        'point': data['point'],
+        # 'point': data['point'],
+        #'point' : '230',
+        'point': request.data.get("point"),
         # 'end_date': data['point_end_date']
-        'end_date': date
+        'end_date' : request.data.get("end_date"),
+        #'end_date': '2020-09-05'
     }
 
     product_discount ={
 
-        'amount': data['amount'],
+        # 'amount': data['amount'],
+        #'amount' : '29',
+        'amount' : request.data.get("amount"),
         #'start_date' : '2020-09-05',
         #'end_date' : data['discount_end_date']
-        'end_date':date
+        #'end_date': '2020-09-05',
+        'end_date' : request.data.get("end_date"),
+
     }
 
     # product_image=[
@@ -2088,19 +2206,111 @@ def modify_specific_product(request, product_id):
         
         try:
             
-            product_data = product_data_update(product_id, product_data_value)
-            price_data = price_data_update (product_id, price_values)
-            discount_data = discount_data_update (product_id,discount_values)
-            point_data = point_data_update (product_id,point_values)
-            specification_data = specification_data_update(product_id, specification_values)
+            
+            
+            # print(product_data)
+
+            try:
+                product = Product.objects.get(id = product_id)
+            except:
+                product = None
+
+            if product:
+
+                product_data = product_data_update(product_id, product_data_value)
+                print(product_data)
+                print("hochcche")
+
+                # price_data = price_data_update (product_id, price_values)
+                # print("price hoise")
+                # print(price_data)
+
+                #Update product price
+
+                try:
+                    product_prices = ProductPrice.objects.filter(product_id = product_id).last()
+
+                except:
+
+                    product_prices = None 
+
+                if product_prices:
+
+                    product_price_serializer = ProductPriceSerializer(product_prices,data=product_price)
+                    if product_price_serializer.is_valid():
+                        product_price_serializer.save()
+                        product_price_data = product_price_serializer.data
+                    else:
+                        return Response({'success':False,'message':'Price could not be updated'})
+
+                else:
+                    return Response({'success':False,'message':'Price could not be updated'})
+
+
+                try:
+                    product_points = ProductPoint.objects.filter(product_id = product_id).last()
+
+                except:
+
+                    product_points = None 
+
+                if product_points:
+
+                    product_point_serializer = ProductPointSerializer(product_points,data=product_point)
+                    if product_point_serializer.is_valid():
+                        product_point_serializer.save()
+                        product_point_data = product_point_serializer.data
+                    else:
+                        print(pr)
+                        return Response({'success':False,'message':'Point could not be updated'})
+
+                else:
+                    return Response({'success':False,'message':'Point could not be updated'})
+
+
+                try:
+                    product_discounts = discount_product.objects.filter(product_id = product_id).last()
+
+                    
+
+
+                except:
+
+                    product_discounts = None
+
+
+
+                if product_discounts:
+
+                    product_discount_serializer = ProductDiscountSerializer(product_discounts,data=product_discount)
+                   
+                    if product_discount_serializer.is_valid():
+                        product_discount_serializer.save()
+                        product_discount_data = product_discount_serializer.data
+                    else:
+                        return Response({'success':False,'message':'Point could not be updated'})
+
+                else:
+                    return Response({'success':False,'message':'Point could not be updated'})
+
+
+
+
+            # discount_data = discount_data_update (product_id,discount_values)
+            # print("discount hoise")
+            # print(discount_data)
+            # point_data = point_data_update (product_id,point_values)
+            # print("point ase")
+            # print(point_data)
+            #specification_data = specification_data_update(product_id, specification_values)
 
             return Response({
                 'success': True,
                 'product': product_data.json(),
-                'price': price_data.json(),
-                'discount':discount_data.json(),
-                'point': point_data.json(),
-                'specification': specification_data.json()
+                'price': product_price_data,
+                'discount':product_discount_data,
+                'point': product_point_data,
+                # 'specification': specification_data.json()
 
             })
 
@@ -2171,21 +2381,21 @@ def group_product_insertion_admin(request):
 
   #   product_specification= [
   #       {
-		# "weight": '17',
-		# "color":'red',
-		# "size":'small',
+        # "weight": '17',
+        # "color":'red',
+        # "size":'small',
   #       'quantity': 10
   #      },
   #       {
-		
-		# "color":'Green',
-		# "size":'Large',
+        
+        # "color":'Green',
+        # "size":'Large',
   #       'quantity': 20
   #      },
   #       {
-		
-		# "color":'Blue',
-		# "size":'XXL',
+        
+        # "color":'Blue',
+        # "size":'XXL',
   #       'quantity': 7
   #      }
   #   ]

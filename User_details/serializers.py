@@ -17,7 +17,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         max_length=568, min_length=6, write_only=True)
-    print(password)
+    
 
     class Meta:
         model = User

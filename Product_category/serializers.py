@@ -9,7 +9,9 @@ from django.urls import reverse,reverse_lazy
 #from Intense.Integral_apis import ratings
 import json
 
-site_path = "http://127.0.0.1:8000/"
+#site_path = "http://127.0.0.1:8000/"
+# site_path = "http://128.199.66.61:8080/"
+
 
 
 
@@ -27,7 +29,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
         details = Sub_Category.objects.filter(category_id=instance.id).order_by('timestamp').values()
         list_result = [entry for entry in details]
-        print(list_result[0]['title'])
+        
         for i in range(len(list_result)):
             sub_id = list_result[i]['id']
             #fetch the titles of sub ids
@@ -106,7 +108,7 @@ class CatSerializer(serializers.ModelSerializer):
 
     #children = serializers.SerializerMethodField(method_name='get_cat')
 
-    print("coming here")
+    
   
     class Meta:
         model = Category

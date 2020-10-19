@@ -17,7 +17,7 @@ SECRET_KEY = 'c&jpfh4s@-&e%n)debl_rly9w82riyrtuktuf*#1cz3$m&tk^e'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['tango99.herokuapp.com','127.0.0.1']
+ALLOWED_HOSTS = ['tango99.herokuapp.com','tes.com.bd','178.128.106.15','127.0.0.1']
 AUTH_USER_MODEL = 'Intense.User'
 
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
@@ -99,6 +99,8 @@ CORS_ORIGIN_WHITELIST = [
     'https://tangoadmin.herokuapp.com',
     'http://localhost:8080',
     'http://localhost:8081',
+    'http://mymarket.com.bd',
+    'https://mymarket.com.bd',
 
 ]
 
@@ -139,7 +141,7 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ecommerce4',
+        'NAME': 'ecommerce10',
         'USER': 'postgres',
         'PASSWORD': '12345',
         'HOST': 'localhost',

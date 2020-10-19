@@ -8,8 +8,12 @@ from django.conf import settings
 
 
 # Serializers define the API representation.
+# host_prefix = "http://"
+# host_name = host_prefix+settings.ALLOWED_HOSTS[0]+":8080"
+
 host_prefix = "https://"
 host_name = host_prefix+settings.ALLOWED_HOSTS[0]
+
 class AdvertisementSerializer(serializers.ModelSerializer):
 	image_url = serializers.SerializerMethodField(method_name='get_image')
 	class Meta: 

@@ -32,5 +32,12 @@ urlpatterns = [
     path('specific_value/<int:product_id>/', views.get_update_specific_value),
     path('insert_specific/', views.insert_specific_discount_value),
     path('discount_delete/<int:product_id>/', views.delete_discount_value),
+    path('details_order/<int:order_id>/', views.get_product_lists),
+    path('confirm_order/', views.confirm_products),
+    path('inventory_lists/<int:order_details_id>/', views.get_inventory_lists),
+    path('subtract_quantity/<int:order_details_id>/', views.subtract_quantity),
+    path('admin_approval/<int:order_id>/', views.admin_approval),
+    path('available_colors/<int:product_id>/', views.color_size),
+    path('available_sizes/<int:product_id>/', views.available_sizes),
   
 ]

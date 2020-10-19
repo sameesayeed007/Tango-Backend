@@ -6,8 +6,13 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.http.response import JsonResponse
 #site_path = str(settings.BASE_DIR)
 
+# host_prefix = "http://"
+# host_name = host_prefix+settings.ALLOWED_HOSTS[0]+":8080"
+
 host_prefix = "https://"
 host_name = host_prefix+settings.ALLOWED_HOSTS[0]
+
+
 class CompanyInfoSerializer(serializers.ModelSerializer):
     '''
     This serializer is for Company Info model and funtionalities.
@@ -94,8 +99,10 @@ class BannerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Banner
-        fields = "__all__"
-        #fields=("count", "link")
+
+        fields = ('count','set_time','is_active')
+        
+        #fields=('count', 'link','is_active')
 
 class BannerImageSerializer(serializers.ModelSerializer):
     '''

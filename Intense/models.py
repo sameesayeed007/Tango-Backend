@@ -10,6 +10,18 @@ from django.utils.text import slugify
 #from user_profile.models import User
 from django.contrib.postgres.fields import ArrayField
 
+from django.db import models
+from django.contrib.postgres.fields import ArrayField
+import uuid
+import datetime
+from django.urls import reverse 
+from mptt.models import MPTTModel , TreeForeignKey
+from django.db.models.signals import post_save
+from django.utils.safestring import mark_safe
+from django.utils.text import slugify
+#from user_profile.models import User
+from django.contrib.postgres.fields import ArrayField
+
 from django.dispatch import receiver
 from django.conf import settings 
 from django.db.models.signals import post_save, pre_save
@@ -26,6 +38,9 @@ from django.contrib.auth.models import Group
 from django.conf import settings
 
 
+
+# host_prefix = "http://"
+# host_name = host_prefix+settings.ALLOWED_HOSTS[0]+":8080"
 
 host_prefix = "https://"
 host_name = host_prefix+settings.ALLOWED_HOSTS[0]
@@ -273,8 +288,9 @@ class CompanyInfo(models.Model):
 
 class Banner(models.Model):
 
-    count = models.IntegerField( blank=False, null=False,default=0)
-    set_time = models.IntegerField(null = True,default=0)
+    count = models.IntegerField( blank=False,default=0)
+    set_time = models.IntegerField(blank = False,default=0)
+    is_active = models.BooleanField(blank = True, default = True)
 
 
 class Banner_Image(models.Model):
@@ -474,6 +490,7 @@ class OrderDetails(models.Model):
     product_size = models.CharField(max_length = 255,blank=True,null=True,default="")
     product_unit = models.CharField(max_length = 255,blank=True,null=True,default="")
     product_images = ArrayField(models.CharField(max_length=100000), blank=True, null=True,default=list)
+    remaining = models.IntegerField(default=0,blank=True,null=True)
 
     def __str__(self):
         return f'{self.order_id} X {self.product_id}'
@@ -518,17 +535,8 @@ class BillingAddress(models.Model):
         return str(self.id)
 
 
-class ProductSpecification(models.Model):
-    product_id = models.IntegerField(default=-1)
-    size = models.CharField(max_length=200, null = True, blank=True,default="")
-    #unit = models.CharField(max_length=200, null = True, blank=True,default="")
-    weight = models.CharField(max_length = 255,blank=True,null=True,default="")
-    #color = ArrayField(models.CharField(max_length=200,default="abc"),default=list,blank=True)
-    color = models.CharField(max_length=200,null= True, blank=True,default="")
-    quantity = models.IntegerField(default=0)
 
-    def __str__(self):
-        return str(self.product_id)
+
 
 
 
@@ -552,7 +560,7 @@ class ProductImage(models.Model):
 
         #link ='/media/'+'Product/'+str(self.product_image)
       
-        print(self.product_image)
+        
         if self.product_image:
             return "{0}{1}".format(host_name,self.product_image.url)
         else:
@@ -594,51 +602,51 @@ class Product(models.Model):
 
 
 class Variation(models.Model):
-	product_id = models.IntegerField(default=-1)
-	title = models.CharField(max_length=120,default="")
-	sale_price = models.FloatField(null=True, blank=True,default=0.00)
-	active = models.BooleanField(default=True)
-	inventory = models.IntegerField(null=True, blank=True) #refer none == unlimited amount
+    product_id = models.IntegerField(default=-1)
+    title = models.CharField(max_length=120,default="")
+    sale_price = models.FloatField(null=True, blank=True,default=0.00)
+    active = models.BooleanField(default=True)
+    inventory = models.IntegerField(null=True, blank=True) #refer none == unlimited amount
 
-	def __unicode__(self):
-		return self.title
+    def __unicode__(self):
+        return self.title
 
-	def get_price(self):
-		if self.sale_price is not None:
-			return self.sale_price
-		else:
-			return self.price
+    def get_price(self):
+        if self.sale_price is not None:
+            return self.sale_price
+        else:
+            return self.price
 
-	# def get_html_price(self):
-	# 	if self.sale_price is not None:
-	# 		html_text = "<span class='sale-price'>%s</span> <span class='og-price'>%s</span>" %(self.sale_price, self.price)
-	# 	else:
-	# 		html_text = "<span class='price'>%s</span>" %(self.price)
-	# 	return mark_safe(html_text)
+    # def get_html_price(self):
+    #   if self.sale_price is not None:
+    #       html_text = "<span class='sale-price'>%s</span> <span class='og-price'>%s</span>" %(self.sale_price, self.price)
+    #   else:
+    #       html_text = "<span class='price'>%s</span>" %(self.price)
+    #   return mark_safe(html_text)
 
-	def get_absolute_url(self):
-		return self.product.get_absolute_url()
+    def get_absolute_url(self):
+        return self.product.get_absolute_url()
 
-	def add_to_cart(self):
-		return "%s?item=%s&qty=1" %(reverse("cart"), self.id)
+    def add_to_cart(self):
+        return "%s?item=%s&qty=1" %(reverse("cart"), self.id)
 
-	def remove_from_cart(self):
-		return "%s?item=%s&qty=1&delete=True" %(reverse("cart"), self.id)
+    def remove_from_cart(self):
+        return "%s?item=%s&qty=1&delete=True" %(reverse("cart"), self.id)
 
-	def get_title(self):
-		return "%s - %s" %(self.product.title, self.title)
+    def get_title(self):
+        return "%s - %s" %(self.product.title, self.title)
 
 
 
 def product_post_saved_receiver(sender, instance, created, *args, **kwargs):
-	product = instance
-	# variations = product.variation_set.all()
-	# if variations.count() == 0:
-	# 	new_var = Variation()
-	# 	new_var.product = product
-	# 	new_var.title = "Default"
-	# 	new_var.price = product.price
-	# 	new_var.save()
+    product = instance
+    # variations = product.variation_set.all()
+    # if variations.count() == 0:
+    #   new_var = Variation()
+    #   new_var.product = product
+    #   new_var.title = "Default"
+    #   new_var.price = product.price
+    #   new_var.save()
 
 
 post_save.connect(product_post_saved_receiver, sender=Product)
@@ -799,18 +807,18 @@ class Sub_Sub_Category(models.Model):
 
 
 class GroupProduct(models.Model):
-	products_ids = ArrayField(models.IntegerField( null=True , blank=True),null=True , blank=True,default=list)
-	title = models.CharField(max_length=120, blank = True, null = True,default="")
-	#slug = models.SlugField(unique=True , blank=True)
-	startdate=models.DateField(auto_now_add=True,null=True , blank=True)
-	enddate=models.DateField(null=True , blank=True)
-	flashsellname = models.CharField(max_length=120, blank = True , null=True)
-	active = models.BooleanField(default=True)
-	timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
-	product_id = models.IntegerField(null = True, blank = True)
+    products_ids = ArrayField(models.IntegerField( null=True , blank=True),null=True , blank=True,default=list)
+    title = models.CharField(max_length=120, blank = True, null = True,default="")
+    #slug = models.SlugField(unique=True , blank=True)
+    startdate=models.DateField(auto_now_add=True,null=True , blank=True)
+    enddate=models.DateField(null=True , blank=True)
+    flashsellname = models.CharField(max_length=120, blank = True , null=True)
+    active = models.BooleanField(default=True)
+    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
+    product_id = models.IntegerField(null = True, blank = True)
 
-	def __unicode__(self):
-		return self.title
+    def __unicode__(self):
+        return self.title
 
 #------------------------------------- Product_Comments--------------------------------
 class Comment(models.Model):
@@ -909,3 +917,353 @@ class FAQ (models.Model):
     question = models.CharField(max_length = 264, blank = True, null = True)
     ans = models.CharField (max_length = 3000, blank = True, null = True)
     date = models.DateField(auto_now_add=True)
+
+
+# ----------------------------------- Product Inventory ---------------------------
+class ProductSpecification(models.Model):
+    product_id = models.IntegerField(default=-1)
+    size = models.CharField(max_length=200, null = True, blank=True,default="")
+    #unit = models.CharField(max_length=200, null = True, blank=True,default="")
+    weight = models.CharField(max_length = 255,blank=True,null=True,default="")
+    #color = ArrayField(models.CharField(max_length=200,default="abc"),default=list,blank=True)
+    color = models.CharField(max_length=200,null= True, blank=True,default="")
+    quantity = models.IntegerField(default=0)
+
+
+    def __str__(self):
+        return str(self.id)
+
+    # @property
+    # def quantity(self):
+    #     total = self.warehouse_quantity + self.shop_quantity
+    #     float_total = format(total, '0.2f')
+    #     return float_total
+
+    @property
+    def total(self):
+
+        #link ='/media/'+'Product/'+str(self.product_image)
+      
+        # print(self.product_image)
+    
+
+        print("id ase")
+
+        try:
+            warehouses = Warehouse.objects.filter(specification_id=self.id)
+
+        except:
+
+            warehouses = None
+
+        print(warehouses)
+
+        if warehouses:
+
+            w_quantity_list = list(warehouses.values_list('product_quantity',flat = True))
+            w_quantity = sum(w_quantity_list)
+            print(w_quantity)
+
+        else:
+            w_quantity = 0
+
+
+
+        try:
+            shops = Shop.objects.filter(specification_id=self.id)
+
+        except:
+
+            shops = None
+
+        if shops:
+
+            s_quantity_list = list(shops.values_list('product_quantity',flat = True))
+            s_quantity = sum(s_quantity_list)
+            print(s_quantity)
+
+        else:
+            s_quantity = 0
+
+
+        total_quantity = w_quantity + s_quantity
+
+       
+
+
+        return total_quantity
+
+
+
+
+
+        
+    
+    def save(self, *args, **kwargs):
+
+        self.quantity = self.total
+        print("save er moddhe")
+        print(self.quantity)
+        super(ProductSpecification, self).save(*args, **kwargs)
+        print("save er pore")
+        print(self.quantity)
+
+
+
+
+class Warehouse(models.Model):
+    warehouse_name = models.CharField(max_length=264, blank=True, null= True)
+    warehouse_location = models.CharField(max_length=2048, blank=True, null= True)
+    product_quantity = models.IntegerField(blank=False, null=True,default=0)
+    specification_id = models.IntegerField(blank=False, null=True,default=-1)
+    date = models.DateField (auto_now_add=True,blank=True,null=True)
+    shop_quantity = models.IntegerField(blank=False, null=True,default=0)
+    warehouse_quantity = models.IntegerField(blank=False, null=True,default=0)
+
+
+
+    @property
+    def shop(self):
+
+        try:
+            spec = Shop.objects.filter(specification_id=self.specification_id)
+
+        except:
+            spec = None
+
+
+        if spec:
+
+            s_list = list(spec.values_list('product_quantity',flat = True))
+            s_quantity = sum(s_list)
+
+
+        else:
+
+            s_quantity = 0
+
+
+
+
+        return s_quantity
+
+
+
+    @property
+    def warehouse(self):
+
+        try:
+            spec = Warehouse.objects.filter(specification_id=self.specification_id)
+
+        except:
+            spec = None
+
+
+        if spec:
+
+            s_list = list(spec.values_list('product_quantity',flat = True))
+            s_quantity = sum(s_list)
+
+
+        else:
+
+            s_quantity = 0
+
+
+
+
+        return s_quantity
+
+
+
+
+
+
+    def save(self, *args, **kwargs):
+
+        self.shop_quantity = self.shop
+        self.warehouse_quantity = self.warehouse
+        super(Warehouse, self).save(*args, **kwargs)
+        # print(self.shop_quantity)
+        # print(self.warehouse_quantity)
+        try:
+            ware = Warehouse.objects.get(id = self.id)
+            print(ware)
+
+        except:
+            ware = None
+
+        if ware:
+
+            warehouse_quantity = ware.warehouse_quantity
+            shop_quantity = ware.shop_quantity
+            print(warehouse_quantity)
+            print(shop_quantity)
+            total_quantity = warehouse_quantity + shop_quantity
+
+
+            try:
+
+                prod_spec = ProductSpecification.objects.get(id=self.specification_id)
+
+            except:
+
+                prod_spec = None
+
+            if prod_spec:
+                prod_spec.quantity = total_quantity
+                prod_spec.save()
+
+
+
+
+
+
+
+
+class Shop(models.Model):
+    shop_name = models.CharField(max_length=264, blank=True, null= True)
+    shop_location = models.CharField(max_length=2048, blank=True, null= True)
+    product_quantity = models.IntegerField(blank=False, null=True)
+    specification_id = models.IntegerField(blank=False, null=True)
+    date = models.DateField (auto_now_add=True,blank=True,null=True)
+    shop_quantity = models.IntegerField(blank=False, null=True,default=0)
+    warehouse_quantity = models.IntegerField(blank=False, null=True,default=0)
+
+
+    # @property
+    # def save_specification(self):
+
+
+    #     spec = ProductSpecification()
+
+    #     # spec_id = spec.id
+    #     spec.save()
+    #     # print("after save")
+    #     # print(spec.total_quantity)
+
+
+    #     return 1
+
+
+
+
+
+    # def save(self, *args, **kwargs):
+
+    #     self.specification_id = self.save_specification
+    #     super(Shop, self).save(*args, **kwargs)
+
+
+    @property
+    def shop(self):
+
+        try:
+            spec = Shop.objects.filter(specification_id=self.specification_id)
+
+        except:
+            spec = None
+
+
+        if spec:
+
+            s_list = list(spec.values_list('product_quantity',flat = True))
+            s_quantity = sum(s_list)
+
+
+        else:
+
+            s_quantity = 0
+
+
+
+
+        return s_quantity
+
+
+
+    @property
+    def warehouse(self):
+
+        try:
+            spec = Warehouse.objects.filter(specification_id=self.specification_id)
+
+        except:
+            spec = None
+
+
+        if spec:
+
+            s_list = list(spec.values_list('product_quantity',flat = True))
+            s_quantity = sum(s_list)
+
+
+        else:
+
+            s_quantity = 0
+
+
+
+
+        return s_quantity
+
+
+
+
+
+
+    def save(self, *args, **kwargs):
+
+        self.shop_quantity = self.shop
+        self.warehouse_quantity = self.warehouse
+        super(Shop, self).save(*args, **kwargs)
+        # print(self.shop_quantity)
+        # print(self.warehouse_quantity)
+        try:
+            ware = Shop.objects.get(id = self.id)
+            print(ware)
+
+        except:
+            ware = None
+
+        if ware:
+
+            warehouse_quantity = ware.warehouse_quantity
+            shop_quantity = ware.shop_quantity
+            print(warehouse_quantity)
+            print(shop_quantity)
+            total_quantity = warehouse_quantity + shop_quantity
+
+            try:
+
+                prod_spec = ProductSpecification.objects.get(id=self.specification_id)
+
+            except:
+
+                prod_spec = None
+
+            if prod_spec:
+                prod_spec.quantity = total_quantity
+                prod_spec.save()
+      
+
+
+
+class Inventory_Price(models.Model):
+
+    product_id = models.IntegerField( blank=True , null=True,default=-1)
+    specification_id = models.IntegerField( blank=True , null=True,default=-1)
+    quantity = models.IntegerField( blank=True ,default=0)
+    date = models.DateField(blank=True,default="")
+    price = models.IntegerField(blank=True,default=0)
+
+ 
+
+    def __str__(self):
+        return f'{self.product_id} X {self.specification_id}'
+
+
+
+# class OrderInfo(models.Model):
+
+#     order_id = models.IntegerField( blank=True , null=True,default=-1)

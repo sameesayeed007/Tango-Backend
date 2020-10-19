@@ -3,6 +3,8 @@ import requests
 
 #site_path = "http://127.0.0.1:8000/"
 site_path = "https://tango99.herokuapp.com/"
+#site_path = "http://128.199.66.61:8080/"
+#site_path = "https://tes.com.bd/"
 
 def get_email_config():
     url = site_path+ "email/config_value"
@@ -68,13 +70,17 @@ def product_discount_data_upload(data):
     return data
 
 def product_data_update(product_id, data):
+    print("product er moddhe dhuktese")
     url = site_path + "product/update_product/" +str(product_id)+ "/"
     data = requests.post(url = url,data = data) 
     return data
 
-def price_data_update(product_id, data):
+def price_update(product_id, data):
+    print("price er moddhe dhukse integral api")
     url = site_path + "productdetails/updateprice/" +str(product_id)+ "/"
+    print(url)
     data = requests.post(url = url,data = data) 
+    print(data)
     return data
 
 def discount_data_update(product_id, data):

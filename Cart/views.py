@@ -5,7 +5,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework import status
 import datetime
  
-from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,discount_product,ProductImpression,Profile,Cupons,ProductSpecification
+from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,discount_product,ProductImpression,Profile,Cupons,ProductSpecification,CompanyInfo
 
 from Cart.serializers import ProductSerializer, OrderSerializer,OrderSerializerz,OrderSerializerzz,OrderDetailsSerializer,ProductPriceSerializer,UserzSerializer,BillingAddressSerializer,ProductPointSerializer
 from Product_details.serializers import ProductImpressionSerializer,ProductSpecificationSerializer
@@ -230,6 +230,7 @@ def add_cart(request,productid):
 			if specific_order_product is not None:
 				
 				specific_order_product.total_quantity += quantity
+				specific_order_product.remaining += quantity
 				specific_order_product.total_price += total_price
 				specific_order_product.total_point += total_point
 				# specifc_order_product.product_color.append(color)
@@ -250,7 +251,7 @@ def add_cart(request,productid):
 				# product_size = [size]
 				# product_color = [unit]
 
-				orderdetails = OrderDetails.objects.create(order_id = order_id , product_id=productid,quantity=quantity,total_quantity=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size)
+				orderdetails = OrderDetails.objects.create(order_id = order_id , product_id=productid,quantity=quantity,total_quantity=quantity,remaining=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size)
 				
 				orderdetails.save()
 				orderdetailsserializer = OrderDetailsSerializer(orderdetails , data=request.data)
@@ -275,7 +276,7 @@ def add_cart(request,productid):
 
 			
 			#create a new order details for the specific product for the specific order
-			orderdetails = OrderDetails.objects.create(order_id = order.id , product_id=productid,quantity=quantity,total_quantity=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size)
+			orderdetails = OrderDetails.objects.create(order_id = order.id , product_id=productid,quantity=quantity,total_quantity=quantity,remaining=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size)
 		
 			orderdetails.save()
 			orderdetailserializer = OrderDetailsSerializer(orderdetails, data=request.data)
@@ -332,6 +333,7 @@ def add_cart(request,productid):
 			if specific_order_product is not None:
 				
 				specific_order_product.total_quantity += quantity
+				specific_order_product.remaining += quantity
 				specific_order_product.total_price += total_price
 				specific_order_product.total_point += total_point
 				specific_order_product.save()
@@ -345,7 +347,7 @@ def add_cart(request,productid):
 
 			else:
 				#create a new orderdetail for that order id if the product is bough for the first time 
-				orderdetails = OrderDetails.objects.create(order_id = order_id , product_id=productid,quantity=quantity,total_quantity=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size)
+				orderdetails = OrderDetails.objects.create(order_id = order_id , product_id=productid,quantity=quantity,total_quantity=quantity,remaining=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size)
 				
 				orderdetails.save()
 				orderdetailsserializer = OrderDetailsSerializer(orderdetails , data=request.data)
@@ -370,7 +372,7 @@ def add_cart(request,productid):
 
 			
 			#create a new order details for the specific product for the specific order
-			orderdetails = OrderDetails.objects.create(order_id = order.id , product_id=productid,quantity=quantity,total_quantity=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size)
+			orderdetails = OrderDetails.objects.create(order_id = order.id , product_id=productid,quantity=quantity,total_quantity=quantity,remaining=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size)
 		
 			orderdetails.save()
 			orderdetailserializer = OrderDetailsSerializer(orderdetails, data=request.data)
@@ -564,6 +566,7 @@ def increase_quantity(request,productid):
 
 				if specific_order_product.total_quantity >= 1:
 					specific_order_product.total_quantity += 1
+					specific_order_product.remaining += 1
 					specific_order_product.total_price += total_price
 					specific_order_product.total_point += total_point
 					specific_order_product.save()
@@ -604,6 +607,7 @@ def increase_quantity(request,productid):
 
 				if specific_order_product.total_quantity >= 1:
 					specific_order_product.total_quantity += 1
+					specific_order_product.remaining += 1
 					specific_order_product.total_price += total_price
 					specific_order_product.total_point += total_point
 					specific_order_product.save()
@@ -799,6 +803,7 @@ def decrease_quantity(request,productid):
 
 				if specific_order_product.total_quantity >= 1:
 					specific_order_product.total_quantity -= 1
+					specific_order_product.remaining -= 1
 					specific_order_product.total_price -= total_price
 					specific_order_product.total_point -= total_point
 					specific_order_product.save()
@@ -2356,14 +2361,14 @@ def show_address(request):
 	if non_verified_user_id == 0:
 
 		try:
-			address = BillingAddress.objects.filter(user_id=user_id)
+			address = BillingAddress.objects.filter(user_id=user_id).last()
 			
 		except:
 			address = None
 
 
 		if address:	
-			billing_address_serializers = BillingAddressSerializer(address,many=True)
+			billing_address_serializers = BillingAddressSerializer(address,many=False)
 			return JsonResponse({'success':True,'data':billing_address_serializers.data},safe=False)
 
 		else:
@@ -2450,7 +2455,7 @@ def show_address(request):
 
 		if address is None:
 			#print("Yessssss")
-			return JsonResponse({'success':False,'data':[arr]})
+			return JsonResponse({'success':False,'data':arr})
 			
 		else:
 			#print("Coming here")
@@ -2614,7 +2619,109 @@ def check_coupon(request):
 
 
 
+#This is for the Delivery API and the payment site 
+@api_view(['POST',])
+def send_info(request,order_id):
 
+
+	data = request.data 
+
+
+	try:
+
+		specific_order = Order.objects.get(id = order_id)
+
+
+	except: 
+
+
+		specific_order = None 
+
+
+	if specific_order:
+
+		if specific_order.user_id == -1:
+
+			non_verified_user_id = specific_order.non_verified_user_id
+			user_id = -1
+
+		else:
+			user_id = specific_order.user_id
+			non_verified_user_id = -1 
+
+
+
+
+		if non_verified_user_id == -1:
+
+
+			try:
+				address = BillingAddress.objects.filter(user_id=user_id).last()
+			except:
+				address = None
+
+			if address:
+
+				address_serializer = BillingAddressSerializer(address,many=False)
+
+				address_data = address_serializer.data
+
+			else:
+
+				address_data = {}
+
+		else:
+
+
+			try:
+				address = BillingAddress.objects.filter(non_verified_user_id=non_verified_user_id).last()
+			except:
+				address = None
+
+			if address:
+
+				address_serializer = BillingAddressSerializer(address,many=False)
+
+				address_data = address_serializer.data
+
+			else:
+
+				address_data = {}
+
+
+
+
+		order_serializer = OrderSerializer(specific_order,many=False)
+
+		order_info = order_serializer.data
+
+	else:
+
+		order_info = {}
+		address_data = {}
+
+
+	try:
+
+		company_info = CompanyInfo.objects.all()[0:1].get()
+
+
+	except:
+
+		company_info = None
+
+
+	if company_info:
+
+		company_name = company_info.name
+
+	else:
+
+		company_name = ""
+
+
+
+	return JsonResponse({'success':True,'message':'Data is shown below','company_name':company_name,'order_info':order_info,'billing_address':address_data,'other_info':data })
 
 
 

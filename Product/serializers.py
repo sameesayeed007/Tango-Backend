@@ -5,7 +5,7 @@ from rest_framework import serializers
 from Intense.models import (
     Category,Sub_Category,Sub_Sub_Category,Product , Variation ,GroupProduct,Comment,CommentReply,Reviews,User,
      Product, Variation , GroupProduct,ProductImage,User,
-     ProductPrice,discount_product,ProductCode,ProductSpecification,ProductPoint
+     ProductPrice,discount_product,ProductCode,ProductSpecification,ProductPoint,Inventory_Price
 )
 from drf_extra_fields.fields import Base64ImageField
 from django.db.models import Avg
@@ -19,22 +19,28 @@ from django.forms.models import model_to_dict
 import requests
 
 
+# host_prefix = "http://"
+# host_name = host_prefix+settings.ALLOWED_HOSTS[0]+":8080"
+
 host_prefix = "https://"
 host_name = host_prefix+settings.ALLOWED_HOSTS[0]
 
+
 site_path = "https://tango99.herokuapp.com/"
 #site_path = "http://127.0.0.1:8000/"
+# site_path = "http://128.199.66.61:8080/"
+#site_path = "https://tes.com.bd/"
 
 #------------------------ product---------------------------
 
 class VariationSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = Variation
-		fields = [
-			"id",
-			"title",
-			"price",
-		]
+    class Meta:
+        model = Variation
+        fields = [
+            "id",
+            "title",
+            "price",
+        ]
 
 
 # class ProductSerializer(serializers.ModelSerializer):
@@ -61,6 +67,10 @@ class VariationSerializer(serializers.ModelSerializer):
  
 #     def get_seller(self, obj):
 #         return obj.seller
+class InventorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Inventory_Price
+        fields = "__all__"
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -1043,7 +1053,7 @@ class CommentReplySerializer(serializers.ModelSerializer):
 class ReviewsSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField(method_name='get_name')
     image_link = serializers.SerializerMethodField(method_name='get_image')
-    print("coming to serializer")
+    
     class Meta:
         model = Reviews
         fields = ('id','product_id','user_id','non_verified_user_id','name','content','image','image_link','rating','date_created')
@@ -1167,7 +1177,7 @@ class ProductReviewSerializer(serializers.ModelSerializer):
     def average_rating(self,instance):
 
 
-	
+    
         num = 0
 
 

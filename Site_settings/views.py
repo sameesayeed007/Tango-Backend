@@ -129,6 +129,61 @@ def CompanyInfos(request):
                 'data': serializers.data
             }, status=status.HTTP_201_CREATED)
         return Response (serializers.errors)
+
+
+@api_view(['POST',])
+def add_company_info(request):
+
+
+    data = request.data
+
+    policy = data['policy']
+    policies = policy.split(",")
+
+    term = data['terms']
+    terms = term.split(",")
+
+
+    Info_Api_data = {'name': data['name'], 'address': data['address'], 'Facebook':data['Facebook'], 'twitter': data['twitter'],
+        'linkedin': data['linkedin'], 'youtube': data['youtube'], 'email': data['email'], 'phone': data['phone'],'help_center': data['help_center'], 'About': data['About'], 
+        'policy': policies, 'terms_condition':terms,'role_id': 1,'slogan': data['slogan'],'cookies':data['cookies']}
+
+    try:
+
+        company = CompanyInfo.objects.all().last()
+
+    except:
+
+        company = None 
+
+    if company:
+
+        company_serializers = CompanyInfoSerializer(company,data = Info_Api_data)
+        if company_serializers.is_valid():
+            company_serializers.save()
+            return JsonResponse({'success':True,'message':'The info has been updated','data':company_serializers.data})
+
+        else:
+            print(company_serializers.errors)
+            return JsonResponse({'success':False,'message':'The info could not be updated'})
+
+
+    else:
+        #Create a new company
+
+        company_serializers = CompanyInfoSerializer(data = Info_Api_data)
+        if company_serializers.is_valid():
+
+            company_serializers.save()
+            return JsonResponse({'success':True,'message':'The info has been created','data':company_serializers.data})
+
+        else:
+
+            print(company_serializers.errors)
+            return JsonResponse({'success':False,'message':'The compnay info could not be created'})
+
+
+
             
        
 @api_view(['POST',])
@@ -247,14 +302,73 @@ def delete_CompanyInfos(request,info_id):
     # If requested information is not present in the database then this API will through a message saying there is no information.
     # If the information is present this will delete the requested information and after deleting it will through successfull message.
 
-	try:
-		companyInfo= CompanyInfo.objects.get(pk = info_id)
-		if request.method == 'POST':
-			companyInfo.delete()
-			return Response({'message': 'Company Informations is deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+    try:
+        companyInfo= CompanyInfo.objects.get(pk = info_id)
+        if request.method == 'POST':
+            companyInfo.delete()
+            return Response({'message': 'Company Informations is deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
 
-	except:
-		return Response({'message': 'There is no infomation'})
+    except:
+        return Response({'message': 'There is no infomation'})
+
+@api_view (["POST",])
+def change_status(request,banner_id):
+
+    try:
+        banner = Banner.objects.get(id = banner_id)
+
+    except:
+
+        banner = None 
+
+
+    print(banner)
+
+    if banner:
+
+        banner_status = banner.is_active
+        print(banner_status)
+
+        if banner_status == True:
+            banner.is_active = False
+            banner.save()
+
+        elif banner_status == False:
+
+            banner.is_active = True
+            banner.save()
+
+        print(banner.is_active)
+
+
+        serializers = BannerSerializer (banner,many = False)
+        # banner_ids = banner.values_list('id' , flat = True)
+        # image_serializers = []
+        # for i in range(len(banner_ids)):
+
+        #     try:
+        #         banner_image = Banner_Image.objects.filter(Banner_id = banner_ids[i])
+        #     except:
+        #         banner_image = None
+        #     if banner_image is not None:
+        #         image_serializer = BannerImageSerializer (banner_image,many = True)
+        #         image_serializers += image_serializer.data
+
+
+
+        return JsonResponse({'success': True,
+                'message': 'The values are inserted below',
+                'banner_data': serializers.data})
+                # 'images' : image_serializers})
+
+
+    else:
+
+        return JsonResponse({'success':False,'message':'the banner does not exist'})
+
+
+
+
 
 
 @api_view (["GET","POST"])
@@ -298,13 +412,16 @@ def get_specific_Banners(request):
 
     if(request.method == "GET"):
         try:
-            queryset = Banner.objects.all()
+            queryset = Banner.objects.filter(is_active=True)
+            print("banner er eikhane ashtese")
+            print(queryset)
         except:
             queryset = None
-        if queryset is not None:
+        if queryset:
 
-            serializers = BannerSerializer (queryset,many = False)
+            serializers = BannerSerializer (queryset,many = True)
             banner_ids = queryset.values_list('id' , flat = True)
+            
             image_serializers = []
             for i in range(len(banner_ids)):
                 try:
@@ -363,7 +480,7 @@ def Banner_Insertion(request):
 
     '''
     data = request.data
-    banner_data = {'count': data['count'], 'set_time': data['set_time']}
+    banner_data = {'count': data['count'], 'set_time': data['set_time'],'is_active':True}
     count = data['count']
     if request.method == "POST":
        
@@ -391,7 +508,7 @@ def Banner_Insertion(request):
 
         try:
 
-            banner = Banner.objects.create(count=data['count'],set_time=data['set_time'])
+            banner = Banner.objects.create(count=data['count'],set_time=data['set_time'],is_active=True)
             banner_serializer = BannerSerializer(banner,data = banner_data)
             if(banner_serializer.is_valid()):
 
@@ -638,7 +755,7 @@ def delete_Roles(request,role_id):
     # If the delete action is performed, this will send a message to user.
     # This API will be invoked after calling : http://127.0.0.1:8000/site/delete_role/1/
     
-	
+    
     Roles= RolesPermissions.objects.filter(pk = role_id)
     if request.method == 'POST':
         if Roles.exists():
@@ -648,7 +765,7 @@ def delete_Roles(request,role_id):
             return Response({'message': 'There is no Roles and Permissions infomation to delete'})
 
 
-		
+        
 # ------------------------------------------------------------------------------------------------------------------------------------
 @api_view (["GET","POST"])
 def Currency_value (request):
@@ -825,14 +942,14 @@ def delete_theme(request,theme_id):
     # information it will delete the information and will send a successful message as response. In case of any failure, it will send an error message 
     # as a response. Simply calling http://127.0.0.1:8000/site/theme_delete/1 will cause to integrate this Api.
     
-	try:
-		themes_value= Theme.objects.get(pk = theme_id)
-		if request.method == 'POST':
-			themes_value.delete()
-			return Response({'message': 'Theme is deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+    try:
+        themes_value= Theme.objects.get(pk = theme_id)
+        if request.method == 'POST':
+            themes_value.delete()
+            return Response({'message': 'Theme is deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
 
-	except :
-		return Response({'message': 'There is no infomation to delete'})
+    except :
+        return Response({'message': 'There is no infomation to delete'})
 
 
 @api_view (["GET", "POST"])
@@ -924,14 +1041,14 @@ def delete_Api(request,Api_id):
     # information it will delete the information and will send a successful message as response. In case of any failure, it will send an error message 
     # as a response. Simply calling http://127.0.0.1:8000/site/Api_delete/1 will cause to integrate this Api.
     
-	try:
-		Api_value= APIs.objects.get(pk = Api_id)
-		if request.method == 'POST':
-			Api_value.delete()
-			return Response({'message': 'Api is deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+    try:
+        Api_value= APIs.objects.get(pk = Api_id)
+        if request.method == 'POST':
+            Api_value.delete()
+            return Response({'message': 'Api is deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
 
-	except :
-		return Response({'message': 'There is no infomation to delete'})
+    except :
+        return Response({'message': 'There is no infomation to delete'})
 
 @api_view (["GET", "POST"])
 def site_all_settings(request):

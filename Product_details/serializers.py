@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from Intense.models import ProductPoint,ProductPrice,ProductSpecification ,Product,Comment,CommentReply,Reviews,discount_product,ProductImage,Cupons,ProductImpression
+from Intense.models import ProductPoint,ProductPrice,ProductSpecification ,Product,Comment,CommentReply,Reviews,discount_product,ProductImage,Cupons,ProductImpression,Warehouse,Shop
 from django.contrib.auth.models import User
 #from Cart.models import ProductPoint
 from django.utils import timezone
@@ -11,6 +11,8 @@ import json
 
 #site_path = "http://127.0.0.1:8000/"
 site_path = "https://tango99.herokuapp.com/"
+# site_path = "http://128.199.66.61:8080/"
+#site_path = "https://tes.com.bd/"
 
 
 # Serializers define the API representation.
@@ -221,11 +223,19 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             p_spec = None 
 
 
-        if p_spec is not None:
+        if p_spec:
+
+            print("duhbduhfbrfbrfhbgfbfhvbf")
 
             colors = list(p_spec.values_list('color',flat=True).distinct())
             sizes = list(p_spec.values_list('size',flat=True).distinct())
             # units = list(p_spec.values_list('unit',flat=True).distinct())
+            if sizes == [None]:
+                sizes= []
+
+
+            if colors == [None]:
+                colors = []
 
             arr =  {'colors':colors,'sizes':sizes}
 
@@ -333,6 +343,17 @@ class ProductImpressionSerializer(serializers.ModelSerializer):
 
 
 
+
+class WareHouseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Warehouse
+        fields = "__all__"
+      
+
+class ShopSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Shop
+        fields = "__all__"
 
 
 
