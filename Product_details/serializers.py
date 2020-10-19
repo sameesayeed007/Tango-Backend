@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from Intense.models import ProductPoint,ProductPrice,ProductSpecification ,Product,Comment,CommentReply,Reviews,discount_product,ProductImage,Cupons,ProductImpression,Warehouse,Shop
+from Intense.models import ProductPoint,ProductPrice,ProductSpecification ,Product,Comment,CommentReply,Reviews,discount_product,ProductImage,Cupons,ProductImpression,Warehouse,Shop,WarehouseInfo,ShopInfo
 from django.contrib.auth.models import User
 #from Cart.models import ProductPoint
 from django.utils import timezone
@@ -344,7 +344,7 @@ class ProductImpressionSerializer(serializers.ModelSerializer):
 
 
 
-class WareHouseSerializer(serializers.ModelSerializer):
+class WarehouseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Warehouse
         fields = "__all__"
@@ -356,7 +356,16 @@ class ShopSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class WarehouseInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WarehouseInfo
+        fields = "__all__"
+      
 
+class ShopInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShopInfo
+        fields = "__all__"
    
    
         

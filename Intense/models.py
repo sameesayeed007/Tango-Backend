@@ -940,59 +940,62 @@ class ProductSpecification(models.Model):
     #     float_total = format(total, '0.2f')
     #     return float_total
 
-    @property
-    def total(self):
+    # @property
+    # def total(self):
 
-        #link ='/media/'+'Product/'+str(self.product_image)
+    #     #link ='/media/'+'Product/'+str(self.product_image)
       
-        # print(self.product_image)
+    #     # print(self.product_image)
     
 
-        print("id ase")
+    #     print("id ase")
 
-        try:
-            warehouses = Warehouse.objects.filter(specification_id=self.id)
+    #     try:
+    #         warehouses = Warehouse.objects.filter(specification_id=self.id)
 
-        except:
+    #     except:
 
-            warehouses = None
+    #         warehouses = None
 
-        print(warehouses)
+    #     print(warehouses)
 
-        if warehouses:
+    #     if warehouses:
 
-            w_quantity_list = list(warehouses.values_list('product_quantity',flat = True))
-            w_quantity = sum(w_quantity_list)
-            print(w_quantity)
+    #         w_quantity_list = list(warehouses.values_list('product_quantity',flat = True))
+    #         w_quantity = sum(w_quantity_list)
+    #         print(w_quantity)
 
-        else:
-            w_quantity = 0
-
-
-
-        try:
-            shops = Shop.objects.filter(specification_id=self.id)
-
-        except:
-
-            shops = None
-
-        if shops:
-
-            s_quantity_list = list(shops.values_list('product_quantity',flat = True))
-            s_quantity = sum(s_quantity_list)
-            print(s_quantity)
-
-        else:
-            s_quantity = 0
+    #     else:
+    #         w_quantity = 0
 
 
-        total_quantity = w_quantity + s_quantity
+
+    #     try:
+    #         shops = Shop.objects.filter(specification_id=self.id)
+
+    #     except:
+
+    #         shops = None
+
+    #     if shops:
+
+    #         s_quantity_list = list(shops.values_list('product_quantity',flat = True))
+    #         s_quantity = sum(s_quantity_list)
+    #         print(s_quantity)
+
+    #     else:
+    #         s_quantity = 0
+
+
+    #     total_quantity = w_quantity + s_quantity
 
        
 
 
-        return total_quantity
+    #     return total_quantity
+
+
+
 
 
 
@@ -1012,108 +1015,108 @@ class ProductSpecification(models.Model):
 
 
 
-class Warehouse(models.Model):
-    warehouse_name = models.CharField(max_length=264, blank=True, null= True)
-    warehouse_location = models.CharField(max_length=2048, blank=True, null= True)
-    product_quantity = models.IntegerField(blank=False, null=True,default=0)
-    specification_id = models.IntegerField(blank=False, null=True,default=-1)
-    date = models.DateField (auto_now_add=True,blank=True,null=True)
-    shop_quantity = models.IntegerField(blank=False, null=True,default=0)
-    warehouse_quantity = models.IntegerField(blank=False, null=True,default=0)
+# class Warehouse(models.Model):
+#     warehouse_name = models.CharField(max_length=264, blank=True, null= True)
+#     warehouse_location = models.CharField(max_length=2048, blank=True, null= True)
+#     product_quantity = models.IntegerField(blank=False, null=True,default=0)
+#     specification_id = models.IntegerField(blank=False, null=True,default=-1)
+#     date = models.DateField (auto_now_add=True,blank=True,null=True)
+#     shop_quantity = models.IntegerField(blank=False, null=True,default=0)
+#     warehouse_quantity = models.IntegerField(blank=False, null=True,default=0)
 
 
 
-    @property
-    def shop(self):
+#     @property
+#     def shop(self):
 
-        try:
-            spec = Shop.objects.filter(specification_id=self.specification_id)
+#         try:
+#             spec = Shop.objects.filter(specification_id=self.specification_id)
 
-        except:
-            spec = None
+#         except:
+#             spec = None
 
 
-        if spec:
+#         if spec:
 
-            s_list = list(spec.values_list('product_quantity',flat = True))
-            s_quantity = sum(s_list)
+#             s_list = list(spec.values_list('product_quantity',flat = True))
+#             s_quantity = sum(s_list)
 
 
-        else:
+#         else:
 
-            s_quantity = 0
+#             s_quantity = 0
 
 
 
 
-        return s_quantity
+#         return s_quantity
 
 
 
-    @property
-    def warehouse(self):
+#     @property
+#     def warehouse(self):
 
-        try:
-            spec = Warehouse.objects.filter(specification_id=self.specification_id)
+#         try:
+#             spec = Warehouse.objects.filter(specification_id=self.specification_id)
 
-        except:
-            spec = None
+#         except:
+#             spec = None
 
 
-        if spec:
+#         if spec:
 
-            s_list = list(spec.values_list('product_quantity',flat = True))
-            s_quantity = sum(s_list)
+#             s_list = list(spec.values_list('product_quantity',flat = True))
+#             s_quantity = sum(s_list)
 
 
-        else:
+#         else:
 
-            s_quantity = 0
+#             s_quantity = 0
 
 
 
 
-        return s_quantity
+#         return s_quantity
 
 
 
 
 
 
-    def save(self, *args, **kwargs):
+#     def save(self, *args, **kwargs):
 
-        self.shop_quantity = self.shop
-        self.warehouse_quantity = self.warehouse
-        super(Warehouse, self).save(*args, **kwargs)
-        # print(self.shop_quantity)
-        # print(self.warehouse_quantity)
-        try:
-            ware = Warehouse.objects.get(id = self.id)
-            print(ware)
+#         self.shop_quantity = self.shop
+#         self.warehouse_quantity = self.warehouse
+#         super(Warehouse, self).save(*args, **kwargs)
+#         # print(self.shop_quantity)
+#         # print(self.warehouse_quantity)
+#         try:
+#             ware = Warehouse.objects.get(id = self.id)
+#             print(ware)
 
-        except:
-            ware = None
+#         except:
+#             ware = None
 
-        if ware:
+#         if ware:
 
-            warehouse_quantity = ware.warehouse_quantity
-            shop_quantity = ware.shop_quantity
-            print(warehouse_quantity)
-            print(shop_quantity)
-            total_quantity = warehouse_quantity + shop_quantity
+#             warehouse_quantity = ware.warehouse_quantity
+#             shop_quantity = ware.shop_quantity
+#             print(warehouse_quantity)
+#             print(shop_quantity)
+#             total_quantity = warehouse_quantity + shop_quantity
 
 
-            try:
+#             try:
 
-                prod_spec = ProductSpecification.objects.get(id=self.specification_id)
+#                 prod_spec = ProductSpecification.objects.get(id=self.specification_id)
 
-            except:
+#             except:
 
-                prod_spec = None
+#                 prod_spec = None
 
-            if prod_spec:
-                prod_spec.quantity = total_quantity
-                prod_spec.save()
+#             if prod_spec:
+#                 prod_spec.quantity = total_quantity
+#                 prod_spec.save()
 
 
 
@@ -1122,130 +1125,130 @@ class Warehouse(models.Model):
 
 
 
-class Shop(models.Model):
-    shop_name = models.CharField(max_length=264, blank=True, null= True)
-    shop_location = models.CharField(max_length=2048, blank=True, null= True)
-    product_quantity = models.IntegerField(blank=False, null=True)
-    specification_id = models.IntegerField(blank=False, null=True)
-    date = models.DateField (auto_now_add=True,blank=True,null=True)
-    shop_quantity = models.IntegerField(blank=False, null=True,default=0)
-    warehouse_quantity = models.IntegerField(blank=False, null=True,default=0)
+# class Shop(models.Model):
+#     shop_name = models.CharField(max_length=264, blank=True, null= True)
+#     shop_location = models.CharField(max_length=2048, blank=True, null= True)
+#     product_quantity = models.IntegerField(blank=False, null=True)
+#     specification_id = models.IntegerField(blank=False, null=True)
+#     date = models.DateField (auto_now_add=True,blank=True,null=True)
+#     shop_quantity = models.IntegerField(blank=False, null=True,default=0)
+#     warehouse_quantity = models.IntegerField(blank=False, null=True,default=0)
 
 
-    # @property
-    # def save_specification(self):
+#     # @property
+#     # def save_specification(self):
 
 
-    #     spec = ProductSpecification()
+#     #     spec = ProductSpecification()
 
-    #     # spec_id = spec.id
-    #     spec.save()
-    #     # print("after save")
-    #     # print(spec.total_quantity)
+#     #     # spec_id = spec.id
+#     #     spec.save()
+#     #     # print("after save")
+#     #     # print(spec.total_quantity)
 
 
-    #     return 1
+#     #     return 1
 
 
 
 
 
-    # def save(self, *args, **kwargs):
+#     # def save(self, *args, **kwargs):
 
-    #     self.specification_id = self.save_specification
-    #     super(Shop, self).save(*args, **kwargs)
+#     #     self.specification_id = self.save_specification
+#     #     super(Shop, self).save(*args, **kwargs)
 
 
-    @property
-    def shop(self):
+#     @property
+#     def shop(self):
 
-        try:
-            spec = Shop.objects.filter(specification_id=self.specification_id)
+#         try:
+#             spec = Shop.objects.filter(specification_id=self.specification_id)
 
-        except:
-            spec = None
+#         except:
+#             spec = None
 
 
-        if spec:
+#         if spec:
 
-            s_list = list(spec.values_list('product_quantity',flat = True))
-            s_quantity = sum(s_list)
+#             s_list = list(spec.values_list('product_quantity',flat = True))
+#             s_quantity = sum(s_list)
 
 
-        else:
+#         else:
 
-            s_quantity = 0
+#             s_quantity = 0
 
 
 
 
-        return s_quantity
+#         return s_quantity
 
 
 
-    @property
-    def warehouse(self):
+#     @property
+#     def warehouse(self):
 
-        try:
-            spec = Warehouse.objects.filter(specification_id=self.specification_id)
+#         try:
+#             spec = Warehouse.objects.filter(specification_id=self.specification_id)
 
-        except:
-            spec = None
+#         except:
+#             spec = None
 
 
-        if spec:
+#         if spec:
 
-            s_list = list(spec.values_list('product_quantity',flat = True))
-            s_quantity = sum(s_list)
+#             s_list = list(spec.values_list('product_quantity',flat = True))
+#             s_quantity = sum(s_list)
 
 
-        else:
+#         else:
 
-            s_quantity = 0
+#             s_quantity = 0
 
 
 
 
-        return s_quantity
+#         return s_quantity
 
 
 
 
 
 
-    def save(self, *args, **kwargs):
+#     def save(self, *args, **kwargs):
 
-        self.shop_quantity = self.shop
-        self.warehouse_quantity = self.warehouse
-        super(Shop, self).save(*args, **kwargs)
-        # print(self.shop_quantity)
-        # print(self.warehouse_quantity)
-        try:
-            ware = Shop.objects.get(id = self.id)
-            print(ware)
+#         self.shop_quantity = self.shop
+#         self.warehouse_quantity = self.warehouse
+#         super(Shop, self).save(*args, **kwargs)
+#         # print(self.shop_quantity)
+#         # print(self.warehouse_quantity)
+#         try:
+#             ware = Shop.objects.get(id = self.id)
+#             print(ware)
 
-        except:
-            ware = None
+#         except:
+#             ware = None
 
-        if ware:
+#         if ware:
 
-            warehouse_quantity = ware.warehouse_quantity
-            shop_quantity = ware.shop_quantity
-            print(warehouse_quantity)
-            print(shop_quantity)
-            total_quantity = warehouse_quantity + shop_quantity
+#             warehouse_quantity = ware.warehouse_quantity
+#             shop_quantity = ware.shop_quantity
+#             print(warehouse_quantity)
+#             print(shop_quantity)
+#             total_quantity = warehouse_quantity + shop_quantity
 
-            try:
+#             try:
 
-                prod_spec = ProductSpecification.objects.get(id=self.specification_id)
+#                 prod_spec = ProductSpecification.objects.get(id=self.specification_id)
 
-            except:
+#             except:
 
-                prod_spec = None
+#                 prod_spec = None
 
-            if prod_spec:
-                prod_spec.quantity = total_quantity
-                prod_spec.save()
+#             if prod_spec:
+#                 prod_spec.quantity = total_quantity
+#                 prod_spec.save()
       
 
 
@@ -1268,5 +1271,36 @@ class Inventory_Price(models.Model):
 # class OrderInfo(models.Model):
 
 #     order_id = models.IntegerField( blank=True , null=True,default=-1)
+
+
+
+class Warehouse(models.Model):
+
+    warehouse_name = models.CharField(max_length=264, blank=True, null= True)
+    warehouse_location = models.CharField(max_length=264, blank=True, null= True)
+
+
+
+class Shop(models.Model):
+
+
+    shop_name = models.CharField(max_length=264, blank=True, null= True)
+    shop_location = models.CharField(max_length=264, blank=True, null= True)
+
+
+class WarehouseInfo(models.Model):
+
+    warehouse_id = models.IntegerField(blank=True,default=-1)
+    specification_id = models.IntegerField(blank=True,default=-1)
+    quantity = models.IntegerField(blank=True,default=0)
+
+
+class ShopInfo(models.Model):
+
+    shop_id = models.IntegerField(blank=True,default=-1)
+    specification_id = models.IntegerField(blank=True,default=-1)
+    quantity = models.IntegerField(blank=True,default=0)
+
+
 
 

@@ -6,7 +6,7 @@ from rest_framework import status
 import datetime
  
 from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,ProductSpecification,user_relation,Cupons,Comment,CommentReply,Reviews,discount_product,Warehouse,Shop
-from Product_details.serializers import ProductPriceSerializer,ProductPointSerializer,ProductSpecificationSerializer,ProductSpecificationSerializerz,ProductDetailSerializer,CupponSerializer,ProductDiscountSerializer,WareHouseSerializer,ShopSerializer
+from Product_details.serializers import ProductPriceSerializer,ProductPointSerializer,ProductSpecificationSerializer,ProductSpecificationSerializerz,ProductDetailSerializer,CupponSerializer,ProductDiscountSerializer,WarehouseSerializer,ShopSerializer,WarehouseInfoSerializer,ShopInfoSerializer
 from rest_framework.decorators import api_view 
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
@@ -1144,3 +1144,215 @@ def confirm_products(request):
                 "Message": "Information has been updated",
                 "reminder": reminder
             })
+
+
+
+
+
+
+@api_view(["POST",])
+def create_warehouse(request):
+
+
+    serializer = WarehouseSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"success":True,"message":"Warehouse has been created","data":serializer.data})
+
+
+    else:
+
+        return Response({"success":True,"message":"Warehouse could not be created"})
+
+
+
+
+
+@api_view(["POST",])
+def create_shop(request):
+
+
+    serializer = ShopSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"success":True,"message":"Shop has been created","data":serializer.data})
+
+
+    else:
+
+        return Response({"success":True,"message":"Shop could not be created"})
+
+
+
+@api_view(["POST",])
+def update_shop(request,shop_id):
+
+
+    try:
+
+        shop = Shop.objects.get(id = shop_id)
+
+
+    except:
+
+        shop = None
+
+    if shop:
+
+        serializer = ShopSerializer(shop,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"success":True,"message":"Shop data has been updated","data":serializer.data})
+
+
+        else:
+
+            return Response({"success":True,"message":"Shop data could not be updated"})
+
+
+    else:
+
+        return Response({"success":True,"message":"Shop does not exist"})
+
+
+
+
+
+@api_view(["POST",])
+def update_warehouse(request,warehouse_id):
+
+
+    try:
+
+        warehouse = Warehouse.objects.get(id = warehouse_id)
+
+
+    except:
+
+        warehouse = None
+
+    if warehouse:
+
+        serializer = WarehouseSerializer(warehouse,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"success":True,"message":"Warehouse data has been updated","data":serializer.data})
+
+
+        else:
+
+            return Response({"success":True,"message":"Warehouse data could not be updated"})
+
+
+    else:
+
+        return Response({"success":True,"message":"Warehouse does not exist"})
+
+
+
+@api_view(["GET",])
+def show_all_warehouses(request):
+
+
+    try:
+
+        warehouse = Warehouse.objects.all()
+
+    except:
+
+        warehouse = None 
+
+    if warehouse:
+
+        serializer = WarehouseSerializer(warehouse,many=True)
+        return Response({"success":True,"message":"Data is shown","data":serializer.data})
+
+    else:
+
+        return Response({"success":False,"message":"No data could be retrieved","data": []})
+
+
+
+@api_view(["GET",])
+def show_all_shops(request):
+
+
+    try:
+
+        warehouse = Shop.objects.all()
+
+    except:
+
+        warehouse = None 
+
+    if warehouse:
+
+        serializer = ShopSerializer(warehouse,many=True)
+        return Response({"success":True,"message":"Data is shown","data":serializer.data})
+
+    else:
+
+        return Response({"success":False,"message":"No data could be retrieved","data": []})
+
+
+
+def delete_warehouse(request,warehouse_id):
+
+
+    try:
+
+        warehouse = Warehouse.objects.get(id = warehouse_id)
+
+    except:
+
+        warehouse = None 
+
+
+
+    if warehouse:
+
+        warehouse.delete()
+        return Response({"success":True,"message":"Warehouse has been deleted"})
+
+    else:
+        return Response({"success":False,"message":"Warehouse does not exist"})
+
+
+
+
+
+def delete_shop(request,shop_id):
+
+
+    try:
+
+        warehouse = Warehouse.objects.get(id = shop_id)
+
+    except:
+
+        warehouse = None 
+
+
+
+    if warehouse:
+
+        warehouse.delete()
+        return Response({"success":True,"message":"Shop has been deleted"})
+
+    else:
+        return Response({"success":False,"message":"Shop does not exist"})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
