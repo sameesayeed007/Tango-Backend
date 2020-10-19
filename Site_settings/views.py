@@ -140,7 +140,7 @@ def add_company_info(request):
     policy = data['policy']
     # policies = policy.split(",")
 
-    term = data['terms']
+    term = data['terms_condition']
     # terms = term.split(",")
 
 
