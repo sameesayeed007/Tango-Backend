@@ -1312,10 +1312,10 @@ def delete_warehouse(request,warehouse_id):
     if warehouse:
 
         warehouse.delete()
-        return Response({"success":True,"message":"Warehouse has been deleted"})
+        return JsonResponse({"success":True,"message":"Warehouse has been deleted"})
 
     else:
-        return Response({"success":False,"message":"Warehouse does not exist"})
+        return JsonResponse({"success":False,"message":"Warehouse does not exist"})
 
 
 
@@ -1337,10 +1337,10 @@ def delete_shop(request,shop_id):
     if warehouse:
 
         warehouse.delete()
-        return Response({"success":True,"message":"Shop has been deleted"})
+        return JsonResponse({"success":True,"message":"Shop has been deleted"})
 
     else:
-        return Response({"success":False,"message":"Shop does not exist"})
+        return JsonResponse({"success":False,"message":"Shop does not exist"})
 
 
 
