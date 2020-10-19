@@ -297,6 +297,7 @@ class Banner_Image(models.Model):
     # this call is for uploading banner images
     Banner_id = models.IntegerField(blank=True, null=True,default=-1)
     image = models.ImageField(upload_to='Banner', null = True)
+    is_active = models.BooleanField(blank = True, default = True)
     link = models.CharField(max_length=500, blank=True, null=True,default="")
     content = models.CharField(max_length=264 , blank=True, null=True,default="")
 

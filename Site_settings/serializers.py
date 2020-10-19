@@ -119,7 +119,7 @@ class BannerImageSerializer(serializers.ModelSerializer):
  
     class Meta:
         model = Banner_Image
-        fields = ('id','Banner_id','image','image_link','content')
+        fields = ('id','Banner_id','image','image_link','content','is_active')
 
     def get_link(self,instance):
 

@@ -369,6 +369,144 @@ def change_status(request,banner_id):
 
 
 
+@api_view (["POST",])
+def change_image_status(request,image_id):
+
+    try:
+        banner = Banner_Image.objects.get(id = image_id)
+
+    except:
+
+        banner = None 
+
+
+    print(banner)
+
+    if banner:
+
+        banner_status = banner.is_active
+        print(banner_status)
+
+        if banner_status == True:
+            banner.is_active = False
+            banner.save()
+
+        elif banner_status == False:
+
+            banner.is_active = True
+            banner.save()
+
+        print(banner.is_active)
+
+
+        serializers = BannerImageSerializer (banner,many = False)
+        # banner_ids = banner.values_list('id' , flat = True)
+        # image_serializers = []
+        # for i in range(len(banner_ids)):
+
+        #     try:
+        #         banner_image = Banner_Image.objects.filter(Banner_id = banner_ids[i])
+        #     except:
+        #         banner_image = None
+        #     if banner_image is not None:
+        #         image_serializer = BannerImageSerializer (banner_image,many = True)
+        #         image_serializers += image_serializer.data
+
+
+
+        return JsonResponse({'success': True,
+                'message': 'The values are inserted below',
+                'data': serializers.data})
+                # 'images' : image_serializers})
+
+
+    else:
+
+        return JsonResponse({'success':False,'message':'the banner image does not exist'})
+
+
+@api_view (["GET","POST"])
+def get_Banners(request):
+
+    '''
+    This is for getting specific Banner. Site does have multiple banner and in each banner there will be multiple images. While performing the 
+    Get request it will have following response. While calling this API, desired banner id must need to be sent. Calling http://127.0.0.1:8000/site/banner/14
+    will cause to invoke this Api.
+
+    Get Response:
+        In get response it will send banner related information as an object and images as an array filed. Follwoing is the get response for tjis Api.
+
+    [
+        {
+            "id": 14,
+            "count": 2,
+            "set_time": 3
+        },
+        [
+            {
+                "id": 22,
+                "Banner_id": 14,
+                "image": null,
+                "link": "abc.link",
+                "content": "content"
+            },
+            {
+                "id": 23,
+                "Banner_id": 14,
+                "image": null,
+                "link": "efg.link",
+                "content": "nothing"
+            }
+        ]
+    ]
+
+    '''
+
+
+
+    if(request.method == "GET"):
+        try:
+            queryset = Banner.objects.filter(is_active=True)
+            print("banner er eikhane ashtese")
+            print(queryset)
+        except:
+            queryset = None
+        if queryset:
+
+            serializers = BannerSerializer (queryset,many = True)
+            banner_ids = queryset.values_list('id' , flat = True)
+            
+            image_serializers = []
+            for i in range(len(banner_ids)):
+                try:
+                    banner_image = Banner_Image.objects.filter(Banner_id = banner_ids[i])
+                except:
+                    banner_image = None
+                if banner_image is not None:
+                    image_serializer = BannerImageSerializer (banner_image,many = True)
+                    image_serializers += image_serializer.data
+
+
+
+
+            
+            
+            #banner_data = [serializers.data,image_serializers.data]
+            return Response({
+                'success': True,
+                'message': 'The values are inserted below',
+                'banner_data': serializers.data ,
+                'images' : image_serializers
+                })
+
+        else:
+            return Response({
+                'success': False,
+                'message': 'There are no values to show',
+                'data': ''
+                })
+
+
 
 
 @api_view (["GET","POST"])
@@ -425,7 +563,7 @@ def get_specific_Banners(request):
             image_serializers = []
             for i in range(len(banner_ids)):
                 try:
-                    banner_image = Banner_Image.objects.filter(Banner_id = banner_ids[i])
+                    banner_image = Banner_Image.objects.filter(Banner_id = banner_ids[i],is_active=True)
                 except:
                     banner_image = None
                 if banner_image is not None:
@@ -523,8 +661,8 @@ def Banner_Insertion(request):
 
                 content = data['images['+str(i)+'][content]']
                 image = data['images['+str(i)+'][image]']
-                banner_image_data = {'link':link, 'content': content,'image':image} 
-                banner_image = Banner_Image.objects.create(Banner_id=bannerid,link = link,content = content,image= image)
+                banner_image_data = {'link':link, 'content': content,'image':image,'is_active':True} 
+                banner_image = Banner_Image.objects.create(Banner_id=bannerid,link = link,content = content,image= image,is_active=True)
                 banner_image.save()
                 banner_image_serializer = BannerImageSerializer(banner_image,data=banner_image_data)
                 if(banner_image_serializer.is_valid()):
