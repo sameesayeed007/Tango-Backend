@@ -138,15 +138,15 @@ def add_company_info(request):
     data = request.data
 
     policy = data['policy']
-    policies = policy.split(",")
+    # policies = policy.split(",")
 
     term = data['terms']
-    terms = term.split(",")
+    # terms = term.split(",")
 
 
     Info_Api_data = {'name': data['name'], 'address': data['address'], 'Facebook':data['Facebook'], 'twitter': data['twitter'],
         'linkedin': data['linkedin'], 'youtube': data['youtube'], 'email': data['email'], 'phone': data['phone'],'help_center': data['help_center'], 'About': data['About'], 
-        'policy': policies, 'terms_condition':terms,'role_id': 1,'slogan': data['slogan'],'cookies':data['cookies']}
+        'policy': policy, 'terms_condition':term,'role_id': 1,'slogan': data['slogan'],'cookies':data['cookies']}
 
     try:
 

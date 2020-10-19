@@ -1268,3 +1268,5 @@ class Inventory_Price(models.Model):
 # class OrderInfo(models.Model):
 
 #     order_id = models.IntegerField( blank=True , null=True,default=-1)
+
+
