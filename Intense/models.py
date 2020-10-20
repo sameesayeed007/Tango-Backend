@@ -243,6 +243,7 @@ class Advertisement(models.Model):
     total_click_count = models.IntegerField(default =0)
     total_view_count = models.IntegerField(default=0)
     priority = models.IntegerField(default=-1)
+    is_active = models.BooleanField(blank = True, default = True)
     
     def __str__(self):
         return str(self.content)
