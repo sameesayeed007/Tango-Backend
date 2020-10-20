@@ -1326,7 +1326,7 @@ def delete_shop(request,shop_id):
 
     try:
 
-        warehouse = Warehouse.objects.get(id = shop_id)
+        warehouse = Shop.objects.get(id = shop_id)
 
     except:
 
@@ -1345,111 +1345,123 @@ def delete_shop(request,shop_id):
 
 
 
-@api_view(["GET",])
-def get_inventory_lists(request, order_details_id):
 
 
-    try:
 
-        product = OrderDetails.objects.get(id=order_details_id)
 
-    except:
 
-        product = None 
+# @api_view(["GET",])
+# def get_inventory_lists(request, order_details_id):
+
+
+#     try:
+
+#         product = OrderDetails.objects.get(id=order_details_id)
+
+#     except:
+
+#         product = None 
 
 
    
 
 
-    if product:
+#     if product:
 
 
-        product_id = product.product_id
-        product_size = product.product_size
-        product_color = product.product_color
+#         product_id = product.product_id
+#         product_size = product.product_size
+#         product_color = product.product_color
 
 
 
-        try:
+#         try:
 
-            spec = ProductSpecification.objects.get(
-                    product_id=product_id, size=product_size, color=product_color) 
+#             spec = ProductSpecification.objects.get(
+#                     product_id=product_id, size=product_size, color=product_color) 
 
 
-        except:
+#         except:
 
-            spec = None 
+#             spec = None 
 
 
         
 
 
-        if spec:
+#         if spec:
 
-            specification_id = spec.id 
-
-
-            try:
-
-                warehouses = WarehouseInfo.objects.filter(specification_id=specification_id)
-
-            except:
-
-                warehouses = None
+#             specification_id = spec.id 
 
 
+#             try:
 
+#                 warehouses = WarehouseInfo.objects.filter(specification_id=specification_id)
 
+#             except:
 
-            if warehouses:
-
-                warehouse_ids = list()
-
-                warehouses_serializer = WareHouseSerializer(warehouses,many=True)
-                warehouse_data = warehouses_serializer.data
-
-            else:
-
-                warehouse_data = []
-
-
-
-            try:
-
-                warehouses = Shop.objects.filter(specification_id=specification_id)
-
-            except:
-
-                warehouses = None
-
-
-            if warehouses:
-
-                warehouses_serializer = ShopSerializer(warehouses,many=True)
-                shop_data = warehouses_serializer.data
-
-            else:
-
-                shop_data = []
-
-
-        else:
-            warehouse_data = []
-            shop_data = [] 
-
-
-    else:
-        warehouse_data = []
-        shop_data = []
-
-
-
-    return JsonResponse({'success':True,'message':'Data is shown below','warehouse_data':warehouse_data,'shop_data':shop_data})
+#                 warehouses = None
 
 
 
 
 
+#             if warehouses:
+
+#                 warehouse_ids = list(warehouses.values_list('warehouse_id',flat=True).distinct())
+
+#                 try:
+
+#                     warehouses = Warehouse.objects.filter(id__in=warehouse_ids)
+
+#                 except:
+
+#                     warehouses = None
+
+
+#                 if warehouses:
+
+
+#                     warehouses_serializer = WareHouseSerializer(warehouses,many=True)
+#                     warehouse_data = warehouses_serializer.data
+
+#                 else:
+
+#                     warehouse_data = []
+
+
+
+#             try:
+
+#                 warehouses = Shop.objects.filter(specification_id=specification_id)
+
+#             except:
+
+#                 warehouses = None
+
+
+#             if warehouses:
+
+#                 warehouses_serializer = ShopSerializer(warehouses,many=True)
+#                 shop_data = warehouses_serializer.data
+
+#             else:
+
+#                 shop_data = []
+
+
+#         else:
+#             warehouse_data = []
+#             shop_data = [] 
+
+
+#     else:
+#         warehouse_data = []
+#         shop_data = []
+
+
+
+#     return JsonResponse({'success':True,'message':'Data is shown below','warehouse_data':warehouse_data,'shop_data':shop_data})
 
 
 

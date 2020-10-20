@@ -46,6 +46,6 @@ urlpatterns = [
     path('warehouses/', views.show_all_warehouses),
     path('shops/', views.show_all_shops),
     path('delete_warehouse/<int:warehouse_id>/', views.delete_warehouse),
-    path('delete_shop/<int:shop_id>/', views.delete_warehouse),
+    path('delete_shop/<int:shop_id>/', views.delete_shop),
   
 ]
