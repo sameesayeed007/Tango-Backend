@@ -5,7 +5,8 @@ from rest_framework.parsers import JSONParser
 from rest_framework import status
 import datetime
  
-from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,ProductSpecification,user_relation,Cupons,Comment,CommentReply,Reviews,discount_product,Warehouse,Shop,WarehouseInfo,ShopInfo
+from Intense.models import (Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,ProductSpecification,
+user_relation,Cupons,Comment,CommentReply,Reviews,discount_product,Warehouse,Shop,WarehouseInfo,ShopInfo,WarehouseInfo)
 from Product_details.serializers import ProductPriceSerializer,ProductPointSerializer,ProductSpecificationSerializer,ProductSpecificationSerializerz,ProductDetailSerializer,CupponSerializer,ProductDiscountSerializer,WarehouseSerializer,ShopSerializer,WarehouseInfoSerializer,ShopInfoSerializer
 from rest_framework.decorators import api_view 
 from django.views.decorators.csrf import csrf_exempt
@@ -1513,8 +1514,88 @@ def warehouse_products(request,warehouse_id):
 
 
 
+# ----------------------------------- quantity store in different shop/inventory ------------------------
+
+@api_view (["GET","POST"])
+def insert_product_quantity(request):
+
+    # demo values
+    api_values = {
+        'product_id': 2,
+        'specification_id':8,
+        'warehouse': [
+            {
+                'warehouse_id': 2,
+                'quantity': 200
+
+            },
+            {
+                'warehouse_id': 3,
+                'quantity': 400
+
+            }
+            
+        ],
+
+         'shop': [
+            {
+                'shop_id': 2,
+                'quantity': 200
+
+            },
+            {
+                'shop_id': 3,
+                'quantity': 300
+
+            }
+            
+        ]
+        
+        }
 
 
+    if request.method == 'POST':
 
 
+        try:
+            if len(api_values['warehouse'])>0 :
+                for wareh in api_values['warehouse']:
+                    try:
+                        wareh_query = WarehouseInfo.objects.filter(warehouse_id = wareh['warehouse_id'], specification_id = api_values['specification_id'])
+                        if wareh_query.exists():
+                            quantity_val = wareh_query[0].quantity
+                            new_quantity = quantity_val+ wareh['quantity']
+                            wareh_query.update(quantity=new_quantity)
+                        else:
+                            wareh_data = WarehouseInfo(specification_id= api_values['specification_id'], product_id=  api_values['product_id'], warehouse_id = wareh['warehouse_id'],
+                                                        quantity = wareh['quantity'] )
+                            wareh_data.save()
+                    except:
+                        pass
 
+            if len(api_values['shop'])>0 :
+                for shops in api_values['shop']:
+                    try:
+                        shop_query = ShopInfo.objects.filter(shop_id = shops['shop_id'], specification_id = api_values['specification_id'])
+                        if shop_query.exists():
+                            quantity_val = shop_query[0].quantity
+                            new_quantity = quantity_val+ shops['quantity']
+                            shop_query.update(quantity=new_quantity)
+                        else:
+                            shop_data = ShopInfo(specification_id= api_values['specification_id'], product_id=  api_values['product_id'], shop_id = shops['shop_id'],
+                                                        quantity = shops['quantity'] )
+                            shop_data.save()
+                    except:
+                        pass
+
+            return Response ({
+                "success": True,
+                "message": "Data has been added successfully"
+            })
+        except:
+              return Response ({
+                "success": False,
+                "message": "Something went wrong !!"
+            })
+    
+           

@@ -991,8 +991,6 @@ class ProductSpecification(models.Model):
 
     def save(self, *args, **kwargs):
 
-        print("specification er tay dhukse")
-
         self.quantity = self.total
         # print("save er moddhe")
         # print(self.quantity)
@@ -1377,7 +1375,6 @@ class WarehouseInfo(models.Model):
 
     def save(self, *args, **kwargs):
 
-        print("save er moddhe")
 
         #self.shop_quantity = self.shop
         # self.warehouse_quantity = self.warehouse
@@ -1561,3 +1558,5 @@ class inventory_report(models.Model):
     warehouse_id = models.IntegerField(blank=True, null=True)
     shop_id = models.IntegerField(blank=True, null=True)
     date = models.DateField(auto_now_add=True,null=True , blank=True)
+    selling_price = models.FloatField(blank=True, null=True)
+    purchase_price = models.FloatField(blank=True, null=True)
