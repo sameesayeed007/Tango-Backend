@@ -1511,7 +1511,28 @@ def warehouse_products(request,warehouse_id):
         warehouse_data = {}
         return JsonResponse({'success':False,'message':'Here is the data','data':warehouse_data})
 
+@api_view(["GET",])
+def shop_products(request,shop_id):
 
+    try:
+
+        products =  Shop.objects.get(id=shop_id)
+
+    except:
+
+        products = None 
+
+
+    if products: 
+
+        warehouse_serializer = ShopSerializer(products,many=False)
+        warehouse_data = warehouse_serializer.data
+        return JsonResponse({'success':True,'message':'Here is the data','data':warehouse_data})
+
+    else:
+
+        warehouse_data = {}
+        return JsonResponse({'success':False,'message':'Here is the data','data':warehouse_data})
 
 
 
