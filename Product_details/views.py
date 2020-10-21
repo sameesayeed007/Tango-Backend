@@ -1702,7 +1702,7 @@ def inventory_lists(request, order_details_id):
                         location = warehouse.warehouse_location
                         quantity = warehouse_quantities[i]
 
-                        warehouse_data = {"warehouse_id":warehouse_ids[i],"warehouse_name":name,"warehouse_location":location,"quantity":quantity}
+                        warehouse_data = {"id":warehouse_ids[i],"name":name,"location":location,"quantity":quantity}
 
                     else:
 
@@ -1756,7 +1756,7 @@ def inventory_lists(request, order_details_id):
                         location = shop.shop_location
                         quantity = shop_quantities[i]
 
-                        shop_data = {"shop_id":shop_ids[i],"shop_name":name,"shop_location":location,"quantity":quantity}
+                        shop_data = {"id":shop_ids[i],"name":name,"location":location,"quantity":quantity}
 
                     else:
 
