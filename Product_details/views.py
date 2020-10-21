@@ -980,9 +980,125 @@ def subtract_quantity(request, order_details_id):
             return JsonResponse({'success':False,'message':'The item does not exist'})
 
 
+# @api_view(["POST",])    
+# def subtract_items(request):
+
+#     data= {
+ 
+#     "warehouse": [
+#         {
+#             "warehouse_id": 6,
+#             "warehouse_name": "WarehouseA",
+#             "warehouse_location": "Dhanmondi",
+#             "quantity": 10000
+#         },
+#         {
+#             "warehouse_id": 7,
+#             "warehouse_name": "WarehouseB",
+#             "warehouse_location": "Gulshan",
+#             "quantity": 3000
+#         }
+#     ],
+#     "shop": [
+#         {
+#             "shop_id": 2,
+#             "shop_name": "ShopB",
+#             "shop_location": "gulshan",
+#             "quantity": 11000
+#         },
+#         {
+#             "shop_id": 4,
+#             "shop_name": "ShopA",
+#             "shop_location": "Banani",
+#             "quantity": 5000
+#         }
+#     ]
+# }
+
     
+#     # print(data["warehouse"])
+#     # print(len(data["warehouse"]))
+#     # print(data["shop"])
+#     # print(len(data["warehouse"]))
+#     # print(data["warehouse"][0]["warehouse_id"])
+
+#     warehouse_data = data["warehouse"]
+#     shop_data = data["shop"]
+#     # print(warehouse_data)
+#     # print(len(warehouse_data))
+#     # print(warehouse_data[1]["warehouse_id"])
+
+#     #This is for the warehouse data
+
+#     try:
+
+#         item = OrderDetails.objects.get(id = order_details_id)
 
 
+#     except:
+
+#         item = None 
+
+
+#     if item:
+
+#         #Checking if any item has been subtracted from the warehouse
+
+#         if int(len(warehouse_data)) > 0:
+
+#             #looping through the warehouse items
+
+#             for i in range(int(len(warehouse_data))):
+
+
+
+
+
+#         else:
+
+#             pass
+
+
+
+
+
+    # else:
+
+    #     JsonResponse({"success":False,"message":"item e nai"})
+
+        
+
+
+
+
+
+    # if int(len(warehouse_data)) > 0:
+
+    #     for i in range(int(len(warehouse_data))):
+
+    #         try:
+
+    #             item = OrderDetails.objects.get(id = order_details_id)
+
+    #         except:
+
+    #             item = None 
+
+    #         if item:
+
+
+
+    # else:
+    #     pass
+
+
+    # return Response("Kaaj hochchce")
+
+
+
+
+
+   
 @api_view(["POST",])
 def admin_approval(request,order_id):
 
@@ -1432,7 +1548,7 @@ def inventory_lists(request, order_details_id):
                         location = warehouse.warehouse_location
                         quantity = warehouse_quantities[i]
 
-                        warehouse_data = {"warehouse_id":warehouse_ids[i],"warehouse_name":name,"warehouse_location":location,"quantity":quantity}
+                        warehouse_data = {"id":warehouse_ids[i],"name":name,"location":location,"quantity":quantity}
 
                     else:
 
@@ -1486,7 +1602,7 @@ def inventory_lists(request, order_details_id):
                         location = shop.shop_location
                         quantity = shop_quantities[i]
 
-                        shop_data = {"shop_id":shop_ids[i],"shop_name":name,"shop_location":location,"quantity":quantity}
+                        shop_data = {"id":shop_ids[i],"name":name,"location":location,"quantity":quantity}
 
                     else:
 

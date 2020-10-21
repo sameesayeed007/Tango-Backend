@@ -50,5 +50,6 @@ urlpatterns = [
     path('delete_shop/<int:shop_id>/', views.delete_shop),
     path('warehouse_products/<int:warehouse_id>/', views.warehouse_products),
     path('shop_products/<int:shop_id>/', views.shop_products),
+    # path('subtract_items/', views.subtract_items),
   
 ]
