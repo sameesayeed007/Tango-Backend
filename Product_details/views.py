@@ -981,91 +981,258 @@ def subtract_quantity(request, order_details_id):
             return JsonResponse({'success':False,'message':'The item does not exist'})
 
 
-# @api_view(["POST",])    
-# def subtract_items(request):
+@api_view(["POST",])    
+def subtract_items(request,order_details_id):
 
-#     data= {
- 
-#     "warehouse": [
+#     data= {"warehouse": [
 #         {
-#             "warehouse_id": 6,
-#             "warehouse_name": "WarehouseA",
-#             "warehouse_location": "Dhanmondi",
-#             "quantity": 10000
+#             "id": 6,
+#             "name": "WarehouseA",
+#             "location": "Dhanmondi",
+#             "subtract": 5
 #         },
 #         {
-#             "warehouse_id": 7,
-#             "warehouse_name": "WarehouseB",
-#             "warehouse_location": "Gulshan",
-#             "quantity": 3000
+#             "id": 7,
+#             "name": "WarehouseB",
+#             "location": "Gulshan",
+#             "subtract": 6
 #         }
 #     ],
 #     "shop": [
 #         {
-#             "shop_id": 2,
-#             "shop_name": "ShopB",
-#             "shop_location": "gulshan",
-#             "quantity": 11000
+#             "id": 2,
+#             "name": "ShopB",
+#             "location": "gulshan",
+#             "subtract": 4
 #         },
 #         {
-#             "shop_id": 4,
-#             "shop_name": "ShopA",
-#             "shop_location": "Banani",
-#             "quantity": 5000
+#             "id": 4,
+#             "name": "ShopA",
+#             "location": "Banani",
+#             "subtract": 5
 #         }
 #     ]
 # }
 
+
+    data = request.data
+
     
-#     # print(data["warehouse"])
-#     # print(len(data["warehouse"]))
-#     # print(data["shop"])
-#     # print(len(data["warehouse"]))
-#     # print(data["warehouse"][0]["warehouse_id"])
+    # print(data["warehouse"])
+    # print(len(data["warehouse"]))
+    # print(data["shop"])
+    # print(len(data["warehouse"]))
+    # print(data["warehouse"][0]["warehouse_id"])
 
-#     warehouse_data = data["warehouse"]
-#     shop_data = data["shop"]
-#     # print(warehouse_data)
-#     # print(len(warehouse_data))
-#     # print(warehouse_data[1]["warehouse_id"])
+    warehouse_data = data["warehouse"]
+    shop_data = data["shop"]
+    # print(warehouse_data)
+    # print(len(warehouse_data))
+    # print(warehouse_data[1]["warehouse_id"])
 
-#     #This is for the warehouse data
+    #This is for the warehouse data
 
-#     try:
+    try:
 
-#         item = OrderDetails.objects.get(id = order_details_id)
-
-
-#     except:
-
-#         item = None 
+        item = OrderDetails.objects.get(id = order_details_id)
 
 
-#     if item:
+    except:
 
-#         #Checking if any item has been subtracted from the warehouse
-
-#         if int(len(warehouse_data)) > 0:
-
-#             #looping through the warehouse items
-
-#             for i in range(int(len(warehouse_data))):
+        item = None 
 
 
+    if item:
+
+        #Checking if any item has been subtracted from the warehouse
+
+        item_remaining = item.remaining
+        item_product_id = item.product_id
+        item_color = item.product_color
+        item_size = item.product_size
+
+        try:
+
+            spec = ProductSpecification.objects.get(product_id=item_product_id,color=item_color,size=item_size)
+
+        except:
+
+            spec = None 
+
+
+        print(spec)
+
+        if spec:
+
+            specification_id = spec.id
+
+        else:
+
+            specification_id = 0 
+
+
+        print(specification_id)
 
 
 
-#         else:
+        if int(len(warehouse_data)) > 0:
 
-#             pass
+            #looping through the warehouse items
+
+            for i in range(int(len(warehouse_data))):
+
+                print("loop er moddhe dhuklam")
+
+                if item_remaining > 0:
+
+                    print("warehouse item_remaining ase")
+
+                    #fetch the warehouseinfo 
+
+                    warehouse_id = warehouse_data[i]["id"]
+
+                    subtract = int(warehouse_data[i]["subtract"])
+
+                    try:
+
+                        warehouse_info = WarehouseInfo.objects.get(warehouse_id=warehouse_id,specification_id=specification_id)
+
+                    except:
+
+                        warehouse_info = None
+
+                    if warehouse_info:
+
+                        if warehouse_info.quantity >= subtract:
+
+                            warehouse_info.quantity -= subtract
+                            warehouse_info.save()
+
+                            print("aager")
+
+                            print(item_remaining)
+
+                            item.remaining -= subtract
+                            item.save()
+                            item_remaining = item.remaining
+                            print("porer")
+                            print(item_remaining)
+
+                            if item_remaining == 0:
+
+
+                                return JsonResponse({"success":True,"message":"This product is approved"})
+
+
+
+
+                        else:
+                            return JsonResponse({"success":False,"message":"The warehouse does not have enough of this item"})
+
+                    else:
+                        return JsonResponse({"success":False,"message":"The warehouse does not have enough of this item"})
+
+
+                # elif item_remaining==0:
+
+                #     return JsonResponse({"success":True,"message":"This product is approved"})
 
 
 
 
 
-    # else:
+                else:
+                    return JsonResponse({"success":False,"message":"These many items dont exist in this order"})
 
-    #     JsonResponse({"success":False,"message":"item e nai"})
+
+
+        else:
+
+            pass
+
+
+        if int(len(shop_data)) > 0:
+
+            #looping through the warehouse items
+
+            for i in range(int(len(shop_data))):
+
+                print("loop er moddhe dhuklam")
+
+                if item_remaining > 0:
+
+                    print("shop item_remaining ase")
+
+                    #fetch the warehouseinfo 
+
+                    shop_id = shop_data[i]["id"]
+
+                    subtract = int(shop_data[i]["subtract"])
+
+                    try:
+
+                        shop_info = ShopInfo.objects.get(shop_id= shop_id,specification_id=specification_id)
+
+                    except:
+
+                        shop_info = None
+
+                    if shop_info:
+
+                        if shop_info.quantity >= subtract:
+
+                            shop_info.quantity -= subtract
+                            shop_info.save()
+
+                            print("shoper aager")
+
+                            print(item_remaining)
+
+                            item.remaining -= subtract
+                            item.save()
+                            item_remaining = item.remaining
+
+                            print("shop er porer")
+
+                            print(item_remaining)
+
+                            if item_remaining == 0:
+
+
+                                return JsonResponse({"success":True,"message":"This product is approved"})
+
+                            
+
+                        else:
+                            return JsonResponse({"success":False,"message":"The shop does not have enough of this item"})
+
+                    else:
+                        return JsonResponse({"success":False,"message":"The shop does not have enough of this item"})
+
+                # elif item_remaining==0:
+
+                #     return JsonResponse({"success":True,"message":"This product is approved"})
+
+
+
+                else:
+                    return JsonResponse({"success":False,"message":"These many items dont exist in this order"})
+
+
+
+        else:
+
+            pass
+
+
+
+
+
+
+
+    else:
+
+        JsonResponse({"success":False,"message":"The item is not in that order"})
 
         
 
@@ -1073,27 +1240,7 @@ def subtract_quantity(request, order_details_id):
 
 
 
-    # if int(len(warehouse_data)) > 0:
 
-    #     for i in range(int(len(warehouse_data))):
-
-    #         try:
-
-    #             item = OrderDetails.objects.get(id = order_details_id)
-
-    #         except:
-
-    #             item = None 
-
-    #         if item:
-
-
-
-    # else:
-    #     pass
-
-
-    # return Response("Kaaj hochchce")
 
 
 
