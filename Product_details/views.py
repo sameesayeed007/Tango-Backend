@@ -6,7 +6,7 @@ from rest_framework import status
 import datetime
  
 from Intense.models import (Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,ProductSpecification,
-user_relation,Cupons,Comment,CommentReply,Reviews,discount_product,Warehouse,Shop,WarehouseInfo,ShopInfo,WarehouseInfo)
+user_relation,Cupons,Comment,CommentReply,Reviews,discount_product,Warehouse,Shop,WarehouseInfo,ShopInfo,WarehouseInfo,inventory_report)
 from Product_details.serializers import ProductPriceSerializer,ProductPointSerializer,ProductSpecificationSerializer,ProductSpecificationSerializerz,ProductDetailSerializer,CupponSerializer,ProductDiscountSerializer,WarehouseSerializer,ShopSerializer,WarehouseInfoSerializer,ShopInfoSerializer
 from rest_framework.decorators import api_view 
 from django.views.decorators.csrf import csrf_exempt
@@ -1598,29 +1598,40 @@ def insert_product_quantity(request):
         
         }
 
+  
 
     if request.method == 'POST':
 
 
+      
         try:
+            
+            # checking is there any warehouse data exists or not
             if len(api_values['warehouse'])>0 :
                 for wareh in api_values['warehouse']:
                     try:
+                        # getting the previous data if there is any in the similar name. If exists update the new value. if does not create new records.
                         wareh_query = WarehouseInfo.objects.filter(warehouse_id = wareh['warehouse_id'], specification_id = api_values['specification_id'])
                         if wareh_query.exists():
                             quantity_val = wareh_query[0].quantity
                             new_quantity = quantity_val+ wareh['quantity']
                             wareh_query.update(quantity=new_quantity)
+                            
                         else:
                             wareh_data = WarehouseInfo(specification_id= api_values['specification_id'], product_id=  api_values['product_id'], warehouse_id = wareh['warehouse_id'],
                                                         quantity = wareh['quantity'] )
                             wareh_data.save()
+
+                        # updating the inventory report credit records for each ware house quantity. It will help to keep the records in future.
+                        report_data = inventory_report(product_id=api_values['product_id'],credit= wareh['quantity'],warehouse_id = wareh['warehouse_id'])
+                        report_data.save()
                     except:
                         pass
 
             if len(api_values['shop'])>0 :
                 for shops in api_values['shop']:
                     try:
+                        # getting the existing shop values if is there any.
                         shop_query = ShopInfo.objects.filter(shop_id = shops['shop_id'], specification_id = api_values['specification_id'])
                         if shop_query.exists():
                             quantity_val = shop_query[0].quantity
@@ -1630,9 +1641,12 @@ def insert_product_quantity(request):
                             shop_data = ShopInfo(specification_id= api_values['specification_id'], product_id=  api_values['product_id'], shop_id = shops['shop_id'],
                                                         quantity = shops['quantity'] )
                             shop_data.save()
+                        # Updating the report table after being inserted the quantity corresponding to credit coloumn for each shop.
+                        report_data = inventory_report(product_id=api_values['product_id'],credit= shops['quantity'],shop_id = shops['shop_id'])
+                        report_data.save()
                     except:
                         pass
-
+            
             return Response ({
                 "success": True,
                 "message": "Data has been added successfully"
