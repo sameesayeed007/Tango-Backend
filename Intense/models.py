@@ -935,6 +935,82 @@ class ProductSpecification(models.Model):
     def __str__(self):
         return str(self.id)
 
+
+    @property
+    def total(self):
+
+
+        try:
+
+            warehouses = WarehouseInfo.objects.filter(specification_id=self.id)
+
+
+        except:
+
+            warehouses = None 
+
+
+        if warehouses:
+
+            w_quantity_list = list(warehouses.values_list('quantity',flat = True))
+            w_quantity = sum(w_quantity_list)
+
+
+        else:
+
+            w_quantity = 0
+
+
+
+        try:
+
+            shops = ShopInfo.objects.filter(specification_id=self.id)
+
+
+        except:
+
+            shops = None 
+
+
+        if shops:
+
+            s_quantity_list = list(shops.values_list('quantity',flat = True))
+            s_quantity = sum(s_quantity_list)
+
+
+        else:
+
+            s_quantity = 0
+
+
+
+        total_quantity = w_quantity + s_quantity
+
+        return total_quantity
+
+
+    def save(self, *args, **kwargs):
+
+        print("specification er tay dhukse")
+
+        self.quantity = self.total
+        # print("save er moddhe")
+        # print(self.quantity)
+        super(ProductSpecification, self).save(*args, **kwargs)
+        # print("save er pore")
+        # print(self.quantity)
+
+
+
+
+
+
+
+
+
+
+
+
     # @property
     # def quantity(self):
     #     total = self.warehouse_quantity + self.shop_quantity
@@ -1004,14 +1080,14 @@ class ProductSpecification(models.Model):
 
         
     
-    def save(self, *args, **kwargs):
+    # def save(self, *args, **kwargs):
 
-        self.quantity = self.total
-        print("save er moddhe")
-        print(self.quantity)
-        super(ProductSpecification, self).save(*args, **kwargs)
-        print("save er pore")
-        print(self.quantity)
+    #     self.quantity = self.total
+    #     print("save er moddhe")
+    #     print(self.quantity)
+    #     super(ProductSpecification, self).save(*args, **kwargs)
+    #     print("save er pore")
+    #     print(self.quantity)
 
 
 
@@ -1293,7 +1369,98 @@ class WarehouseInfo(models.Model):
 
     warehouse_id = models.IntegerField(blank=True,default=-1)
     specification_id = models.IntegerField(blank=True,default=-1)
+    product_id = models.IntegerField(blank=True,default=-1)
     quantity = models.IntegerField(blank=True,default=0)
+
+
+
+
+    def save(self, *args, **kwargs):
+
+        print("save er moddhe")
+
+        #self.shop_quantity = self.shop
+        # self.warehouse_quantity = self.warehouse
+        super(WarehouseInfo, self).save(*args, **kwargs)
+        # print(self.shop_quantity)
+        # print(self.warehouse_quantity)
+        try:
+
+            warehouses = WarehouseInfo.objects.filter(specification_id=self.specification_id)
+
+
+        except:
+
+            warehouses = None 
+
+
+        if warehouses:
+
+            w_quantity_list = list(warehouses.values_list('quantity',flat = True))
+            w_quantity = sum(w_quantity_list)
+
+
+        else:
+
+            w_quantity = 0
+
+
+
+        try:
+
+            shops = ShopInfo.objects.filter(specification_id=self.specification_id)
+
+
+        except:
+
+            shops = None 
+
+
+        if shops:
+
+            s_quantity_list = list(shops.values_list('quantity',flat = True))
+            s_quantity = sum(s_quantity_list)
+
+
+        else:
+
+            s_quantity = 0
+
+
+
+        total_quantity = w_quantity + s_quantity
+
+        
+        
+
+
+
+        try:
+            
+
+            prod_spec = ProductSpecification.objects.get(id=self.specification_id)
+
+            
+
+
+        except:
+
+            
+
+            prod_spec = None
+
+           
+
+        if prod_spec:
+            prod_spec.quantity = total_quantity
+            prod_spec.save()
+
+           
+
+    
+
+
+
 
 
 class ShopInfo(models.Model):
@@ -1301,7 +1468,96 @@ class ShopInfo(models.Model):
     shop_id = models.IntegerField(blank=True,default=-1)
     specification_id = models.IntegerField(blank=True,default=-1)
     quantity = models.IntegerField(blank=True,default=0)
+    product_id = models.IntegerField(blank=True,default=-1)
+
+
+    def save(self, *args, **kwargs):
+
+        
+
+        #self.shop_quantity = self.shop
+        # self.warehouse_quantity = self.warehouse
+        super(ShopInfo, self).save(*args, **kwargs)
+        # print(self.shop_quantity)
+        # print(self.warehouse_quantity)
+        try:
+
+            warehouses = WarehouseInfo.objects.filter(specification_id=self.specification_id)
+
+
+        except:
+
+            warehouses = None 
+
+
+        if warehouses:
+
+            w_quantity_list = list(warehouses.values_list('quantity',flat = True))
+            w_quantity = sum(w_quantity_list)
+
+
+        else:
+
+            w_quantity = 0
 
 
 
+        try:
 
+            shops = ShopInfo.objects.filter(specification_id=self.specification_id)
+
+
+        except:
+
+            shops = None 
+
+
+        if shops:
+
+            s_quantity_list = list(shops.values_list('quantity',flat = True))
+            s_quantity = sum(s_quantity_list)
+
+
+        else:
+
+            s_quantity = 0
+
+
+
+        total_quantity = w_quantity + s_quantity
+
+        
+        
+
+
+
+        try:
+            
+
+            prod_spec = ProductSpecification.objects.get(id=self.specification_id)
+
+            
+
+
+        except:
+
+            
+
+            prod_spec = None
+
+           
+
+        if prod_spec:
+            prod_spec.quantity = total_quantity
+            prod_spec.save()
+
+
+
+class inventory_report(models.Model):
+
+    product_id = models.IntegerField(blank=False, null=False)
+    debit = models.IntegerField(blank=True, null=True)
+    credit = models.IntegerField(blank=True, null=True)
+    warehouse_id = models.IntegerField(blank=True, null=True)
+    shop_id = models.IntegerField(blank=True, null=True)
+    date = models.DateField(auto_now_add=True,null=True , blank=True)

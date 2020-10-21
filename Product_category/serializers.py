@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from Intense.models import Category,Sub_Category,Sub_Sub_Category
+from Intense.models import Category,Sub_Category,Sub_Sub_Category,inventory_report
 from django.contrib.auth.models import User
 #from Cart.models import ProductPoint
 from django.utils import timezone
@@ -136,7 +136,11 @@ class SubSubCatSerializer(serializers.ModelSerializer):
    
         
 
-
+class InventoryReportSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = inventory_report
+        fields = ('id', 'product_id','debit','credit')
 
     
 

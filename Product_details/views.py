@@ -5,7 +5,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework import status
 import datetime
  
-from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,ProductSpecification,user_relation,Cupons,Comment,CommentReply,Reviews,discount_product,Warehouse,Shop
+from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,ProductSpecification,user_relation,Cupons,Comment,CommentReply,Reviews,discount_product,Warehouse,Shop,WarehouseInfo,ShopInfo
 from Product_details.serializers import ProductPriceSerializer,ProductPointSerializer,ProductSpecificationSerializer,ProductSpecificationSerializerz,ProductDetailSerializer,CupponSerializer,ProductDiscountSerializer,WarehouseSerializer,ShopSerializer,WarehouseInfoSerializer,ShopInfoSerializer
 from rest_framework.decorators import api_view 
 from django.views.decorators.csrf import csrf_exempt
@@ -1350,118 +1350,169 @@ def delete_shop(request,shop_id):
 
 
 
-# @api_view(["GET",])
-# def get_inventory_lists(request, order_details_id):
+@api_view(["GET",])
+def inventory_lists(request, order_details_id):
 
 
-#     try:
+    try:
 
-#         product = OrderDetails.objects.get(id=order_details_id)
+        product = OrderDetails.objects.get(id=order_details_id)
 
-#     except:
+    except:
 
-#         product = None 
+        product = None 
 
 
    
 
 
-#     if product:
+    if product:
 
 
-#         product_id = product.product_id
-#         product_size = product.product_size
-#         product_color = product.product_color
+        product_id = product.product_id
+        product_size = product.product_size
+        product_color = product.product_color
 
 
 
-#         try:
+        try:
 
-#             spec = ProductSpecification.objects.get(
-#                     product_id=product_id, size=product_size, color=product_color) 
+            spec = ProductSpecification.objects.get(
+                    product_id=product_id, size=product_size, color=product_color) 
 
 
-#         except:
+        except:
 
-#             spec = None 
+            spec = None 
+
+
+
 
 
         
 
 
-#         if spec:
+        if spec:
 
-#             specification_id = spec.id 
-
-
-#             try:
-
-#                 warehouses = WarehouseInfo.objects.filter(specification_id=specification_id)
-
-#             except:
-
-#                 warehouses = None
+            specification_id = spec.id
+            print(specification_id) 
 
 
+            try:
+
+                warehouses = WarehouseInfo.objects.filter(specification_id=specification_id)
+
+            except:
+
+                warehouses = None
 
 
-
-#             if warehouses:
-
-#                 warehouse_ids = list(warehouses.values_list('warehouse_id',flat=True).distinct())
-
-#                 try:
-
-#                     warehouses = Warehouse.objects.filter(id__in=warehouse_ids)
-
-#                 except:
-
-#                     warehouses = None
-
-
-#                 if warehouses:
-
-
-#                     warehouses_serializer = WareHouseSerializer(warehouses,many=True)
-#                     warehouse_data = warehouses_serializer.data
-
-#                 else:
-
-#                     warehouse_data = []
+            print(warehouses)
 
 
 
-#             try:
-
-#                 warehouses = Shop.objects.filter(specification_id=specification_id)
-
-#             except:
-
-#                 warehouses = None
 
 
-#             if warehouses:
+            if warehouses:
 
-#                 warehouses_serializer = ShopSerializer(warehouses,many=True)
-#                 shop_data = warehouses_serializer.data
+                warehouse_ids = list(warehouses.values_list('warehouse_id',flat=True).distinct())
 
-#             else:
+                try:
 
-#                 shop_data = []
+                    warehouse = Warehouse.objects.filter(id__in=warehouse_ids)
 
+                except:
 
-#         else:
-#             warehouse_data = []
-#             shop_data = [] 
+                    warehouse = None
 
 
-#     else:
-#         warehouse_data = []
-#         shop_data = []
+                if warehouse:
+
+
+                    warehouse_serializer = WarehouseSerializer(warehouse,many=True)
+                    warehouse_data = warehouse_serializer.data
+
+                else:
+
+                    warehouse_data = []
+
+            else:
+
+                warehouse_data = []
 
 
 
-#     return JsonResponse({'success':True,'message':'Data is shown below','warehouse_data':warehouse_data,'shop_data':shop_data})
+            try:
+
+                shops = ShopInfo.objects.filter(specification_id=specification_id)
+
+            except:
+
+                shops = None
+
+
+            if shops:
+
+                shop_ids = list(shops.values_list('shop_id',flat=True).distinct())
+
+                try:
+
+                    shop = Shop.objects.filter(id__in=shop_ids)
+
+                except:
+
+                    shop = None
+
+                if shop:
+
+                    shop_serializer = ShopSerializer(shop,many=True)
+                    shop_data = shop_serializer.data
+
+                else:
+
+                    shop_data = []
+
+
+            else:
+          
+                shop_data = [] 
+
+
+        else:
+            warehouse_data = []
+            shop_data = []
+
+
+
+    return JsonResponse({'success':True,'message':'Data is shown below','warehouse_data':warehouse_data,'shop_data':shop_data})
+
+
+
+@api_view(["GET",])
+def warehouse_products(request,warehouse_id):
+
+    try:
+
+        products =  Warehouse.objects.get(id=warehouse_id)
+
+    except:
+
+        products = None 
+
+
+    if products: 
+
+        warehouse_serializer = WarehouseSerializer(products,many=False)
+        warehouse_data = warehouse_serializer.data
+        return JsonResponse({'success':True,'message':'Here is the data','data':warehouse_data})
+
+    else:
+
+        warehouse_data = {}
+        return JsonResponse({'success':False,'message':'Here is the data','data':warehouse_data})
+
+
+
 
 
 

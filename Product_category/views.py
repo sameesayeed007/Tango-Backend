@@ -4,9 +4,9 @@ from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
 from rest_framework import status
 import datetime
-from Intense.models import Category,Sub_Category,Sub_Sub_Category,Product
+from Intense.models import Category,Sub_Category,Sub_Sub_Category,Product,inventory_report
 
-from .serializers import CategorySerializer,CategorySerializerz,Sub_CategorySerializer,Sub_Sub_CategorySerializer,CatSerializer,SubCatSerializer,SubSubCatSerializer
+from .serializers import CategorySerializer,CategorySerializerz,Sub_CategorySerializer,Sub_Sub_CategorySerializer,CatSerializer,SubCatSerializer,SubSubCatSerializer,InventoryReportSerializer
 from Product_details.serializers import ProductImpressionSerializer
 from rest_framework.decorators import api_view 
 from django.views.decorators.csrf import csrf_exempt
@@ -713,3 +713,45 @@ def sub_sub_categories(request):
 
 
 
+@api_view(["GET", "POST"])
+def insert_inventory_report(request):
+    '''
+    This apis is for inserting inventory report to database. This will be called when any trasaction report will be inserted.
+    '''
+
+    if request.method == 'POST':
+        serializer_value = InventoryReportSerializer (data= request.data)
+        if(serializer_value.is_valid()):
+            serializer_value.save()
+            return JsonResponse ({
+                "success": True,
+                "data":serializer_value.data}, 
+                status=status.HTTP_201_CREATED)
+        return JsonResponse ({
+            "success": False,
+            "message": "Something went wrong",
+            "error":serializer_value.errors
+            })
+        
+
+@api_view (["GET","POST"])
+def get_inventory_report (request,product_id):
+    '''
+    This Api is for getting all the inventory report based on the product id.
+    '''
+   
+    if request.method == 'GET':
+        try:
+            report = inventory_report.objects.filter(product_id=product_id)
+        except:
+            report = None
+        if report:
+            serializer_value = InventoryReportSerializer (report, many= True)
+            return JsonResponse ({
+                "success": True,
+                "data":serializer_value.data}, 
+                status=status.HTTP_201_CREATED)
+        else:
+            return JsonResponse ({
+                "success": False,
+                "data":"value can not be shown"})
