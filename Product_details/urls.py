@@ -49,8 +49,9 @@ urlpatterns = [
     path('delete_warehouse/<int:warehouse_id>/', views.delete_warehouse),
     path('delete_shop/<int:shop_id>/', views.delete_shop),
     path('warehouse_products/<int:warehouse_id>/', views.warehouse_products),
-    path('insert_quantity/', views.insert_product_quantity),
 
-    
+    path('insert_quantity/', views.insert_product_quantity),
+    path('shop_products/<int:shop_id>/', views.shop_products),
+
   
 ]

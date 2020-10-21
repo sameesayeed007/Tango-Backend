@@ -1389,10 +1389,6 @@ def inventory_lists(request, order_details_id):
 
 
 
-
-        
-
-
         if spec:
 
             specification_id = spec.id
@@ -1411,35 +1407,47 @@ def inventory_lists(request, order_details_id):
             print(warehouses)
 
 
+            warehouse_infos = []
+
+
 
 
 
             if warehouses:
 
-                warehouse_ids = list(warehouses.values_list('warehouse_id',flat=True).distinct())
+                warehouse_ids = list(warehouses.values_list('warehouse_id',flat=True))
+                warehouse_quantities = list(warehouses.values_list('quantity',flat=True))
 
-                try:
+                for i in range(len(warehouse_ids)):
 
-                    warehouse = Warehouse.objects.filter(id__in=warehouse_ids)
+                    try:
+                        warehouse = Warehouse.objects.get(id = warehouse_ids[i])
+                    except:
+                        warehouse = None
 
-                except:
-
-                    warehouse = None
-
-
-                if warehouse:
+                    if warehouse:
 
 
-                    warehouse_serializer = WarehouseSerializer(warehouse,many=True)
-                    warehouse_data = warehouse_serializer.data
 
-                else:
+                        name = warehouse.warehouse_name
+                        location = warehouse.warehouse_location
+                        quantity = warehouse_quantities[i]
 
-                    warehouse_data = []
+                        warehouse_data = {"warehouse_id":warehouse_ids[i],"warehouse_name":name,"warehouse_location":location,"quantity":quantity}
+
+                    else:
+
+                        warehouse_data = {}
+
+
+
+                    warehouse_infos.append(warehouse_data)
+
 
             else:
 
-                warehouse_data = []
+                warehouse_infos = []
+
 
 
 
@@ -1452,40 +1460,56 @@ def inventory_lists(request, order_details_id):
                 shops = None
 
 
+            
+
+
+            shop_infos = []
+
+
+
+
+
             if shops:
 
-                shop_ids = list(shops.values_list('shop_id',flat=True).distinct())
+                shop_ids = list(shops.values_list('shop_id',flat=True))
+                shop_quantities = list(shops.values_list('quantity',flat=True))
 
-                try:
+                for i in range(len(shop_ids)):
 
-                    shop = Shop.objects.filter(id__in=shop_ids)
+                    try:
+                        shop = Shop.objects.get(id = shop_ids[i])
+                    except:
+                        shop = None
 
-                except:
+                    if warehouse:
 
-                    shop = None
+                        name = shop.shop_name
+                        location = shop.shop_location
+                        quantity = shop_quantities[i]
 
-                if shop:
+                        shop_data = {"shop_id":shop_ids[i],"shop_name":name,"shop_location":location,"quantity":quantity}
 
-                    shop_serializer = ShopSerializer(shop,many=True)
-                    shop_data = shop_serializer.data
+                    else:
 
-                else:
+                        shop_data = {}
 
-                    shop_data = []
+
+
+                    shop_infos.append(shop_data)
 
 
             else:
-          
-                shop_data = [] 
+
+                shop_infos = []
 
 
         else:
-            warehouse_data = []
-            shop_data = []
+            warehouse_infos = []
+            shop_infos = []
 
 
 
-    return JsonResponse({'success':True,'message':'Data is shown below','warehouse_data':warehouse_data,'shop_data':shop_data})
+    return JsonResponse({'success':True,'message':'Data is shown below','warehouse':warehouse_infos,'shop':shop_infos})
 
 
 
@@ -1512,7 +1536,28 @@ def warehouse_products(request,warehouse_id):
         warehouse_data = {}
         return JsonResponse({'success':False,'message':'Here is the data','data':warehouse_data})
 
+@api_view(["GET",])
+def shop_products(request,shop_id):
 
+    try:
+
+        products =  Shop.objects.get(id=shop_id)
+
+    except:
+
+        products = None 
+
+
+    if products: 
+
+        warehouse_serializer = ShopSerializer(products,many=False)
+        warehouse_data = warehouse_serializer.data
+        return JsonResponse({'success':True,'message':'Here is the data','data':warehouse_data})
+
+    else:
+
+        warehouse_data = {}
+        return JsonResponse({'success':False,'message':'Here is the data','data':warehouse_data})
 
 # ----------------------------------- quantity store in different shop/inventory ------------------------
 

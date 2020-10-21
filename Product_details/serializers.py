@@ -342,6 +342,17 @@ class ProductImpressionSerializer(serializers.ModelSerializer):
         #fields=("name", "email")
 
 
+# class WareHouseSerializer(serializers.ModelSerializer):
+
+#     item_quantity = serializers.SerializerMethodField(method_name='get_quantity')
+#     class Meta:
+#         model = Warehouse
+#         fields = ('id','warehouse_name','warehouse_location','item_quantity')
+
+
+#     def get_
+
+
 
 
 class WarehouseSerializer(serializers.ModelSerializer):
@@ -579,149 +590,232 @@ class WarehouseSerializer(serializers.ModelSerializer):
 
 
 
-                            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # def get_products(self,instance):
-
-    #     try:
-
-    #         product_specs = WarehouseInfo.objects.filter(warehouse_id=instance.id)
-
-    #     except:
-
-    #         product_specs = None
-
-    #     if product_specs:
-
-    #         spec_ids = list(product_specs.values_list('specification_id',flat=True).distinct())
-
-    #         if len(spec_ids) != 0:
-
-    #             #Find the products
-
-    #             try: 
-
-    #                 prods = ProductSpecification.objects.filter(id__in=spec_ids)
-
-    #             except:
-
-    #                 prods = None 
-
-
-    #             if prods:
-
-    #                 #Fetch the product ids 
-
-    #                 product_ids =  list(prods.values_list('product_id',flat=True).distinct())
-
-                    
-
-
-    #                 for i in range len(product_ids):
-
-    #                     try:
-
-    #                         prod = Product.objects.get(id = product_id)
-
-    #                     except:
-
-    #                         prod = None 
-
-
-    #                     if prod:
-
-    #                         prod_id = prod.id
-
-    #                         prod_name = prod.title
-
-
-    #                         #Finding out the product price 
-
-    #                         try:
-
-    #                             product_price = ProductPrice.objects.filter(product_id=productid).last()
-    #                         except:
-    #                             product_price = None
-
-    #                         if product_price is not None:
-    #                             p_price = product_price.price
-    #                             #unit_price = p_price
-    #                         else:
-    #                             p_price = 0
-    #                             #unit_price = p_price
-
-    #                         #Fetching the product discount
-    #                         try:
-    #                             product_discount = discount_product.objects.filter(product_id=productid).last()
-    #                         except:
-    #                             product_discount = None
-
-    #                         if product_discount is not None:
-    #                             if product_discount.amount:
-    #                                 p_discount = product_discount.amount
-    #                             else:
-    #                                 p_discount = 0
-    #                             current_date = timezone.now().date()
-    #                             discount_start_date = current_date
-    #                             discount_end_date = current_date
-    #                             if product_discount.start_date:
-
-    #                                 discount_start_date = product_discount.start_date
-    #                             else:
-    #                                 discount_start_date = current_date
-
-    #                             if product_discount.end_date:
-    #                                 discount_end_date = product_discount.end_date
-
-    #                             else:
-    #                                 discount_end_date = current_date
-
-                                
-
-    #                             if (current_date >= discount_start_date) and (current_date <= discount_end_date):
-                                  
-    #                                 p_price = p_price - p_discount
-
-    #                             else:
-    #                                 #total_discount=0
-    #                                 #total_price = (p_price * quantity) - total_discount
-    #                                 p_price = p_price
-    #                         else:
-
-    #                             p_price
-
-
-
-                                   
-
-
-
-
-
-
-
-
-
       
 
 class ShopSerializer(serializers.ModelSerializer):
+    products = serializers.SerializerMethodField(method_name='get_products')
     class Meta:
         model = Shop
-        fields = "__all__"
+        fields = ('id','shop_name','shop_location','products')
+
+    def get_products(self,instance):
+
+        product_data = []
+
+        print("dhuklam")
+
+        try:
+
+            products = ShopInfo.objects.filter(shop_id=instance.id)
+
+        except:
+
+            products = None
+
+        print("warehouse info")
+        print(products)  
+
+
+        if products:
+
+            product_ids = list(products.values_list('product_id',flat=True).distinct())
+
+
+            print("product ids")
+
+            print(product_ids)
+
+            if len(product_ids) > 0:
+
+                print("dhuklam loop er bhitore")
+
+
+                for i in range(len(product_ids)):
+
+                    print("yeeeesssss")
+
+
+                    try:
+
+                        specific_product = Product.objects.get(id = product_ids[i])
+
+                    except:
+
+                        specific_product = None 
+
+                    print(specific_product)
+
+
+                    if specific_product:
+
+                        product_id = specific_product.id
+                        print("productid")
+                        print(product_id)
+
+                        product_title = specific_product.title
+                        print(product_title)
+
+                        #Finding out the product price 
+
+                        try:
+
+                            product_price = ProductPrice.objects.filter(product_id=product_id).last()
+                        except:
+                            product_price = None
+
+                        if product_price is not None:
+                            old_price = product_price.price
+                            p_price = product_price.price
+                            #unit_price = p_price
+                        else:
+                            old_price = 0
+                            p_price = 0
+                            #unit_price = p_price
+
+                        #Fetching the product discount
+                        try:
+                            product_discount = discount_product.objects.filter(product_id=product_id).last()
+                        except:
+                            product_discount = None
+
+                        if product_discount is not None:
+                            if product_discount.amount:
+                                p_discount = product_discount.amount
+                            else:
+                                p_discount = 0
+                            current_date = timezone.now().date()
+                            discount_start_date = current_date
+                            discount_end_date = current_date
+                            if product_discount.start_date:
+
+                                discount_start_date = product_discount.start_date
+                            else:
+                                discount_start_date = current_date
+
+                            if product_discount.end_date:
+                                discount_end_date = product_discount.end_date
+
+                            else:
+                                discount_end_date = current_date
+
+                            
+
+                            if (current_date >= discount_start_date) and (current_date <= discount_end_date):
+                              
+                                p_price = p_price - p_discount
+
+                            else:
+                                #total_discount=0
+                                #total_price = (p_price * quantity) - total_discount
+                                p_price = p_price
+                        else:
+
+                            p_price
+
+                        print("price")
+                        print(p_price)
+                        print(old_price)
+
+                        specifications = [] 
+
+
+                        try:
+
+
+                            spec_prods = ShopInfo.objects.filter(shop_id=instance.id,product_id=product_id)
+
+
+                        except:
+
+                            spec_prods = None
+
+                        
+
+                        if spec_prods:
+
+                            #Fetch the specification ids
+
+                            specs_ids = list(spec_prods.values_list('specification_id',flat=True))
+
+
+                            spec_quantities = list(spec_prods.values_list('quantity',flat=True))
+
+                            total_quantity = sum(spec_quantities)
+
+          
+
+                            
+
+
+                            for j in range (len(specs_ids)):
+
+                                print("second loop ey dhuklam")
+
+                                try:
+
+                                    specific_spec = ProductSpecification.objects.get(id=specs_ids[j])
+
+                                except:
+
+                                    specific_spec = None 
+
+
+
+
+                                if specific_spec:
+
+                                    color = specific_spec.color
+                                    weight = specific_spec.weight
+                                    size = specific_spec.size
+
+                                    print("specssss")
+                                    print(color)
+                                    print(weight)
+                                    print(size)
+
+
+                                else:
+
+                                    color = ""
+                                    weight = ""
+                                    size = ""
+
+
+                                spec_data = {"color":color,"size":size,"weight":weight,"quantity":spec_quantities[j]}
+
+                                specifications.append(spec_data)
+                            print(specifications)
+
+
+                        else:
+
+                            total_quantity = 0
+
+                            specifications = []
+
+
+
+                        product_datas = {"product_id":product_id,"product_title":product_title,"product_price":p_price,"total_quantity":total_quantity,"specifications":specifications}
+                        print(product_datas)
+
+                    else:
+
+                        product_datas = {}
+
+
+                    product_data.append(product_datas)
+
+                return product_data
+
+
+            else:
+
+                return product_data
+
+
+        else:
+
+            return product_data
 
 
 class WarehouseInfoSerializer(serializers.ModelSerializer):
