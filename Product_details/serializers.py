@@ -342,6 +342,17 @@ class ProductImpressionSerializer(serializers.ModelSerializer):
         #fields=("name", "email")
 
 
+# class WareHouseSerializer(serializers.ModelSerializer):
+
+#     item_quantity = serializers.SerializerMethodField(method_name='get_quantity')
+#     class Meta:
+#         model = Warehouse
+#         fields = ('id','warehouse_name','warehouse_location','item_quantity')
+
+
+#     def get_
+
+
 
 
 class WarehouseSerializer(serializers.ModelSerializer):
