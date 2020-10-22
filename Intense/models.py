@@ -493,6 +493,14 @@ class OrderDetails(models.Model):
     product_unit = models.CharField(max_length = 255,blank=True,null=True,default="")
     product_images = ArrayField(models.CharField(max_length=100000), blank=True, null=True,default=list)
     remaining = models.IntegerField(default=0,blank=True,null=True)
+    admin =(
+    ("Pending", "Pending"),
+    ("Approved", "Approved"),
+    ("Cancelled", "Cancelled"),
+    )
+    admin_status = models.CharField(choices=admin, max_length=155, default="Pending",blank=True,null=True)
+
+
 
     def __str__(self):
         return f'{self.order_id} X {self.product_id}'
