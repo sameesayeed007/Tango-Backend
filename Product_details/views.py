@@ -1980,38 +1980,43 @@ def shop_products(request,shop_id):
 def insert_product_quantity(request):
 
     # demo values
-    api_values = {
-        'product_id': 2,
-        'specification_id':8,
-        'warehouse': [
-            {
-                'warehouse_id': 2,
-                'quantity': 200
+    # api_values = {
+    #     'product_id': 2,
+    #     'specification_id':8,
+    #     'warehouse': [
+    #         {
+    #             'warehouse_id': 2,
+    #             'quantity': 200
 
-            },
-            {
-                'warehouse_id': 3,
-                'quantity': 400
+    #         },
+    #         {
+    #             'warehouse_id': 3,
+    #             'quantity': 400
 
-            }
+    #         }
             
-        ],
+    #     ],
 
-         'shop': [
-            {
-                'shop_id': 2,
-                'quantity': 200
+    #      'shop': [
+    #         {
+    #             'shop_id': 2,
+    #             'quantity': 200
 
-            },
-            {
-                'shop_id': 3,
-                'quantity': 300
+    #         },
+    #         {
+    #             'shop_id': 3,
+    #             'quantity': 300
 
-            }
+    #         }
             
-        ]
+    #     ]
         
-        }
+    #     }
+
+
+
+    api_values = request.data
+
 
   
 
@@ -2089,7 +2094,7 @@ def get_all_quantity_list(request,specification_id):
             shopinfo_query = ShopInfo.objects.filter(specification_id = specification_id)
             for shop in shopinfo_query:
                 shop_data = Shop.objects.get(id= shop.shop_id)
-                datas= {"previous_quantity":shop.quantity, "shop_location":shop_data.shop_location}
+                datas= {"previous_quantity":shop.quantity, "shop_name":shop_data.shop_name}
                 shop_values.append(datas)
 
             return JsonResponse({
