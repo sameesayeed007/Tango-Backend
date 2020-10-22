@@ -2094,7 +2094,7 @@ def get_all_quantity_list(request,specification_id):
             shopinfo_query = ShopInfo.objects.filter(specification_id = specification_id)
             for shop in shopinfo_query:
                 shop_data = Shop.objects.get(id= shop.shop_id)
-                datas= {"previous_quantity":shop.quantity, "shop_name":shop_data.shop_name}
+                datas= {"id":shop.id, "previous_quantity":shop.quantity, "shop_name":shop_data.shop_name}
                 shop_values.append(datas)
 
             return JsonResponse({
