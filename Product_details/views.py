@@ -8,6 +8,7 @@ import datetime
 from Intense.models import (Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,ProductSpecification,
 user_relation,Cupons,Comment,CommentReply,Reviews,discount_product,Warehouse,Shop,WarehouseInfo,ShopInfo,WarehouseInfo,inventory_report)
 from Product_details.serializers import ProductPriceSerializer,ProductPointSerializer,ProductSpecificationSerializer,ProductSpecificationSerializerz,ProductDetailSerializer,CupponSerializer,ProductDiscountSerializer,WarehouseSerializer,ShopSerializer,WarehouseInfoSerializer,ShopInfoSerializer
+from Cart.serializers import OrderDetailsSerializer,OrderSerializer
 from rest_framework.decorators import api_view 
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
@@ -1121,8 +1122,14 @@ def subtract_items(request,order_details_id):
 
                             if item_remaining == 0:
 
+                                item.admin_status = "Approved"
+                                item.save()
 
-                                return JsonResponse({"success":True,"message":"This product is approved"})
+                                item_serializer = OrderDetailsSerializer(item,many=False)
+                                data = item_serializer.data
+
+
+                                return JsonResponse({"success":True,"message":"This product is approved","data":data})
 
 
 
@@ -1198,6 +1205,17 @@ def subtract_items(request,order_details_id):
                             print(item_remaining)
 
                             if item_remaining == 0:
+
+                                item.admin_status = "Approved"
+                                item.save()
+
+                                item_serializer = OrderDetailsSerializer(item,many=False)
+                                data = item_serializer.data
+
+
+                                return JsonResponse({"success":True,"message":"This product is approved","data":data})
+
+
 
 
                                 return JsonResponse({"success":True,"message":"This product is approved"})
@@ -1316,6 +1334,169 @@ def admin_approval(request,order_id):
 
         return JsonResponse({'success':False,'message':'The order does not exist'})
 
+
+
+# @api_view(["POST",])
+# def admin_approval(request,order_id):
+
+#     flag = 0
+
+
+
+#     try:
+
+#         specific_order = Order.objects.get(id=order_id)
+
+#     except:
+
+#         specific_order = None
+
+#     if specific_order:
+
+#         orderid = specific_order.id
+
+#         order_details = OrderDetails.objects.filter(order_id=orderid)
+#         order_details_ids = list(order_details.values_list('id',flat=True).distinct())
+#         print(order_details_ids)
+
+#         for i in range(len(order_details_ids)):
+
+#             print("ashtese")
+
+#             try:
+#                 specific_order_details = OrderDetails.objects.get(id=order_details_ids[i])
+#             except:
+#                 specific_order_details = None
+
+#             if specific_order_details:
+
+#                 remaining_items = specific_order_details.remaining
+
+#                 if remaining_items != 0 :
+
+#                     flag = 1
+#                     break
+
+#                 else:
+
+#                     flag = 0
+
+
+
+#         if flag == 0:
+
+#             specific_order.admin_status = "Confirmed"
+#             specific_order.save()
+
+#             return JsonResponse({'success':True,'message':'The order has been approved'})
+
+#         else:
+
+#             return JsonResponse({'success':False,'message':'Please ensure where to remove the items from'})
+
+
+#     else:
+
+#         return JsonResponse({'success':False,'message':'The order does not exist'})
+
+@api_view(["GET",])
+def admin_approval(request,order_id):
+
+    
+
+
+
+    try:
+
+        specific_order = Order.objects.get(id=order_id)
+
+    except:
+
+        specific_order = None
+
+    if specific_order:
+
+        specific_order.admin_status = "Confirmed"
+
+        specific_order.save()
+
+        order_serializer = OrderSerializer(specific_order,many=False)
+
+        data = order_serializer.data
+
+        return JsonResponse({"success":True,"message":"The order has been approved","data":data})
+
+
+    else:
+
+        return JsonResponse({"success":False,"message":"This order does not exist"})
+
+
+
+
+@api_view(["GET",])
+def admin_cancellation(request,order_id):
+
+    
+
+
+
+    try:
+
+        specific_order = Order.objects.get(id=order_id)
+
+    except:
+
+        specific_order = None
+
+    if specific_order:
+
+        specific_order.admin_status = "Cancelled"
+
+        specific_order.save()
+
+        order_serializer = OrderSerializer(specific_order,many=False)
+
+        data = order_serializer.data
+
+        return JsonResponse({"success":True,"message":"The order has been approved","data":data})
+
+
+    else:
+
+        return JsonResponse({"success":False,"message":"This order does not exist"})
+
+        
+
+
+
+@api_view(["GET",])
+def item_cancellation(request,order_details_id):
+
+
+    try:
+
+        item = OrderDetails.objects.get(id = order_details_id)
+
+
+    except:
+
+        item = None 
+
+
+    if item:
+
+        item.admin_status = "Cancelled"
+        item.save()
+        item_serializer = OrderDetailsSerializer(item,many=False)
+        data = item_serializer.data
+        return JsonResponse({"success":True,"message":"The status has been changed","data":data})
+
+
+
+
+    else:
+        return JsonResponse({"success":False,"message":"This item does not exist"})
 
 
 

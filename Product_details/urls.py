@@ -38,6 +38,7 @@ urlpatterns = [
     # path('subtract_quantity/<int:order_details_id>/', views.subtract_quantity),
     path('inventory_lists/<int:order_details_id>/',views.inventory_lists),
     path('admin_approval/<int:order_id>/', views.admin_approval),
+    path('admin_cancellation/<int:order_id>/', views.admin_cancellation),
     path('available_colors/<int:product_id>/', views.color_size),
     path('available_sizes/<int:product_id>/', views.available_sizes),
     path('create_warehouse/', views.create_warehouse),
@@ -50,6 +51,7 @@ urlpatterns = [
     path('delete_shop/<int:shop_id>/', views.delete_shop),
     path('warehouse_products/<int:warehouse_id>/', views.warehouse_products),
     path('subtract_items/<int:order_details_id>/', views.subtract_items),
+    path('item_cancellation/<int:order_details_id>/', views.item_cancellation),
 
 
     path('insert_quantity/', views.insert_product_quantity),
