@@ -431,6 +431,7 @@ class EmailConfig(models.Model):
 class ProductPrice(models.Model):
     product_id = models.IntegerField(default=-1)
     price = models.FloatField(default=0.00)
+    purchase_price = models.FloatField(blank = True, null = True)
     date_added = models.DateTimeField(auto_now_add=True,blank=True,null=True)
     currency_id = models.IntegerField(default=-1)
 

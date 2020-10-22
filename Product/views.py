@@ -820,29 +820,6 @@ def get_all_products(request):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @api_view (["GET","post"])
 def get_all_product(request):
 
@@ -877,20 +854,6 @@ def get_product_info(request,product_id):
 
 
         return JsonResponse({'success':False,'message':'This product does not exist','data':[]})
-
-
-
-
-
-
-
-
-
-        
-       
-
-
-
 
 
 
@@ -1779,7 +1742,7 @@ def product_insertion_admin(request):
     # print(li)
     
     # key_feature = key_features.split(",")
-    # features = []
+    features = []
     # for i in range(len(key_feature)):
     #     print(key_feature[i])
     #     features.append(key_feature[i])
@@ -1790,13 +1753,11 @@ def product_insertion_admin(request):
   
 
 
-    
-    features = key_features.split(",")
+    if key_features is not None:
+        features = key_features.split(",")
     # print(features)
 
     if user_role == "Seller":
-
-        print("ami ekta seller")
   
         product_data_value ={
 
@@ -1812,14 +1773,11 @@ def product_insertion_admin(request):
             'unit':request.data.get("unit"),
             'key_features':features,
             'is_deleted': False,
-            'properties': True
+            'properties': False
         }
 
 
     else:
-
-        print("ami admin")
-
 
         product_data_value ={
 
@@ -1835,13 +1793,8 @@ def product_insertion_admin(request):
             'unit':request.data.get("unit"),
             'key_features':features,
             'is_deleted': False,
-            'properties': True
+            'properties': False
         }
-
-
-
-
-
 
 
     category_data_value ={
@@ -1856,6 +1809,7 @@ def product_insertion_admin(request):
    
     product_price ={
         'price' : request.data.get("price"),
+        'purchase_price': request.data.get("purchase_price"),
         #'currency_id': request.data.get('currency_id')
     }
 
@@ -1909,43 +1863,32 @@ def product_insertion_admin(request):
         try:
             #print("dbcudbfdbcducbducbducbducbd")
             category_values= category_data_upload (category_data_value)
-            print("1")
             #print(category_values)
             category_data = category_values.json()
-            print("2")
             #print(category_data)
             category_id = category_data['category']
             sub_category_id = category_data['sub_category']
             sub_sub_category_id = category_data['sub_sub_category']
             product_data_value.update( {'category_id' : category_id,'sub_category_id' : sub_category_id,'sub_sub_category_id' : sub_sub_category_id} )
-            print("3")
             product_values= product_data_upload (product_data_value)
-            print("4")
             product_data= product_values.json()
             product_id = product_data['id']
             product_price.update( {'product_id' : product_id} )
-            print("5")
             price_values = product_price_data_upload (product_price)
             product_point.update ({'product_id' : product_id})
-            print("6")
             point_values = product_point_data_upload(product_point)
             product_code = create_product_code({'product_id' : product_id})
-            print("7")
             product_discount.update({'product_id' : product_id})
             discount_data = product_discount_data_upload(product_discount)
-            print("8")
 
             for i in range(int(count)):
 
                 dataz = request.data
                 image = dataz['images['+str(i)+']']
                 
-                print(image)
                 image_data = {'product_image':image,'product_id':product_id}
-                
                 product_image = ProductImage.objects.create(product_image=image,product_id=product_id)
                 #product_image.save()
-                print(product_image)
                 product_image_serializer = ProductImageSerializer(product_image,data=image_data)
 
                 if product_image_serializer.is_valid():
