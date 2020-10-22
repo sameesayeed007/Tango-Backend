@@ -579,7 +579,7 @@ class OrderDetailsSerializer(serializers.ModelSerializer):
     #points = serializers.SerializerMethodField(method_name='get_point')
     class Meta:
         model = OrderDetails
-        fields = ('id','order_id','product_id','quantity','total_quantity','date_added','is_removed','unit_price','total_price','unit_point','total_point','product_name')
+        fields = ('id','order_id','product_id','quantity','total_quantity','date_added','is_removed','unit_price','total_price','unit_point','total_point','product_name','product_color','product_size','remaining','admin_status')
     
     #This method is to calculate the price of the individual items
     def get_price(self,instance):
