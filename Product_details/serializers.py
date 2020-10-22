@@ -833,7 +833,18 @@ class ShopInfoSerializer(serializers.ModelSerializer):
         
 
 
-
+class NewWarehouseInfoSerializer(serializers.ModelSerializer):
+    previous_quantity = serializers.SerializerMethodField(method_name='get_quantity')
+    warehouse_name = serializers.SerializerMethodField(method_name='get_warehouse_name')
+    class Meta:
+        model = Warehouse
+        fields = ('id','previous_quantity','warehouse_name')
+    def get_quantity(self,instance):
+        previous_quantity= instance.quantity
+        return previous_quantity
+    def get_warehouse_name (self, instance):
+        wh_name = Warehouse.objects.filter(id=instance.warehouse_id)
+        return wh_name[0].warehouse_name 
     
 
 

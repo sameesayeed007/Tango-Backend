@@ -48,6 +48,39 @@ class CategorySerializer(serializers.ModelSerializer):
         return list_result
 
 
+
+
+class CategorySerializer1(serializers.ModelSerializer):
+
+    children = serializers.SerializerMethodField(method_name='get_cat')
+  
+    class Meta:
+        model = Category
+        fields = ('id','category_id','title','active','level','children')
+
+    def get_cat(self,instance):
+
+        details = Sub_Category.objects.filter(category_id=instance.id,active=True).order_by('timestamp').values()
+        list_result = [entry for entry in details]
+        
+        for i in range(len(list_result)):
+            sub_id = list_result[i]['id']
+            #fetch the titles of sub ids
+            subsub = Sub_Sub_Category.objects.filter(sub_category_id = sub_id,active=True).order_by('timestamp')
+            sub_sub_categories = list(subsub.values_list('title',flat=True).distinct())
+            sub_sub_ids = list(subsub.values_list('id',flat=True).distinct())
+            sub_subs = list(subsub.values_list('sub_sub_category_id',flat=True).distinct())
+            sub_sub_levels = list(subsub.values_list('level',flat=True))
+            datas =[]
+            for j in range (len(sub_sub_categories)):
+                data = {'id':sub_sub_ids[j] ,'sub_sub_category_id':sub_subs[j] ,'title':sub_sub_categories[j],'level':sub_sub_levels[j]}
+                datas.append(data)
+            list_result[i]['children'] = datas
+    
+
+        return list_result
+
+
             
 
 

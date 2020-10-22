@@ -56,6 +56,7 @@ urlpatterns = [
 
     path('insert_quantity/', views.insert_product_quantity),
     path('shop_products/<int:shop_id>/', views.shop_products),
+    path('quantity_info/<int:specification_id>/', views.get_all_quantity_list),
     # path('subtract_items/', views.subtract_items),
 
   

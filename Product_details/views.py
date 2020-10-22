@@ -7,7 +7,7 @@ import datetime
  
 from Intense.models import (Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,ProductSpecification,
 user_relation,Cupons,Comment,CommentReply,Reviews,discount_product,Warehouse,Shop,WarehouseInfo,ShopInfo,WarehouseInfo,inventory_report)
-from Product_details.serializers import ProductPriceSerializer,ProductPointSerializer,ProductSpecificationSerializer,ProductSpecificationSerializerz,ProductDetailSerializer,CupponSerializer,ProductDiscountSerializer,WarehouseSerializer,ShopSerializer,WarehouseInfoSerializer,ShopInfoSerializer
+from Product_details.serializers import ProductPriceSerializer,ProductPointSerializer,ProductSpecificationSerializer,ProductSpecificationSerializerz,ProductDetailSerializer,CupponSerializer,ProductDiscountSerializer,WarehouseSerializer,ShopSerializer,WarehouseInfoSerializer,ShopInfoSerializer,NewWarehouseInfoSerializer
 from Cart.serializers import OrderDetailsSerializer,OrderSerializer
 from rest_framework.decorators import api_view 
 from django.views.decorators.csrf import csrf_exempt
@@ -988,13 +988,13 @@ def subtract_items(request,order_details_id):
 
 #     data= {"warehouse": [
 #         {
-#             "id": 6,
+#             "id": 1,
 #             "name": "WarehouseA",
 #             "location": "Dhanmondi",
 #             "subtract": 5
 #         },
 #         {
-#             "id": 7,
+#             "id": 2,
 #             "name": "WarehouseB",
 #             "location": "Gulshan",
 #             "subtract": 6
@@ -1002,13 +1002,13 @@ def subtract_items(request,order_details_id):
 #     ],
 #     "shop": [
 #         {
-#             "id": 2,
+#             "id": 1,
 #             "name": "ShopB",
 #             "location": "gulshan",
 #             "subtract": 4
 #         },
 #         {
-#             "id": 4,
+#             "id": 2,
 #             "name": "ShopA",
 #             "location": "Banani",
 #             "subtract": 5
@@ -2072,3 +2072,36 @@ def insert_product_quantity(request):
     
            
            
+@api_view (["GET","POST"])
+def get_all_quantity_list(request,specification_id):  
+
+    if request.method == 'GET':
+
+        try:
+            warehouse_values = []
+            shop_values= []
+            warehouse_query = WarehouseInfo.objects.filter(specification_id = specification_id)
+            print("here ware", warehouse_query)
+            if warehouse_query:
+                warehouse_serializer = NewWarehouseInfoSerializer(warehouse_query,many = True)
+                warehouse_values.append(warehouse_serializer.data)
+            
+            shopinfo_query = ShopInfo.objects.filter(specification_id = specification_id)
+            for shop in shopinfo_query:
+                shop_data = Shop.objects.get(id= shop.shop_id)
+                datas= {"previous_quantity":shop.quantity, "shop_location":shop_data.shop_location}
+                shop_values.append(datas)
+
+            return JsonResponse({
+                "success":True,
+                "message":"Data has been retrieved successfully",
+                "data":{
+                   "warehouse": warehouse_values, 
+                    "shop": shop_values
+                    }
+                })
+        except:
+            return JsonResponse({
+                "success":False,
+                "message":"Something went wrong"
+                })
