@@ -21,7 +21,7 @@ site_path = "https://tango99.herokuapp.com/"
 class ProductPriceSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductPrice
-        fields = ('id','product_id','price','date_added','currency_id')
+        fields = "__all__"
 
 
 class ProductPointSerializer(serializers.ModelSerializer):

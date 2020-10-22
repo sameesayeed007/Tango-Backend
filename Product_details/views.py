@@ -1061,9 +1061,6 @@ def subtract_items(request,order_details_id):
 
             spec = None 
 
-
-        print(spec)
-
         if spec:
 
             specification_id = spec.id
@@ -1072,22 +1069,13 @@ def subtract_items(request,order_details_id):
 
             specification_id = 0 
 
-
-        print(specification_id)
-
-
-
         if int(len(warehouse_data)) > 0:
 
             #looping through the warehouse items
 
             for i in range(int(len(warehouse_data))):
 
-                print("loop er moddhe dhuklam")
-
                 if item_remaining > 0:
-
-                    print("warehouse item_remaining ase")
 
                     #fetch the warehouseinfo 
 
@@ -1109,17 +1097,9 @@ def subtract_items(request,order_details_id):
 
                             warehouse_info.quantity -= subtract
                             warehouse_info.save()
-
-                            print("aager")
-
-                            print(item_remaining)
-
                             item.remaining -= subtract
                             item.save()
                             item_remaining = item.remaining
-                            print("porer")
-                            print(item_remaining)
-
                             if item_remaining == 0:
 
                                 item.admin_status = "Approved"
@@ -1254,21 +1234,6 @@ def subtract_items(request,order_details_id):
         JsonResponse({"success":False,"message":"The item is not in that order"})
 
         
-
-
-
-
-
-
-
-
-
-
-
-   
-
-    
-
 
 
 @api_view(["POST",])
@@ -2051,8 +2016,6 @@ def insert_product_quantity(request):
   
 
     if request.method == 'POST':
-
-
       
         try:
             
