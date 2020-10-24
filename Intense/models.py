@@ -1569,3 +1569,23 @@ class inventory_report(models.Model):
     date = models.DateField(auto_now_add=True,null=True , blank=True)
     selling_price = models.FloatField(blank=True, null=True)
     purchase_price = models.FloatField(blank=True, null=True)
+
+
+
+class OrderInfo(models.Model):
+
+
+    order_id = models.IntegerField(blank=False,default=-1)
+    billing_address_id = models.IntegerField(blank=False,default=-1)
+    area_id = models.IntegerField(blank=False,default=-1)
+    company_id = models.IntegerField(blank=False,default=-1)
+    company_name = models.CharField(max_length=264,blank=False,default= "")
+    company_details = models.TextField(blank = True,default="")
+    delivery_type_id = models.IntegerField(blank=False,default=-1)
+    delivery_date = models.DateField(blank=True,default="")
+    days = models.IntegerField(blank=False,default=0)
+    host_site = models.CharField(max_length=264,blank=False,default= "")
+    location_id = models.IntegerField(blank=False,default=-1)
+    location_details = models.TextField(blank = True,default="")
+    payment_type = models.CharField(max_length=264,blank=False,default= "")
+    total_amount = models.FloatField(blank=True,default=0.00)

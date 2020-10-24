@@ -1141,7 +1141,7 @@ def comments_product(request,product_id):
 
     else:
 
-        return JsonResponse({'success':False,'message':'Comment data cannot be shown','product_title': product_title,'images': images ,'data':{}}, safe=False)
+        return JsonResponse({'success':False,'message':'Comment data cannot be shown','product_title': product_title,'images': images ,'data':[]}, safe=False)
 
 
 
@@ -1348,7 +1348,7 @@ def reviews_product(request,product_id):
         
 
     else:
-        return JsonResponse({'success':False,'message':'Data is not available','product_title':product_title,'data':{}}, safe=False)
+        return JsonResponse({'success':False,'message':'Data is not available','product_title':product_title,'data':[]}, safe=False)
 
 
 

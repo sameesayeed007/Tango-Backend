@@ -176,211 +176,255 @@ def add_cart(request,productid):
 
 		
 
-	
+	#Fetching the the specification id 
+
+	print("dfdfdfdfdffdfd")
+	print(color)
+	print(size)
+	print(productid)
+	print(quantity)
 
 
-	if non_verified_user_id == 0:
+	try:
+
+		product_spec = ProductSpecification.objects.get(product_id=productid,color=color,size=size)
 
 
-		#checking if the user exists in product impression
-		try:
-			product_impression = ProductImpression.objects.filter(product_id=productid)[0:1].get()
-		except:
-			product_impression = None
+	except:
 
-		if product_impression:
-			users_list = product_impression.users
-			cart_count = product_impression.cart_count
-			if user_id in users_list:
-				pass
-			else:
-				users_list.append(user_id)
-
-			cart = cart_count + quantity
-			ProductImpression.objects.filter(product_id=productid).update(users=users_list,cart_count=cart)
+		product_spec = None 
 
 
+	# print(product_spec)
 
-		
 
-		try:
-			#Fetching the specific order of the specific user that hasnt been checked out
-			specific_order = Order.objects.filter(user_id=user_id,checkout_status=False)[0:1].get()
-			order_id = specific_order.id
+	if product_spec:
 
-		except:
-			specific_order = None
+		item_quantity = product_spec.quantity
+		item_color = product_spec.color
+		item_size = product_spec.size
 
-		    # if the specific user order exists
-		if specific_order is not None:
-			
-			
-			try:
-				#checking if the product exists in this order
-				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False,product_color=color,product_size=size)[0:1].get()
-			except:
-				specific_order_product = None
-			
-			orderserializers = OrderSerializer(specific_order, data=request.data)
 
-			if orderserializers.is_valid():
-				orderserializers.save()
-		        
+		if item_quantity >= quantity:
 
-			if specific_order_product is not None:
+			#then add to cart 
+
+			    #Add yo cart
+			if non_verified_user_id == 0:
+
+
+				#checking if the user exists in product impression
+				try:
+					product_impression = ProductImpression.objects.filter(product_id=productid)[0:1].get()
+				except:
+					product_impression = None
+
+				if product_impression:
+					users_list = product_impression.users
+					cart_count = product_impression.cart_count
+					if user_id in users_list:
+						pass
+					else:
+						users_list.append(user_id)
+
+					cart = cart_count + quantity
+					ProductImpression.objects.filter(product_id=productid).update(users=users_list,cart_count=cart)
+
+
+
 				
-				specific_order_product.total_quantity += quantity
-				specific_order_product.remaining += quantity
-				specific_order_product.total_price += total_price
-				specific_order_product.total_point += total_point
-				# specifc_order_product.product_color.append(color)
-				# specifc_order_product.product_size.append(size)
-				# specifc_order_product.product_unit.append(unit)
-				specific_order_product.save()
-				orderdetailsserializers = OrderDetailsSerializer(specific_order_product , data=request.data)
-				if orderdetailsserializers.is_valid():
-					orderdetailsserializers.save()
-					return JsonResponse({'success':True ,'message':'The quantity has been updated'})
-				else:
-					return JsonResponse(orderdetailsserializers.errors)
 
+				try:
+					#Fetching the specific order of the specific user that hasnt been checked out
+					specific_order = Order.objects.filter(user_id=user_id,checkout_status=False)[0:1].get()
+					order_id = specific_order.id
 
-			else:
-				#create a new orderdetail for that order id if the product is bough for the first time
-				# product_color = [color]
-				# product_size = [size]
-				# product_color = [unit]
+				except:
+					specific_order = None
 
-				orderdetails = OrderDetails.objects.create(order_id = order_id , product_id=productid,quantity=quantity,total_quantity=quantity,remaining=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size)
-				
-				orderdetails.save()
-				orderdetailsserializer = OrderDetailsSerializer(orderdetails , data=request.data)
-				if orderdetailsserializer.is_valid():
-					orderdetailsserializer.save()
-					return JsonResponse({'success':True ,'message':'The product has been added to your cart'})
-				else:
-					return JsonResponse(orderdetailsserializers.errors)
-				
-		# if no order for the user exists
-		else:
-			
+				    # if the specific user order exists
+				if specific_order is not None:
+					
+					
+					try:
+						#checking if the product exists in this order
+						specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False,product_color=color,product_size=size)[0:1].get()
+					except:
+						specific_order_product = None
+					
+					orderserializers = OrderSerializer(specific_order, data=request.data)
 
-			#create a new Order 
-			order = Order.objects.create(user_id = user_id)
-			order.save()
-			orderserializer = OrderSerializer(order , data=request.data)
-			if orderserializer.is_valid():
-				orderserializer.save()
-			else:
-				return JsonResponse(orderserializer.errors)
+					if orderserializers.is_valid():
+						orderserializers.save()
+				        
 
-			
-			#create a new order details for the specific product for the specific order
-			orderdetails = OrderDetails.objects.create(order_id = order.id , product_id=productid,quantity=quantity,total_quantity=quantity,remaining=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size)
-		
-			orderdetails.save()
-			orderdetailserializer = OrderDetailsSerializer(orderdetails, data=request.data)
-			if orderdetailserializer.is_valid():
-				orderdetailserializer.save()
-				return JsonResponse({'success':True,'message':'A new order with a order details has been created'})
-			else:
-				return JsonResponse(orderdetailserializer.errors)
-
+					if specific_order_product is not None:
 						
+						specific_order_product.total_quantity += quantity
+						specific_order_product.remaining += quantity
+						specific_order_product.total_price += total_price
+						specific_order_product.total_point += total_point
+						# specifc_order_product.product_color.append(color)
+						# specifc_order_product.product_size.append(size)
+						# specifc_order_product.product_unit.append(unit)
+						specific_order_product.save()
+						orderdetailsserializers = OrderDetailsSerializer(specific_order_product , data=request.data)
+						if orderdetailsserializers.is_valid():
+							orderdetailsserializers.save()
+							return JsonResponse({'success':True ,'message':'The quantity has been updated'})
+						else:
+							return JsonResponse(orderdetailsserializers.errors)
+
+
+					else:
+						#create a new orderdetail for that order id if the product is bough for the first time
+						# product_color = [color]
+						# product_size = [size]
+						# product_color = [unit]
+
+						orderdetails = OrderDetails.objects.create(order_id = order_id , product_id=productid,quantity=quantity,total_quantity=quantity,remaining=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size)
+						
+						orderdetails.save()
+						orderdetailsserializer = OrderDetailsSerializer(orderdetails , data=request.data)
+						if orderdetailsserializer.is_valid():
+							orderdetailsserializer.save()
+							return JsonResponse({'success':True ,'message':'The product has been added to your cart'})
+						else:
+							return JsonResponse(orderdetailsserializers.errors)
+						
+				# if no order for the user exists
+				else:
+					
+
+					#create a new Order 
+					order = Order.objects.create(user_id = user_id)
+					order.save()
+					orderserializer = OrderSerializer(order , data=request.data)
+					if orderserializer.is_valid():
+						orderserializer.save()
+					else:
+						return JsonResponse(orderserializer.errors)
+
+					
+					#create a new order details for the specific product for the specific order
+					orderdetails = OrderDetails.objects.create(order_id = order.id , product_id=productid,quantity=quantity,total_quantity=quantity,remaining=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size)
+				
+					orderdetails.save()
+					orderdetailserializer = OrderDetailsSerializer(orderdetails, data=request.data)
+					if orderdetailserializer.is_valid():
+						orderdetailserializer.save()
+						return JsonResponse({'success':True,'message':'A new order with a order details has been created'})
+					else:
+						return JsonResponse(orderdetailserializer.errors)
+
+								
+
+			else:
+
+		        #checking if the user exists in the impression user list
+				try:
+					product_impression = ProductImpression.objects.filter(product_id=productid)[0:1].get()
+				except:
+					product_impression = None
+				if product_impression:
+					users_list = product_impression.non_verified_user
+					cart_count = product_impression.cart_count
+					if non_verified_user_id in users_list:
+						pass
+					else:
+						users_list.append(non_verified_user_id)
+
+					cart = cart_count + quantity
+					ProductImpression.objects.filter(product_id=productid).update(non_verified_user=users_list,cart_count=cart)
+
+				try:
+					#Fetching the specific order of the specific user that hasnt been checked out
+					specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=False)[0:1].get()
+					order_id = specific_order.id
+
+				except:
+					specific_order = None
+
+				    # if the specific user order exists
+				if specific_order is not None:
+					
+					
+					try:
+						#checking if the product exists in this order
+						specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False,product_color=color,product_size=size)[0:1].get()
+					except:
+						specific_order_product = None
+					
+					orderserializers = OrderSerializer(specific_order, data=request.data)
+
+					if orderserializers.is_valid():
+						orderserializers.save()
+				        
+
+					if specific_order_product is not None:
+						
+						specific_order_product.total_quantity += quantity
+						specific_order_product.remaining += quantity
+						specific_order_product.total_price += total_price
+						specific_order_product.total_point += total_point
+						specific_order_product.save()
+						orderdetailsserializers = OrderDetailsSerializer(specific_order_product , data=request.data)
+						if orderdetailsserializers.is_valid():
+							orderdetailsserializers.save()
+							return JsonResponse({'success':True ,'message':'The quantity has been updated'})
+						else:
+							return JsonResponse(orderdetailsserializers.errors)
+
+
+					else:
+						#create a new orderdetail for that order id if the product is bough for the first time 
+						orderdetails = OrderDetails.objects.create(order_id = order_id , product_id=productid,quantity=quantity,total_quantity=quantity,remaining=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size)
+						
+						orderdetails.save()
+						orderdetailsserializer = OrderDetailsSerializer(orderdetails , data=request.data)
+						if orderdetailsserializer.is_valid():
+							orderdetailsserializer.save()
+							return JsonResponse({'success':True ,'message':'The product has been added to your cart'})
+						else:
+							return JsonResponse(orderdetailsserializers.errors)
+						
+				# if no order for the user exists
+				else:
+					
+
+					#create a new Order 
+					order = Order.objects.create(non_verified_user_id = non_verified_user_id)
+					order.save()
+					orderserializer = OrderSerializer(order , data=request.data)
+					if orderserializer.is_valid():
+						orderserializer.save()
+					else:
+						return JsonResponse(orderserializer.errors)
+
+					
+					#create a new order details for the specific product for the specific order
+					orderdetails = OrderDetails.objects.create(order_id = order.id , product_id=productid,quantity=quantity,total_quantity=quantity,remaining=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size)
+				
+					orderdetails.save()
+					orderdetailserializer = OrderDetailsSerializer(orderdetails, data=request.data)
+					if orderdetailserializer.is_valid():
+						orderdetailserializer.save()
+						return JsonResponse({'success':True,'message':'A new order with a order details has been created'})
+					else:
+						return JsonResponse(orderdetailserializer.errors)
+
+
+		
+		else:
+
+			message = "You cannot add to cart.We only have "+str(item_quantity)+" of item "+str(p_name)+" of color "+str(item_color)+" of size "+str(item_size)+" in our stock currently."
+
+			return JsonResponse({'success':False,'message':message})
+
 
 	else:
 
-        #checking if the user exists in the impression user list
-		try:
-			product_impression = ProductImpression.objects.filter(product_id=productid)[0:1].get()
-		except:
-			product_impression = None
-		if product_impression:
-			users_list = product_impression.non_verified_user
-			cart_count = product_impression.cart_count
-			if non_verified_user_id in users_list:
-				pass
-			else:
-				users_list.append(non_verified_user_id)
-
-			cart = cart_count + quantity
-			ProductImpression.objects.filter(product_id=productid).update(non_verified_user=users_list,cart_count=cart)
-
-		try:
-			#Fetching the specific order of the specific user that hasnt been checked out
-			specific_order = Order.objects.filter(non_verified_user_id=non_verified_user_id,checkout_status=False)[0:1].get()
-			order_id = specific_order.id
-
-		except:
-			specific_order = None
-
-		    # if the specific user order exists
-		if specific_order is not None:
-			
-			
-			try:
-				#checking if the product exists in this order
-				specific_order_product = OrderDetails.objects.filter(order_id =order_id , product_id=productid,is_removed=False,product_color=color,product_size=size)[0:1].get()
-			except:
-				specific_order_product = None
-			
-			orderserializers = OrderSerializer(specific_order, data=request.data)
-
-			if orderserializers.is_valid():
-				orderserializers.save()
-		        
-
-			if specific_order_product is not None:
-				
-				specific_order_product.total_quantity += quantity
-				specific_order_product.remaining += quantity
-				specific_order_product.total_price += total_price
-				specific_order_product.total_point += total_point
-				specific_order_product.save()
-				orderdetailsserializers = OrderDetailsSerializer(specific_order_product , data=request.data)
-				if orderdetailsserializers.is_valid():
-					orderdetailsserializers.save()
-					return JsonResponse({'success':True ,'message':'The quantity has been updated'})
-				else:
-					return JsonResponse(orderdetailsserializers.errors)
-
-
-			else:
-				#create a new orderdetail for that order id if the product is bough for the first time 
-				orderdetails = OrderDetails.objects.create(order_id = order_id , product_id=productid,quantity=quantity,total_quantity=quantity,remaining=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size)
-				
-				orderdetails.save()
-				orderdetailsserializer = OrderDetailsSerializer(orderdetails , data=request.data)
-				if orderdetailsserializer.is_valid():
-					orderdetailsserializer.save()
-					return JsonResponse({'success':True ,'message':'The product has been added to your cart'})
-				else:
-					return JsonResponse(orderdetailsserializers.errors)
-				
-		# if no order for the user exists
-		else:
-			
-
-			#create a new Order 
-			order = Order.objects.create(non_verified_user_id = non_verified_user_id)
-			order.save()
-			orderserializer = OrderSerializer(order , data=request.data)
-			if orderserializer.is_valid():
-				orderserializer.save()
-			else:
-				return JsonResponse(orderserializer.errors)
-
-			
-			#create a new order details for the specific product for the specific order
-			orderdetails = OrderDetails.objects.create(order_id = order.id , product_id=productid,quantity=quantity,total_quantity=quantity,remaining=quantity,unit_price=unit_price,unit_point=unit_point,total_price=total_price,total_point=total_point,product_name=p_name,product_color=color,product_size=size)
-		
-			orderdetails.save()
-			orderdetailserializer = OrderDetailsSerializer(orderdetails, data=request.data)
-			if orderdetailserializer.is_valid():
-				orderdetailserializer.save()
-				return JsonResponse({'success':True,'message':'A new order with a order details has been created'})
-			else:
-				return JsonResponse(orderdetailserializer.errors)
+		return JsonResponse({'success':False,'message':'This product does not exist'})
 		
 
 
