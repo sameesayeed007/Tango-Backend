@@ -1575,17 +1575,27 @@ class inventory_report(models.Model):
 class OrderInfo(models.Model):
 
 
-    order_id = models.IntegerField(blank=False,default=-1)
-    billing_address_id = models.IntegerField(blank=False,default=-1)
-    area_id = models.IntegerField(blank=False,default=-1)
-    company_id = models.IntegerField(blank=False,default=-1)
+    order_id = models.IntegerField(blank=True,default=-1)
+    billing_address_id = models.IntegerField(blank=True,default=-1)
+    area_id = models.IntegerField(blank=True,default=-1)
+    company_id = models.IntegerField(blank=True,default=-1)
     company_name = models.CharField(max_length=264,blank=False,default= "")
     company_details = models.TextField(blank = True,default="")
-    delivery_type_id = models.IntegerField(blank=False,default=-1)
+    delivery_type_id = models.IntegerField(blank=True,default=-1)
     delivery_date = models.DateField(blank=True,default="")
-    days = models.IntegerField(blank=False,default=0)
-    host_site = models.CharField(max_length=264,blank=False,default= "")
-    location_id = models.IntegerField(blank=False,default=-1)
+    days = models.IntegerField(blank=True,default=0)
+    host_site = models.CharField(max_length=264,blank=True,default= "")
+    location_id = models.IntegerField(blank=True,default=-1)
     location_details = models.TextField(blank = True,default="")
-    payment_type = models.CharField(max_length=264,blank=False,default= "")
+    payment_type = models.CharField(max_length=264,blank=True,default= "")
     total_amount = models.FloatField(blank=True,default=0.00)
+
+
+
+class Invoice(models.Model):
+
+
+    order_id = models.IntegerField(blank=False,default=-1)
+    date = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    
+

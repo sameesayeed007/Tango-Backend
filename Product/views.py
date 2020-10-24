@@ -84,7 +84,7 @@ from django.db.models import Q
 from django.utils import timezone
 from django.db import transaction
 from Intense.Integral_apis import (
-    product_data_upload,category_data_upload,product_price_data_upload,
+    product_data_upload,category_data_upload,category1_data_upload,product_price_data_upload,
     product_specification_data_upload,product_point_data_upload,
     create_product_code,product_discount_data_upload,product_image_data_upload,product_data_update,price_update,
     discount_data_update,point_data_update,specification_data_update,group_product_data_update,group_product_data_modification
@@ -1862,7 +1862,7 @@ def product_insertion_admin(request):
         
         try:
             #print("dbcudbfdbcducbducbducbducbd")
-            category_values= category_data_upload (category_data_value)
+            category_values= category1_data_upload (category_data_value)
             #print(category_values)
             category_data = category_values.json()
             #print(category_data)

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from django.contrib.auth.models import User
-from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,ProductSpecification,ProductImage
+from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,ProductSpecification,ProductImage,OrderInfo,Invoice
 from Intense.models import discount_product,Cupons
 from django.utils import timezone
 from colour import Color
@@ -649,3 +649,16 @@ class ProductSpecificationSerializer(serializers.ModelSerializer):
  
     #     return colorhex
 
+
+
+class OrderInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderInfo
+        fields="__all__"
+
+
+class InvoiceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Invoice
+        fields="__all__"

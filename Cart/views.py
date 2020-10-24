@@ -5,10 +5,11 @@ from rest_framework.parsers import JSONParser
 from rest_framework import status
 import datetime
  
-from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,discount_product,ProductImpression,Profile,Cupons,ProductSpecification,CompanyInfo
+from Intense.models import Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,discount_product,ProductImpression,Profile,Cupons,ProductSpecification,CompanyInfo,OrderInfo,Invoice
 
-from Cart.serializers import ProductSerializer, OrderSerializer,OrderSerializerz,OrderSerializerzz,OrderDetailsSerializer,ProductPriceSerializer,UserzSerializer,BillingAddressSerializer,ProductPointSerializer
+from Cart.serializers import ProductSerializer, OrderSerializer,OrderSerializerz,OrderSerializerzz,OrderDetailsSerializer,ProductPriceSerializer,UserzSerializer,BillingAddressSerializer,ProductPointSerializer,OrderInfoSerializer,InvoiceSerializer
 from Product_details.serializers import ProductImpressionSerializer,ProductSpecificationSerializer
+from Site_settings.serializers import CompanyInfoSerializer
 from rest_framework.decorators import api_view 
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
@@ -2766,6 +2767,143 @@ def send_info(request,order_id):
 
 
 	return JsonResponse({'success':True,'message':'Data is shown below','company_name':company_name,'order_info':order_info,'billing_address':address_data,'other_info':data })
+
+
+
+
+
+#Insertion for the the order info api
+@api_view(['POST',])
+def order_info(request):
+
+
+	order_info_serializer = OrderInfoSerializer(data=request.data)
+	if order_info_serializer.is_valid():
+		order_info_serializer.save()
+		return JsonResponse({'success':True,'message':'Data has been inserted successfully','data':order_info_serializer.data})
+
+	else:
+
+		print(order_info_serializer.errors)
+		return JsonResponse({'success':False,'message':'Data could not be inserted'})
+
+
+
+@api_view(['POST',])
+def create_invoice(request,order_id):
+
+	data = {'order_id':order_id}
+
+	invoice_serializer = InvoiceSerializer(data=data)
+	if invoice_serializer.is_valid():
+		invoice_serializer.save()
+
+		invoice_data = invoice_serializer.data
+
+		#fetch the company Info
+
+		try:
+
+			company_info = CompanyInfo.objects.all()[0:1].get()
+
+
+		except:
+
+			company_info = None
+
+
+		if company_info:
+
+			company_info_serializer = CompanyInfoSerializer(company_info,many=False)
+			company_data = company_info_serializer.data
+
+		else:
+
+			company_data = {}
+
+
+		#Fetch the orderdetails 
+
+
+		try:
+
+			specific_order = Order.objects.get(id=order_id,admin_status="Confirmed")
+
+		except:
+
+			specific_order = None 
+
+
+		if specific_order:
+
+			order_serializer = OrderSerializer(specific_order,many=False)
+			order_data = order_serializer.data
+
+		else:
+
+			order_data = {}
+
+
+		#Fetch the billing address 
+
+		try:
+
+			order_info = OrderInfo.objects.get(order_id=order_id)
+
+		except:
+
+			order_info = None
+
+		if order_info:
+
+
+
+			billing_address_id = order_info.billing_address_id
+
+			try:
+
+				billing_address = BillingAddress.objects.get(id = billing_address_id)
+
+			except:
+
+				billing_address = None
+
+			if billing_address:
+
+				billing_address_serializer = BillingAddressSerializer(billing_address,many=False)
+				billing_address_data = billing_address_serializer.data
+
+			else:
+
+				billing_address_data = {}
+
+
+		else:
+
+			billing_address_data = {}
+
+
+
+		return JsonResponse({'success':True,'message':'Invoice created successfully','invoice_data':invoice_data,'order_data':order_data,'billing_address_data':billing_address_data,'company_data':company_data})
+
+	else:
+
+		return JsonResponse({'sucess':False,'message':'Data is not inserted'})
+
+
+
+
+			
+
+
+
+
+
+
+
+
+
+
 
 
 
