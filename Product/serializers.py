@@ -861,10 +861,29 @@ class SearchSerializer(serializers.ModelSerializer):
 
             if p_discount is not None:
 
-                discount = p_discount.amount
-                discount_start_date = p_discount.start_date
-                discount_end_date = p_discount.end_date
                 current_date = timezone.now().date()
+
+                if p_discount.amount:
+
+                    discount = p_discount.amount
+
+                else:
+                    discount = 0
+
+
+                if p_discount.start_date:
+
+                    discount_start_date = p_discount.start_date
+
+                else:
+                    discount_start_date = current_date
+
+                if p_discount.end_date:
+                    discount_end_date = p_discount.end_date
+
+                else:
+                    discount_end_date = current_date
+                
 
                 if (current_date >= discount_start_date) and (current_date <= discount_end_date):
 

@@ -1750,6 +1750,8 @@ def product_insertion_admin(request):
     date = timezone.now().date()
 
     # print(request.data['brand'])
+
+
   
 
 
@@ -1773,7 +1775,7 @@ def product_insertion_admin(request):
             'unit':request.data.get("unit"),
             'key_features':features,
             'is_deleted': False,
-            'properties': False
+            'properties': request.data.get("properties")
         }
 
 
@@ -1793,7 +1795,7 @@ def product_insertion_admin(request):
             'unit':request.data.get("unit"),
             'key_features':features,
             'is_deleted': False,
-            'properties': False
+            'properties': request.data.get("properties")
         }
 
 
