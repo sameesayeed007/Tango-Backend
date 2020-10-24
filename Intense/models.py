@@ -190,6 +190,18 @@ class user_relation (models.Model):
     verified_user_id = models.IntegerField (blank = True, null = True,default=-1)
     non_verified_user_id = models.IntegerField (blank = True, null = True,default=-1)
 
+
+class user_supervisor_relation (models.Model):
+    supervisor_id = models.IntegerField (blank = True, null = True,default=0)
+    user_id = models.IntegerField (blank = True, null = True)
+
+class ActivityLog(models.Model):
+    user_id = models.IntegerField (blank = True, null = True)
+    activity_name = models.CharField(max_length=255,blank=True,null=True,default="")
+    time = models.DateTimeField (auto_now_add=True)
+    activity_id = models.IntegerField (blank = True, null = True)
+
+
 # class DeactivateUser(TimeStampedModel):
 #     user = models.OneToOneField(User, related_name='deactivate', on_delete=models.CASCADE)
 #     deactive = models.BooleanField(default=True)
@@ -894,6 +906,8 @@ class ProductCode (models.Model):
     date = models.DateField(auto_now_add=True)
     product_id = models.IntegerField(blank = False, null = True)
     Barcode = models.CharField(max_length = 264,null = True, blank = False)
+    SKU = models.CharField(max_length = 264,null = True, blank = False)
+    SKU_img = models.CharField(max_length = 264,null = True, blank = False)
 
 #------------------------- Product Discount ---------------------------------
 
