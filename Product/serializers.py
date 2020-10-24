@@ -287,6 +287,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class ProductAdminSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField(method_name='get_images')
+    purchase_price = serializers.SerializerMethodField(method_name='get_purchase_price')
     new_price = serializers.SerializerMethodField(method_name='get_new_price')
     old_price = serializers.SerializerMethodField(method_name='get_old_price')
     specification = serializers.SerializerMethodField(method_name='get_specification')
@@ -305,10 +306,11 @@ class ProductAdminSerializer(serializers.ModelSerializer):
 
 
 
+
     #comment_name = serializers.SerializerMethodField(method_name='get_name')
     class Meta:
         model = Product
-        fields = ('id','seller_name','product_admin_status','title','brand','date','description','key_features','properties','unit','warranty','origin','shipping_country','old_price','new_price','discount_type','discount_amount','discount_start_date','discount_end_date','point','point_start_date','point_end_date','images','specification','quantity','category','sub_category','sub_sub_category')
+        fields = ('id','seller_name','product_admin_status','title','brand','date','description','key_features','properties','unit','warranty','origin','shipping_country','purchase_price','old_price','new_price','discount_type','discount_amount','discount_start_date','discount_end_date','point','point_start_date','point_end_date','images','specification','quantity','category','sub_category','sub_sub_category')
 
     def get_images(self,instance):
         try:
@@ -345,6 +347,33 @@ class ProductAdminSerializer(serializers.ModelSerializer):
         if p_price is not None:
 
             old_price =p_price.price
+
+        else:
+            old_price = 0
+
+
+        float_total = format(old_price, '0.2f')
+        return float_total
+
+
+    def get_purchase_price(self,instance):
+
+        old_price = 0 
+
+
+        try:
+
+
+            p_price = ProductPrice.objects.filter(product_id = instance.id).last()
+
+        except:
+
+            p_price = None 
+
+
+        if p_price is not None:
+
+            old_price =p_price.purchase_price
 
         else:
             old_price = 0
