@@ -1723,7 +1723,7 @@ def product_insertion_admin(request):
 
     # print(len(data))
 
-    count = len(data)-19
+    count = len(data)-20
     # print(count)
 
     # print(request.data.get("Warranty"))
