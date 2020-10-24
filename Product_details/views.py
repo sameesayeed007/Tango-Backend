@@ -2085,17 +2085,32 @@ def get_all_quantity_list(request,specification_id):
         try:
             warehouse_values = []
             shop_values= []
+            warehouse_ids=[]
+            shop_ids=[]
             warehouse_query = WarehouseInfo.objects.filter(specification_id = specification_id)
-            print("here ware", warehouse_query)
-            if warehouse_query:
-                warehouse_serializer = NewWarehouseInfoSerializer(warehouse_query,many = True)
-                warehouse_values.append(warehouse_serializer.data)
+            wh_name = Warehouse.objects.all()
+            for wq in warehouse_query:
+                warehouse_data = Warehouse.objects.get(id= wq.warehouse_id)
+                wh_data = {"warehouse_id":warehouse_data.id, "previous_quantity":wq.quantity, "warehouse_name":warehouse_data.warehouse_name}
+                warehouse_values.append(wh_data)
+                warehouse_ids.append(wq.warehouse_id)
+            for warehouse in wh_name:
+                if warehouse.id not in warehouse_ids:
+                    wh_data = {"warehouse_id":warehouse.id, "previous_quantity":0, "warehouse_name":warehouse.warehouse_name}
+                    warehouse_values.append(wh_data)
             
             shopinfo_query = ShopInfo.objects.filter(specification_id = specification_id)
+            all_shops = Shop.objects.all()
             for shop in shopinfo_query:
                 shop_data = Shop.objects.get(id= shop.shop_id)
-                datas= {"id":shop.id, "previous_quantity":shop.quantity, "shop_name":shop_data.shop_name}
+                datas= {"shop_id":shop.id, "previous_quantity":shop.quantity, "shop_name":shop_data.shop_name}
                 shop_values.append(datas)
+                shop_ids.append(shop.id)
+            
+            for shops in all_shops:
+                if shops.id not in shop_ids:
+                    datas= {"shop_id":shops.id, "previous_quantity":0, "shop_name":shops.shop_name}
+                    shop_values.append(datas)
 
             return JsonResponse({
                 "success":True,
