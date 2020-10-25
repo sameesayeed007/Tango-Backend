@@ -22,6 +22,8 @@ from django.http import HttpResponseRedirect
 from django.conf import settings
 from colour import Color
 from rest_framework.response import Response
+from django.contrib.sites.models import Site
+
 
 
 @api_view(['POST',])
