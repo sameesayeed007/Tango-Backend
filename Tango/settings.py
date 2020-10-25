@@ -141,7 +141,7 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ecommerce2',
+        'NAME': 'test',
         'USER': 'postgres',
         'PASSWORD': '12345',
         'HOST': 'localhost',
