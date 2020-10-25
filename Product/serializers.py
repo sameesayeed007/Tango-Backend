@@ -235,6 +235,8 @@ class ProductSerializer(serializers.ModelSerializer):
             colors = list(p_spec.values_list('color',flat=True).distinct())
             sizes = list(p_spec.values_list('size',flat=True).distinct())
             #units = list(p_spec.values_list('unit',flat=True).distinct())
+            colors.remove(None)
+            sizes.remove(None)
 
             arr =  {'colors':colors,'sizes':sizes}
 
