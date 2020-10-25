@@ -1607,9 +1607,13 @@ class OrderInfo(models.Model):
 
 
 class Invoice(models.Model):
-
-
     order_id = models.IntegerField(blank=False,default=-1)
     date = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+
+class ProductBrand (models.Model):
+    Brand_name = models.CharField(max_length=264,blank=True,default= "")
+    Brand_owner = models.CharField(max_length=264,blank=True,default= "")
+    Brand_country = models.CharField(max_length=264,blank=True,default= "")
+    created_date = models.DateField (auto_now_add=True,blank=True,null=True)
     
 

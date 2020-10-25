@@ -6,8 +6,10 @@ from rest_framework import status
 import datetime
  
 from Intense.models import (Product,Order,OrderDetails,ProductPrice,Userz,BillingAddress,ProductPoint,ProductSpecification,
-user_relation,Cupons,Comment,CommentReply,Reviews,discount_product,Warehouse,Shop,WarehouseInfo,ShopInfo,WarehouseInfo,inventory_report)
-from Product_details.serializers import ProductPriceSerializer,ProductPointSerializer,ProductSpecificationSerializer,ProductSpecificationSerializerz,ProductDetailSerializer,CupponSerializer,ProductDiscountSerializer,WarehouseSerializer,ShopSerializer,WarehouseInfoSerializer,ShopInfoSerializer,NewWarehouseInfoSerializer
+user_relation,Cupons,Comment,CommentReply,Reviews,discount_product,Warehouse,Shop,WarehouseInfo,ShopInfo,WarehouseInfo,inventory_report,ProductBrand)
+from Product_details.serializers import (ProductPriceSerializer,ProductPointSerializer,ProductSpecificationSerializer,
+ProductSpecificationSerializerz,ProductDetailSerializer,CupponSerializer,ProductDiscountSerializer,
+WarehouseSerializer,ShopSerializer,WarehouseInfoSerializer,ShopInfoSerializer,NewWarehouseInfoSerializer,AddBrandSerializer)
 from Cart.serializers import OrderDetailsSerializer,OrderSerializer
 from rest_framework.decorators import api_view 
 from django.views.decorators.csrf import csrf_exempt
@@ -20,6 +22,8 @@ from django.http import HttpResponseRedirect
 from django.conf import settings
 from colour import Color
 from rest_framework.response import Response
+from django.contrib.sites.models import Site
+
 
 
 @api_view(['POST',])
@@ -2124,4 +2128,94 @@ def get_all_quantity_list(request,specification_id):
             return JsonResponse({
                 "success":False,
                 "message":"Something went wrong"
+                })
+
+
+@api_view (["GET","POST"])
+def create_all_brand(request):  
+
+    if request.method == 'POST':
+        try:
+            serializer = AddBrandSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return JsonResponse({
+                    "success":True,
+                    "message":"Brand has been inserted successfully",
+                    "data":serializer.data
+                    })
+        except:
+              return JsonResponse({
+                    "success":False,
+                    "message":"SSomething Went wrong"
+                    })
+      
+
+
+@api_view (["GET","POST"])
+def get_all_brand(request):  
+
+    if request.method == 'GET':
+        try:
+            brand_query = ProductBrand.objects.all()
+            brand_serializers = AddBrandSerializer (brand_query, many = True)
+            return JsonResponse({
+                "success":True,
+                "message":"Brand has been retrived successfully",
+                "data":brand_serializers.data
+                })
+        except:
+              return JsonResponse({
+                    "success":False,
+                    "message":"SSomething Went wrong"
+                    })
+      
+@api_view (["GET","POST"])
+def delete_specific_brand(request,brand_id):
+    if request.method == 'POST':  
+        try:
+            product_brand = ProductBrand.objects.get(id = brand_id)
+        except:
+            product_brand = None 
+        if product_brand:
+            if product_brand.Brand_name == "Individual":
+                return JsonResponse({
+                    "success":False,
+                    "message":"You are not allowed to delete Individual Brand"})
+            else:
+                product_brand.delete()
+                return JsonResponse({
+                    "success":True,
+                    "message":"Desired Brand has been deleted successfully"})
+        else:
+            return JsonResponse({
+                "success":False,
+                "message":"Desired Brand does not exist"
+                })
+
+
+@api_view (["GET","POST"])
+def update_specific_brand(request,brand_id):
+    if request.method == 'POST':  
+        try:
+            product_brand = ProductBrand.objects.get(id = brand_id)
+        except:
+            product_brand = None 
+        if product_brand:
+            if product_brand.Brand_name == "Individual":
+                return JsonResponse({
+                    "success":False,
+                    "message":"You are not allowed to modify Individual Brand"})
+            else:
+                brand_serializers = AddBrandSerializer (product_brand, data = request.data)
+                if brand_serializers.is_valid():
+                    brand_serializers.save()
+                    return JsonResponse({
+                        "success":True,
+                        "message":"Desired Brand has been modified successfully",
+                        "data": brand_serializers.data})
+        else:
+            return JsonResponse({
+                "success":False,
+                "message":"Desired Brand does not exist"
                 })

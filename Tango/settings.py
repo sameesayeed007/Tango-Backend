@@ -141,7 +141,7 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ecommerce11',
+        'NAME': 'ecommerce2',
         'USER': 'postgres',
         'PASSWORD': '12345',
         'HOST': 'localhost',
@@ -197,7 +197,7 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-SITE_ID = 1
+SITE_ID = 2
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/

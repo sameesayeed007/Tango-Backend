@@ -58,6 +58,9 @@ urlpatterns = [
     path('shop_products/<int:shop_id>/', views.shop_products),
     path('quantity_info/<int:specification_id>/', views.get_all_quantity_list),
     # path('subtract_items/', views.subtract_items),
+    path('create_brand/', views.create_all_brand),
+    path('get_brands/', views.get_all_brand),
+    path('delete_brand/<int:brand_id>/', views.delete_specific_brand),
+    path('update_brand/<int:brand_id>/', views.update_specific_brand),
 
-  
 ]

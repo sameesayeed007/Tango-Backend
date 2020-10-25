@@ -98,6 +98,7 @@ import PIL
 from django.conf import settings
 import os
 from django.utils import timezone
+from django.contrib.sites.models import Site
 
 # -------------------- Product -----------------------
 @api_view(['POST',])
@@ -1555,12 +1556,12 @@ def delete_review(request,review_id):
 def get_specific_code_values(request,product_id,height,width):
     '''
     This Api is for getting an individual product code. Calling http://127.0.0.1:8000/code/value/product_id/150/250
-    will cause to invoke this API. While getting values, user may specify the image size in which user expects it. This valu need to be passed
+    will cause to invoke this API. While getting values, user may specify the image size in which user expects it. This value need to be passed
     as a parameter.
 
         GET Response:
             While performing get response this API will give a JSON response. As a response it will provide the following data.
-            Barcode_img : (barcode will be an image. While retreiving this will be the url of the barcode image.)
+            Barcode_img : (barcode will be an image. While retreiving, this will be the url of the barcode image.)
             Date : (This is the date on wchich the product code is been created.)
             Barcode : This will be the product barcode. Based on this later, the product can be found.
     '''
@@ -1594,22 +1595,55 @@ def insert_specific_code_values(request):
     if request.method == "POST":
         # demo values
         values = request.data
+        your_domain = Site.objects.get_current().domain
 
         bar = barcode.get_barcode_class('code39')
-        bar_value = bar(str(values['product_id']), writer = ImageWriter())
+        bar_value = bar(your_domain+str(values['product_id']), writer = ImageWriter())
 
         if not os.path.exists(settings.MEDIA_DIR+'/barcode/'):
             os.makedirs(settings.MEDIA_DIR+'/barcode/')
         bar_value.save(settings.MEDIA_DIR+'/barcode/'+ str(values['product_id']))
         url = settings.MEDIA_DIR+'/barcode/' + str(values['product_id'])+'.png'
 
-        data_values  = {'product_id' : values['product_id'], 'Barcode_img' : url, 'Barcode' : str((values['product_id'])) }
+        data_values  = {'product_id' : values['product_id'], 'Barcode_img' : url, 'Barcode' : your_domain+str((values['product_id'])) }
 
         code_serializer_value = ProductCodeSerializer (data= data_values)
         if(code_serializer_value.is_valid()):
             code_serializer_value.save()
             return Response (code_serializer_value.data, status=status.HTTP_201_CREATED)
         return Response (code_serializer_value.errors)
+
+# @api_view (["GET","POST"])
+# def insert_specific_code_values(request):
+#     '''
+#     This is for creating barcode for a particular product and insert it into the database. Calling http://127.0.0.1:8000/code/insert_value/ will 
+#     cause to invoke this API. This api has just post response.
+
+#     POST Response:
+#         While performing post response this api requires just the product id. Based on that product id this api will generate the product code 
+#         and will save the code as an image data into the media folder. At a same time it will store the image url into database Barcode field.
+    
+#     '''
+#     if request.method == "POST":
+#         # demo values
+#         values = request.data
+#         your_domain = Site.objects.get_current().domain
+
+#         bar = barcode.get_barcode_class('code39')
+#         bar_value = bar(str(values['product_id']), writer = ImageWriter())
+
+#         if not os.path.exists(settings.MEDIA_DIR+'/barcode/'):
+#             os.makedirs(settings.MEDIA_DIR+'/barcode/')
+#         bar_value.save(settings.MEDIA_DIR+'/barcode/'+ str(values['product_id']))
+#         url = settings.MEDIA_DIR+'/barcode/' + str(values['product_id'])+'.png'
+
+#         data_values  = {'product_id' : values['product_id'], 'Barcode_img' : url, 'Barcode' : str((values['product_id'])) }
+
+#         code_serializer_value = ProductCodeSerializer (data= data_values)
+#         if(code_serializer_value.is_valid()):
+#             code_serializer_value.save()
+#             return Response (code_serializer_value.data, status=status.HTTP_201_CREATED)
+#         return Response (code_serializer_value.errors)
 
 
 @api_view (["GET","POST"])
