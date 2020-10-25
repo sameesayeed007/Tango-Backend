@@ -681,6 +681,7 @@ class Category(models.Model):
     title = models.CharField(max_length=120, unique=True,null=True,blank=True)
     category_id = models.IntegerField(default=-1)
     active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
     level = models.CharField(max_length=120, default="First")
     #slug = models.SlugField(unique=True)
     #active = models.BooleanField(default=True)
@@ -717,6 +718,7 @@ class Sub_Category(models.Model):
     sub_category_id = models.IntegerField(default=-1)
     title = models.CharField(max_length=120,default="None",null=True,blank=True)
     active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
     level = models.CharField(max_length=120,default="Second")
     #slug = models.SlugField(unique=True)
     #active = models.BooleanField(default=True)
@@ -804,6 +806,7 @@ class Sub_Sub_Category(models.Model):
     #active = models.BooleanField(default=True)
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     sub_sub_category_id = models.IntegerField(default=-1)
+    is_active = models.BooleanField(default=False)
 
     @property
     def sub(self):

@@ -96,6 +96,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
         if replys:
             list_result = [entry for entry in replys] 
+            print(list_result)
 
         else:
             list_result = []

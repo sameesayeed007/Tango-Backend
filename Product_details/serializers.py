@@ -10,8 +10,8 @@ from django.urls import reverse,reverse_lazy
 #from Intense.Integral_apis import ratings
 import json
 
-site_path = "http://127.0.0.1:8000/"
-#site_path = "https://tango99.herokuapp.com/"
+#site_path = "http://127.0.0.1:8000/"
+site_path = "https://tango99.herokuapp.com/"
 # site_path = "http://128.199.66.61:8080/"
 #site_path = "https://tes.com.bd/"
 

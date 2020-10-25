@@ -82,7 +82,7 @@ def insert_category(request):
 					new_sub_sub_category = Sub_Sub_Category.objects.create(title=sub_sub_category,sub_category_id=sub_category_id)
 					new_sub_sub_category.save()
 					sub_sub_category_id = new_sub_sub_category.id
-					sub_sub_categoryserializer = Sub_Sub_CategorySerializer(new_sub_category , data=request.data)
+					sub_sub_categoryserializer = Sub_Sub_CategorySerializer(new_sub_sub_category , data=request.data)
 					if sub_sub_categoryserializer.is_valid():
 						sub_sub_categoryserializer.save()
 					else:
@@ -142,7 +142,7 @@ def insert_category(request):
 						new_sub_sub_category = Sub_Sub_Category.objects.create(title=sub_sub_category,sub_category_id=sub_category_id)
 						new_sub_sub_category.save()
 						sub_sub_category_id = new_sub_sub_category.id
-						sub_sub_categoryserializer = Sub_Sub_CategorySerializer(new_sub_category , data=request.data)
+						sub_sub_categoryserializer = Sub_Sub_CategorySerializer(new_sub_sub_category , data=request.data)
 						if sub_sub_categoryserializer.is_valid():
 							sub_sub_categoryserializer.save()
 						else:
@@ -575,7 +575,7 @@ def allcategories1(request):
 	try:
 
 
-		categories = Category.objects.filter(active=True)
+		categories = Category.objects.filter(is_active=True)
 
 	except:
 
@@ -823,12 +823,14 @@ def insert_category1(request):
 
 			#Create a new category
 
-			new_category = Category.objects.create(title=category,active=True)
+			new_category = Category.objects.create(title=category,is_active=True)
 			new_category.save()
 			category_id = new_category.id
 			categoryserializer = CategorySerializer(new_category , data=request.data)
 			if categoryserializer.is_valid():
 				categoryserializer.save()
+				new_category.is_active = True
+				new_category.save()
 			else:
 				return JsonResponse(categoryserializer.errors)
 
@@ -839,12 +841,14 @@ def insert_category1(request):
 
 				#Create a sub category for that category
 
-				new_sub_category = Sub_Category.objects.create(title=sub_category,category_id=category_id,active=True)
+				new_sub_category = Sub_Category.objects.create(title=sub_category,category_id=category_id,is_active=True)
 				new_sub_category.save()
 				sub_category_id = new_sub_category.id
 				sub_categoryserializer = Sub_CategorySerializer(new_sub_category , data=request.data)
 				if sub_categoryserializer.is_valid():
 					sub_categoryserializer.save()
+					new_sub_category.is_active = True
+					new_sub_category.save()
 				else:
 					return JsonResponse(sub_categoryserializer.errors)
 
@@ -858,12 +862,14 @@ def insert_category1(request):
 
 					#Create a sub sub category for that sub category
 
-					new_sub_sub_category = Sub_Sub_Category.objects.create(title=sub_sub_category,sub_category_id=sub_category_id,active=True)
+					new_sub_sub_category = Sub_Sub_Category.objects.create(title=sub_sub_category,sub_category_id=sub_category_id,is_active=True)
 					new_sub_sub_category.save()
 					sub_sub_category_id = new_sub_sub_category.id
-					sub_sub_categoryserializer = Sub_Sub_CategorySerializer(new_sub_category , data=request.data)
+					sub_sub_categoryserializer = Sub_Sub_CategorySerializer(new_sub_sub_category , data=request.data)
 					if sub_sub_categoryserializer.is_valid():
 						sub_sub_categoryserializer.save()
+						new_sub_sub_category.is_active = True
+						new_sub_sub_category.save()
 					else:
 						return JsonResponse(sub_sub_categoryserializer.errors)
 
@@ -901,7 +907,7 @@ def insert_category1(request):
 
 			if current_category:
 
-				current_category.active = True
+				current_category.is_active = True
 				current_category.save()
 
 			existing_subs = Sub_Category.objects.filter(category_id=category_id).order_by('timestamp')
@@ -916,12 +922,14 @@ def insert_category1(request):
 
 					#Create a  new sub category for that category
 
-					new_sub_category = Sub_Category.objects.create(title=sub_category,category_id=category_id,active=True)
+					new_sub_category = Sub_Category.objects.create(title=sub_category,category_id=category_id,is_active=True)
 					new_sub_category.save()
 					sub_category_id = new_sub_category.id
 					sub_categoryserializer = Sub_CategorySerializer(new_sub_category , data=request.data)
 					if sub_categoryserializer.is_valid():
 						sub_categoryserializer.save()
+						new_sub_category.is_active = True 
+						new_sub_category.save()
 					else:
 						return JsonResponse(sub_categoryserializer.errors)
 
@@ -933,12 +941,14 @@ def insert_category1(request):
 
 						#Create a sub sub category for that sub category
 
-						new_sub_sub_category = Sub_Sub_Category.objects.create(title=sub_sub_category,sub_category_id=sub_category_id,active=True)
+						new_sub_sub_category = Sub_Sub_Category.objects.create(title=sub_sub_category,sub_category_id=sub_category_id,is_active=True)
 						new_sub_sub_category.save()
 						sub_sub_category_id = new_sub_sub_category.id
 						sub_sub_categoryserializer = Sub_Sub_CategorySerializer(new_sub_category , data=request.data)
 						if sub_sub_categoryserializer.is_valid():
 							sub_sub_categoryserializer.save()
+							new_sub_sub_category.is_active = True 
+							new_sub_sub_category.save()
 						else:
 							return JsonResponse(sub_sub_categoryserializer.errors)
 
@@ -983,7 +993,7 @@ def insert_category1(request):
 
 					if current_sub_category:
 
-						current_sub_category.active = True 
+						current_sub_category.is_active = True 
 						current_sub_category.save()
 							
 
@@ -1000,12 +1010,14 @@ def insert_category1(request):
 
 							#Create a new sub_sub_category
 
-							new_sub_sub_category = Sub_Sub_Category.objects.create(title=sub_sub_category,sub_category_id=sub_category_id,active=True)
+							new_sub_sub_category = Sub_Sub_Category.objects.create(title=sub_sub_category,sub_category_id=sub_category_id,is_active=True)
 							new_sub_sub_category.save()
 							sub_sub_category_id = new_sub_sub_category.id
 							sub_sub_categoryserializer = Sub_Sub_CategorySerializer(new_sub_sub_category , data=request.data)
 							if sub_sub_categoryserializer.is_valid():
 								sub_sub_categoryserializer.save()
+								new_sub_sub_category.is_active = True 
+								new_sub_sub_category.save()
 
 							#print(sub_sub_category_id)
 
@@ -1028,7 +1040,7 @@ def insert_category1(request):
 								current_sub_sub_category = None
 
 							if current_sub_sub_category:
-								current_sub_sub_category.active = True 
+								current_sub_sub_category.is_active = True 
 								current_sub_sub_category.save()
 
 					else:
