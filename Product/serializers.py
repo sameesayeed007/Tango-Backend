@@ -848,6 +848,8 @@ class SearchSerializer(serializers.ModelSerializer):
 
         if p_price is not None:
 
+
+
             old_price =p_price.price
 
         else:
@@ -960,6 +962,8 @@ class SearchSerializer(serializers.ModelSerializer):
             colors = list(p_spec.values_list('color',flat=True).distinct())
             sizes = list(p_spec.values_list('size',flat=True).distinct())
             #units = list(p_spec.values_list('unit',flat=True).distinct())
+            colors.remove(None)
+            colors.remove(None)
 
             arr =  {'colors':colors,'sizes':sizes}
 

@@ -225,17 +225,21 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
         if p_spec:
 
-            print("duhbduhfbrfbrfhbgfbfhvbf")
+            
 
             colors = list(p_spec.values_list('color',flat=True).distinct())
+            print(colors)
             sizes = list(p_spec.values_list('size',flat=True).distinct())
+            print(sizes)
             # units = list(p_spec.values_list('unit',flat=True).distinct())
-            if sizes == [None]:
-                sizes= []
+            colors.remove(None)
+            sizes.remove(None)
+            # if sizes == [None]:
+            #     sizes= []
 
 
-            if colors == [None]:
-                colors = []
+            # if colors == [None]:
+            #     colors = []
 
             arr =  {'colors':colors,'sizes':sizes}
 

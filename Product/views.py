@@ -195,15 +195,19 @@ def display_products(request,number):
     popular = []
     group=[]
     current_date = timezone.now()
+    data = []
 
 
     try:
         
-        latest_products = Product.objects.filter(is_deleted=False).order_by('date')
+        latest_products = Product.objects.filter(is_deleted=False).order_by('-date')
         #this fetches all the comment ids
         
     except:
         latest_products = None
+
+
+    
 
    
 
@@ -219,10 +223,20 @@ def display_products(request,number):
 
         latest = []
 
+
+    if int(len(latest))>0:
+
+
+        dic1 = {'name':'New Arrivals','products':latest}
+        data.append(dic1)
+
+
+
+
     
     try:
         
-        group_products = Product.objects.filter(is_group = True,is_deleted=False).order_by('date')
+        group_products = Product.objects.filter(is_group = True,is_deleted=False).order_by('-date')
         #this fetches all the comment ids
         
     except:
@@ -241,6 +255,15 @@ def display_products(request,number):
     else: 
 
         group = []
+
+
+    if int(len(group)) > 0:
+
+        dic2 = {'name':'group Product','products':group}
+
+        data.append(dic2)
+        
+
 
 
     try:
@@ -264,7 +287,7 @@ def display_products(request,number):
         try:
             
 
-            discounted_products = Product.objects.filter(pk__in=discounted_product_ids, is_deleted=False)
+            discounted_products = Product.objects.filter(pk__in=discounted_product_ids, is_deleted=False).order_by('-date')
 
         except:
 
@@ -289,19 +312,34 @@ def display_products(request,number):
         discount = []
 
 
+    if int(len(discount))>0:
+
+        dic3 = {'name':'On Sale','products':discount}
+        data.append(dic3)
+
+
+
     try:
 
-        popular_products = ProductImpression.objects.order_by('-sales_count')[:number]
+        popular_products =  ProductImpression.objects.order_by('-sales_count')
         #print(popular_products)
 
     except:
 
         popular_products = None
 
+    print("impression")
+    print(popular_products)
+
     if popular_products:
 
         #Fetch the product ids 
         product_ids = list(popular_products.values_list('product_id' , flat = True))
+        print("imression")
+
+
+        print(product_ids)
+
 
         try:
 
@@ -310,6 +348,10 @@ def display_products(request,number):
         except:
 
             pop_products = None
+
+
+
+        print(pop_products)
 
 
         if pop_products:
@@ -328,9 +370,15 @@ def display_products(request,number):
     else:
 
         popular = []
+
+
+    if int(len(popular)) > 0:
+
+        dic4 = {'name':'Popular','products':popular}
+        data.append(dic4)
   
-    data = [{'name':'New Arrivals','products':latest},{'name':'On Sale','products':discount},{'name':'Popular','products':popular},
-    {'name':'group Product', 'products':group}]
+    # data = [{'name':'New Arrivals','products':latest},{'name':'On Sale','products':discount},{'name':'Popular','products':popular},
+    # {'name':'group Product', 'products':group}]
 
 
 
@@ -356,7 +404,7 @@ def show_more(request):
 
     try:
         
-        latest_products = Product.objects.filter(is_deleted=False).order_by('date')
+        latest_products = Product.objects.filter(is_deleted=False).order_by('-date')
         #this fetches all the comment ids
         
     except:
